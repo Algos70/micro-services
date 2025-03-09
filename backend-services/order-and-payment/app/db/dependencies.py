@@ -1,5 +1,5 @@
 """ Database dependencies """
-from app.db.base import SessionLocal
+from db.base import SessionLocal
 
 def get_db():
     db = SessionLocal()
