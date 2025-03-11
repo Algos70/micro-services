@@ -8,7 +8,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id = Column(String(36), primary_key=True, index=True, default=generate_uuid)
-    user_email = Column(String(100), nullable=False, index=True)
+    user_email = Column(String(100), nullable=False, index=True, unique=True)
     vendor_email = Column(String(100), nullable=False)
     description = Column(String(255))
     order_date = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
@@ -19,7 +19,7 @@ class Order(Base):
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
     payment = relationship("Payment", back_populates="order", uselist=False)
 
-    def __init__(self, email: str, vendor_email: str, total_price: float, delivery_address: str,
+    def __init__(self, user_email: str, vendor_email: str, total_price: float, delivery_address: str,
                  description: str = None, delivery_date = None, status: str = "Pending"):
         """
         Initializes a new Order instance.
@@ -32,7 +32,7 @@ class Order(Base):
         :param delivery_date: Optional scheduled delivery date.
         :param status: Order status (default is "Pending").
         """
-        self.email = email
+        self.user_email = user_email
         self.vendor_email = vendor_email
         self.total_price = total_price
         self.delivery_address = delivery_address
