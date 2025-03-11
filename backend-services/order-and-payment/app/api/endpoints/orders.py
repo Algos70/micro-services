@@ -5,7 +5,12 @@ from fastapi.params import Depends
 from sqlalchemy.orm import Session
 from schemas.order_schema import OrderCreate
 from db.dependencies import get_db
-from services.order_service import create_order, get_all_orders, get_user_orders
+from services.order_service import (
+    create_order, 
+    get_all_orders, 
+    get_user_orders, 
+    get_order_by_id
+    )
 
 router = APIRouter(
     prefix="/orders",
@@ -27,6 +32,14 @@ def fetch_user_orders(email: str, db: Session = Depends(get_db)):
     """
     orders = get_user_orders(db, email)
     return orders
+
+@router.get("/{order_id}")
+def fetch_order_by_id(order_id: str, db: Session = Depends(get_db)):
+    """
+    Retrieve an order by its ID.
+    """
+    order = get_order_by_id(db, order_id)
+    return order
 
 @router.post("/", status_code=201)
 def create_new_order(order: OrderCreate, db: Session = Depends(get_db)):
