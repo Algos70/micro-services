@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from models.payment import Payment
 
-def get_all_payment(db: Session) -> list[Payment]:
+def get_all_payments(db: Session) -> list[Payment]:
     """
     Retrieve all payments from the database.
 
