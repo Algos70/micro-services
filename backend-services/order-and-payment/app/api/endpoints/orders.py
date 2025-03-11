@@ -5,7 +5,7 @@ from fastapi.params import Depends
 from sqlalchemy.orm import Session
 from schemas.order_schema import OrderCreate
 from db.dependencies import get_db
-from services.order_service import create_order, get_all_orders
+from services.order_service import create_order, get_all_orders, get_user_orders
 
 router = APIRouter(
     prefix="/orders",
@@ -18,6 +18,14 @@ def fetch_all_orders(db: Session = Depends(get_db)):
     Retrieve all orders.
     """
     orders = get_all_orders(db)
+    return orders
+
+@router.get("/{email}")
+def fetch_user_orders(email: str, db: Session = Depends(get_db)):
+    """
+    Retrieve all orders for the specified user.
+    """
+    orders = get_user_orders(db, email)
     return orders
 
 @router.post("/", status_code=201)

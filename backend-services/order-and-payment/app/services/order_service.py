@@ -9,6 +9,12 @@ def get_all_orders(db: Session) -> list:
     """
     return db.query(Order).options(joinedload(Order.items)).all()
 
+def get_user_orders(db: Session, email: str) -> list:
+    """
+    Retrieve all orders for the specified user.
+    """
+    return db.query(Order).filter(Order.email == email).options(joinedload(Order.items)).all()
+
 def create_order(db: Session, order_data: dict) -> Order:
     """
     Create a new order with the provided order data.
