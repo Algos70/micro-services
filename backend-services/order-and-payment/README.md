@@ -67,6 +67,10 @@ project/
 │   │   ├── __init__.py
 │   │   ├── order.py           # Pydantic models and/or ORM models for orders
 │   │   └── payment.py         # Pydantic models and/or ORM models for payments
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── order_schema.py    # Pydantic models for orders
+│   │   └── payment_schema.py  # Pydantic models for payments
 │   ├── db/
 │   │   ├── __init__.py
 │   │   └── base.py            # Database connection and session handling

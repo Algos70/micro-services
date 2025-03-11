@@ -8,7 +8,7 @@ from . import PAYMENT_METHODS, PAYMENT_STATUSES, generate_uuid
 class Payment(Base):
     __tablename__ = "payments"
 
-    id = Column(String(36), primary_key=True, autoincrement=True, default=generate_uuid)
+    id = Column(String(36), primary_key=True, default=generate_uuid)
     order_id = Column(String(36), ForeignKey("orders.id"), nullable=False, unique=True)
     amount = Column(Float, nullable=False)
     payment_method = Column(Enum(*PAYMENT_METHODS), nullable=False) 
