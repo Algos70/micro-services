@@ -8,7 +8,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id = Column(String(36), primary_key=True, index=True, default=generate_uuid)
-    user_email = Column(String(100), nullable=False, index=True, unique=True)
+    user_email = Column(String(100), nullable=False, index=True)
     vendor_email = Column(String(100), nullable=False)
     description = Column(String(255))
     order_date = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
