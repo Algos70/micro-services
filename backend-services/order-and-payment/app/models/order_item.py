@@ -14,3 +14,24 @@ class OrderItem(Base):
     quantity = Column(Integer, nullable=False, default=1)
     unit_price = Column(Float, nullable=False)
     order = relationship("Order", back_populates="items")
+
+    def __init__(self, order_id: str, product_id: str, unit_price: float, quantity: int = 1):
+        """
+        Initializes a new OrderItem instance.
+
+        :param order_id: Order ID.
+        :param product_id: Product ID.
+        :param unit_price: Unit price of the product.
+        :param quantity: Quantity of the product (default is 1).
+        """
+        self.order_id = order_id
+        self.product_id = product_id
+        self.unit_price = unit_price
+        self.quantity = quantity
+    
+    def __str__(self):
+        """
+        Returns a readable string representation of the OrderItem instance.
+        """
+        return (f"<OrderItem(id={self.id}, order_id={self.order_id}, product_id={self.product_id}, "
+                f"unit_price={self.unit_price}, quantity={self.quantity})>")
