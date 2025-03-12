@@ -19,7 +19,7 @@ class Order(Base):
     status = Column(Enum(*ALLOWED_STATUSES), nullable=False, default="Pending")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
-    def __init__(self, user_email: str, payment_id: str, vendor_email: str, total_price: float, delivery_address: str,
+    def __init__(self, user_email: str, vendor_email: str, total_price: float, delivery_address: str,
                  description: str = None, delivery_date = None, status: str = "Pending"):
         """
         Initializes a new Order instance.
@@ -33,7 +33,6 @@ class Order(Base):
         :param status: Order status (default is "Pending").
         """
         self.user_email = user_email
-        self.payment_id = payment_id
         self.vendor_email = vendor_email
         self.total_price = total_price
         self.delivery_address = delivery_address
