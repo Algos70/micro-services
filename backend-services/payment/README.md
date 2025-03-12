@@ -47,7 +47,7 @@ pip install -r requirements.txt
 ## To Run The App
 ```bash
 . venv/bin/activate
-fastapi dev app/main.py
+fastapi dev app/main.py --port 9001
 ```
 ## Project Structure
 ```

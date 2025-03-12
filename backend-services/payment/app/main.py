@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Depends
 from db.dependencies import get_db
 from sqlalchemy.orm import Session
