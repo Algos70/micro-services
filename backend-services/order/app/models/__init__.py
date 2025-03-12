@@ -13,16 +13,3 @@ ALLOWED_STATUSES = (
     "Delivered",
     "Refund"
 )
-
-PAYMENT_METHODS = (
-    "Credit Card",
-    "Debit Card",
-    "Cash on Delivery",
-)
-
-PAYMENT_STATUSES = (
-    "Pending",
-    "Failed",
-    "Success",
-    "Refund"
-)

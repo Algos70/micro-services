@@ -8,6 +8,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id = Column(String(36), primary_key=True, index=True, default=generate_uuid)
+    payment_id = Column(String(36), nullable=True)
     user_email = Column(String(100), nullable=False, index=True)
     vendor_email = Column(String(100), nullable=False)
     description = Column(String(255))
@@ -17,9 +18,8 @@ class Order(Base):
     delivery_address = Column(String(255), nullable=False)
     status = Column(Enum(*ALLOWED_STATUSES), nullable=False, default="Pending")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
-    payment = relationship("Payment", back_populates="order", uselist=False)
 
-    def __init__(self, user_email: str, vendor_email: str, total_price: float, delivery_address: str,
+    def __init__(self, user_email: str, payment_id: str, vendor_email: str, total_price: float, delivery_address: str,
                  description: str = None, delivery_date = None, status: str = "Pending"):
         """
         Initializes a new Order instance.
@@ -33,6 +33,7 @@ class Order(Base):
         :param status: Order status (default is "Pending").
         """
         self.user_email = user_email
+        self.payment_id = payment_id
         self.vendor_email = vendor_email
         self.total_price = total_price
         self.delivery_address = delivery_address
@@ -44,6 +45,6 @@ class Order(Base):
         """
         Returns a readable string representation of the Order instance.
         """
-        return (f"<Order(id={self.id}, email={self.email}, vendor_email={self.vendor_email}, "
+        return (f"<Order(id={self.id}, email={self.email}, payment_id={self.payment_id}, vendor_email={self.vendor_email}, "
                 f"total_price={self.total_price}, status={self.status})>")
     

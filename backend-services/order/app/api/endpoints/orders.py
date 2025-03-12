@@ -73,8 +73,8 @@ def create_order_endpoint(order: OrderCreate, db: Session = Depends(get_db)):
     Create a new order.
     """
     try:
-        create_order(db, order.model_dump())
-        return JSONResponse(content={"message": "Order created successfully"}, status_code=status.HTTP_201_CREATED)
+        new_order = create_order(db, order.model_dump())
+        return JSONResponse(content={"id": new_order.id}, status_code=status.HTTP_201_CREATED)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

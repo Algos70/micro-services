@@ -3,8 +3,8 @@ from db.dependencies import get_db
 from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
 from db.base import engine, Base
-from models import order, order_item, payment
-from api.endpoints import orders, payments
+from models import order, order_item
+from api.endpoints import orders
 
 
 @asynccontextmanager
