@@ -1,10 +1,7 @@
 """Orders endpoints."""
-from typing import Annotated
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from dtos.order_schema import OrderCreate, OrderResponse
-from db.dependencies import get_db
 from entity import ALLOWED_STATUSES
 from services.order_service import (
     get_order_service, OrderService
@@ -15,15 +12,13 @@ router = APIRouter(
     tags=["orders"]
 )
 
-order_service_dependency = Annotated[OrderService, Depends(get_order_service)]
-
 @router.get("/", response_model=list[OrderResponse])
-def list_orders(db: Session = Depends(get_db), order_service: OrderService = order_service_dependency):
+def list_orders(order_service: OrderService = Depends(get_order_service)):
     """
     Retrieve all orders.
     """
     try:
-        orders = order_service.get_all_orders(db)
+        orders = order_service.get_all_orders()
         return orders
     except Exception as e:
         raise HTTPException(
@@ -32,12 +27,12 @@ def list_orders(db: Session = Depends(get_db), order_service: OrderService = ord
         )
 
 @router.get("/{order_id}", response_model=OrderResponse)
-def get_order(order_id: str, db: Session = Depends(get_db), order_service: OrderService = order_service_dependency):
+def get_order(order_id: str, order_service: OrderService = Depends(get_order_service)):
     """
     Retrieve an order by its ID.
     """
     try:
-        order = order_service.get_order_by_id(db, order_id)
+        order = order_service.get_order_by_id(order_id)
         return order
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -48,12 +43,12 @@ def get_order(order_id: str, db: Session = Depends(get_db), order_service: Order
         )
 
 @router.get("/user/{email}", response_model=list[OrderResponse])
-def get_orders_by_user(email: str, db: Session = Depends(get_db), order_service: OrderService = order_service_dependency):
+def get_orders_by_user(email: str, order_service: OrderService = Depends(get_order_service)):
     """
     Retrieve all orders for the specified user.
     """
     try:
-        orders = order_service.get_user_orders(db, email)
+        orders = order_service.get_user_orders(email)
         return orders
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -64,12 +59,12 @@ def get_orders_by_user(email: str, db: Session = Depends(get_db), order_service:
         )
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_order_endpoint(order: OrderCreate, db: Session = Depends(get_db),order_service: OrderService = order_service_dependency):
+def create_order_endpoint(order: OrderCreate, order_service: OrderService = Depends(get_order_service)):
     """
     Create a new order.
     """
     try:
-        new_order = order_service.create_order(db, order.model_dump())
+        new_order = order_service.create_order(order.model_dump())
         return JSONResponse(content={"id": new_order.id}, status_code=status.HTTP_201_CREATED)
     except Exception as e:
         raise HTTPException(
@@ -78,7 +73,7 @@ def create_order_endpoint(order: OrderCreate, db: Session = Depends(get_db),orde
         )
 
 @router.put("/{order_id}/status/{new_status}", response_model=OrderResponse)
-def update_status(order_id: str, new_status: str, db: Session = Depends(get_db), order_service: OrderService = order_service_dependency):
+def update_status(order_id: str, new_status: str, order_service: OrderService = Depends(get_order_service)):
     """
     Update the status of an order.
     """
@@ -88,7 +83,7 @@ def update_status(order_id: str, new_status: str, db: Session = Depends(get_db),
             detail=f"Invalid status. Allowed statuses: {ALLOWED_STATUSES}"
         )
     try:
-        order = order_service.update_order_status(db, order_id, new_status)
+        order = order_service.update_order_status(order_id, new_status)
         return order
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -99,12 +94,12 @@ def update_status(order_id: str, new_status: str, db: Session = Depends(get_db),
         )
 
 @router.put("/{order_id}/payment/{payment_id}", response_model=OrderResponse)
-def update_payment(order_id: str, payment_id: str, db: Session = Depends(get_db), order_service: OrderService = order_service_dependency):
+def update_payment(order_id: str, payment_id: str, order_service: OrderService = Depends(get_order_service)):
     """
     Update the payment ID for an order.
     """
     try:
-        order = order_service.update_order_payment(db, order_id, payment_id)
+        order = order_service.update_order_payment(order_id, payment_id)
         return order
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -115,12 +110,12 @@ def update_payment(order_id: str, payment_id: str, db: Session = Depends(get_db)
         )
 
 @router.put("/{order_id}/delivery", response_model=OrderResponse)
-def update_delivery_date(order_id: str, db: Session = Depends(get_db), order_service: OrderService = order_service_dependency):
+def update_delivery_date(order_id: str, order_service: OrderService = Depends(get_order_service)):
     """
     Update the delivery date for an order.
     """
     try:
-        order = order_service.update_order_delivery_date(db, order_id)
+        order = order_service.update_order_delivery_date(order_id)
         return order
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -131,12 +126,12 @@ def update_delivery_date(order_id: str, db: Session = Depends(get_db), order_ser
         )
 
 @router.delete("/{order_id}", status_code=status.HTTP_200_OK)
-def delete_order_endpoint(order_id: str, db: Session = Depends(get_db), order_service: OrderService = order_service_dependency):
+def delete_order_endpoint(order_id: str, order_service: OrderService = Depends(get_order_service)):
     """
     Delete an order by its ID.
     """
     try:
-        order_service.delete_order(db, order_id)
+        order_service.delete_order(order_id)
         return JSONResponse(content={"message": "Order deleted successfully"}, status_code=status.HTTP_200_OK)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

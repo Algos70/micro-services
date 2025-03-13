@@ -1,16 +1,22 @@
 """Order bisuness logic."""
 from datetime import datetime
+from fastapi import Depends
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from entity.order import Order
 from entity.order_item import OrderItem
+from db.dependencies import get_db
+
 class OrderService:
-    def get_all_orders(db: Session) -> list[Order]:
+    """
+    Service class for handling order-related operations.
+    """
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def get_all_orders(self) -> list[Order]:
         """
         Retrieve all orders from the database, including their associated items.
-
-        Args:
-            db (Session): Database session.
 
         Returns:
             List[Order]: A list of all orders.
@@ -19,7 +25,7 @@ class OrderService:
             SQLAlchemyError: If there is a database error.
         """
         try:
-            orders = db.query(Order).options(joinedload(Order.items)).all()
+            orders = self.db.query(Order).options(joinedload(Order.items)).all()
             return orders
         
         except SQLAlchemyError as e:
@@ -29,12 +35,11 @@ class OrderService:
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
 
-    def get_user_orders(db: Session, email: str) -> list[Order]:
+    def get_user_orders(self, email: str) -> list[Order]:
         """
         Retrieve all orders for the specified user.
 
         Args:
-            db (Session): Database session.
             email (str): The email of the user whose orders are to be retrieved.
 
         Returns:
@@ -48,7 +53,7 @@ class OrderService:
             raise ValueError("Invalid email address.")
         
         try:
-            orders = db.query(Order).filter(Order.user_email == email).options(joinedload(Order.items)).all()
+            orders = self.db.query(Order).filter(Order.user_email == email).options(joinedload(Order.items)).all()
             
             if not orders:
                 raise ValueError(f"No orders found for user with email: {email}")
@@ -61,12 +66,11 @@ class OrderService:
         except Exception as e:
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
-    def get_order_by_id(db: Session, order_id: str) -> Order:
+    def get_order_by_id(self, order_id: str) -> Order:
         """
         Retrieve an order by its ID.
 
         Args:
-            db (Session): Database session.
             order_id (str): The ID of the order to retrieve.
 
         Returns:
@@ -80,7 +84,7 @@ class OrderService:
             raise ValueError("Invalid order ID.")
         
         try:
-            order = db.query(Order).filter(Order.id == order_id).options(joinedload(Order.items)).first()
+            order = self.db.query(Order).filter(Order.id == order_id).options(joinedload(Order.items)).first()
             
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
@@ -93,12 +97,11 @@ class OrderService:
         except Exception as e:
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
-    def create_order(db: Session, order_data: dict) -> Order:
+    def create_order(self, order_data: dict) -> Order:
         """
         Create a new order with the provided order data.
         
         Args:
-            db (Session): Database session.
             order_data (Dict): Dictionary containing order details.
             
         Returns:
@@ -138,9 +141,9 @@ class OrderService:
                 total_price=total_price,
             )
             
-            db.add(new_order)
-            db.commit()
-            db.refresh(new_order)
+            self.db.add(new_order)
+            self.db.commit()
+            self.db.refresh(new_order)
             
             for item_data in items_data:
                 order_item = OrderItem(
@@ -149,38 +152,37 @@ class OrderService:
                     quantity=item_data["quantity"],
                     unit_price=item_data["unit_price"],
                 )
-                db.add(order_item)
+                self.db.add(order_item)
             
-            db.commit()
+            self.db.commit()
             
             return new_order
         
         except KeyError as e:
-            db.rollback()
+            self.db.rollback()
             raise KeyError(f"Missing required field: {str(e)}")
         
         except ValueError as e:
-            db.rollback()
+            self.db.rollback()
             raise ValueError(f"Invalid data: {str(e)}")
         
         except IntegrityError as e:
-            db.rollback()
+            self.db.rollback()
             raise ValueError(f"Database integrity error: {str(e)}")
         
         except SQLAlchemyError as e:
-            db.rollback()
+            self.db.rollback()
             raise SQLAlchemyError(f"Database error: {str(e)}")
         
         except Exception as e:
-            db.rollback()
+            self.db.rollback()
             raise Exception(f"An unexpected error occurred: {str(e)}")
         
-    def update_order_status(db: Session, order_id: str, new_status: str) -> Order:
+    def update_order_status(self, order_id: str, new_status: str) -> Order:
         """
         Update the status of an order.
 
         Args:
-            db (Session): Database session.
             order_id (str): The ID of the order to update.
             new_status (str): The new status to set for the order.
 
@@ -198,31 +200,30 @@ class OrderService:
             raise ValueError("Invalid status.")
         
         try:
-            order = db.query(Order).filter(Order.id == order_id).first()
+            order = self.db.query(Order).filter(Order.id == order_id).first()
             
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
             
             order.status = new_status
-            db.commit()
-            db.refresh(order)
+            self.db.commit()
+            self.db.refresh(order)
             
             return order
         
         except SQLAlchemyError as e:
-            db.rollback() 
+            self.db.rollback() 
             raise SQLAlchemyError(f"Database error while updating order status: {str(e)}")
         
         except Exception as e:
-            db.rollback()  
+            self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
-    def update_order_payment(db: Session, order_id: str, payment_id: str) -> Order:
+    def update_order_payment(self, order_id: str, payment_id: str) -> Order:
         """
         Update the payment ID for an order.
 
         Args:
-            db (Session): Database session.
             order_id (str): The ID of the order to update.
             payment_id (str): The new payment ID to set for the order.
 
@@ -240,31 +241,30 @@ class OrderService:
             raise ValueError("Invalid payment ID.")
         
         try:
-            order = db.query(Order).filter(Order.id == order_id).first()
+            order = self.db.query(Order).filter(Order.id == order_id).first()
             
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
             
             order.payment_id = payment_id
-            db.commit()
-            db.refresh(order)
+            self.db.commit()
+            self.db.refresh(order)
             
             return order
         
         except SQLAlchemyError as e:
-            db.rollback()  
+            self.db.rollback()  
             raise SQLAlchemyError(f"Database error while updating payment ID: {str(e)}")
         
         except Exception as e:
-            db.rollback() 
+            self.db.rollback() 
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
-    def update_order_delivery_date(db: Session, order_id: str) -> Order:
+    def update_order_delivery_date(self, order_id: str) -> Order:
         """
         Update the delivery date for an order.
 
         Args:
-            db (Session): Database session.
             order_id (str): The ID of the order to update.
 
         Returns:
@@ -278,31 +278,30 @@ class OrderService:
             raise ValueError("Invalid order ID.")
         
         try:
-            order = db.query(Order).filter(Order.id == order_id).first()
+            order = self.db.query(Order).filter(Order.id == order_id).first()
             
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
             
             order.delivery_date = datetime.now()
-            db.commit()
-            db.refresh(order)
+            self.db.commit()
+            self.db.refresh(order)
             
             return order
         
         except SQLAlchemyError as e:
-            db.rollback()  
+            self.db.rollback()  
             raise SQLAlchemyError(f"Database error while updating delivery date: {str(e)}")
         
         except Exception as e:
-            db.rollback()  
+            self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
-    def delete_order(db: Session, order_id: str) -> None:
+    def delete_order(self, order_id: str) -> None:
         """
         Delete an order by its ID.
 
         Args:
-            db (Session): Database session.
             order_id (str): The ID of the order to delete.
 
         Returns:
@@ -316,22 +315,25 @@ class OrderService:
             raise ValueError("Invalid order ID.")
         
         try:
-            order = db.query(Order).filter(Order.id == order_id).first()
+            order = self.db.query(Order).filter(Order.id == order_id).first()
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
             
-            db.query(OrderItem).filter(OrderItem.order_id == order_id).delete()
+            self.db.query(OrderItem).filter(OrderItem.order_id == order_id).delete()
             
-            db.query(Order).filter(Order.id == order_id).delete()
-            db.commit()
+            self.db.query(Order).filter(Order.id == order_id).delete()
+            self.db.commit()
         
         except SQLAlchemyError as e:
-            db.rollback()  
+            self.db.rollback()  
             raise SQLAlchemyError(f"Database error while deleting order: {str(e)}")
         
         except Exception as e:
-            db.rollback()  
+            self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
         
-def get_order_service():
-    return OrderService()
+def get_order_service(db: Session = Depends(get_db)) -> OrderService:
+    """
+    Create an instance of the OrderService class."
+    """
+    return OrderService(db)
