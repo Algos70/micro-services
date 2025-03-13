@@ -62,10 +62,10 @@ project/
 │   ├── core/
 │   │   ├── __init__.py
 │   │   └── config.py          # Configuration settings (DB, broker URLs, etc.)
-│   ├── models/
+│   ├── entity/
 │   │   ├── __init__.py
-│   │   ├── order.py           # Pydantic models and/or ORM models for orders
-│   ├── schemas/
+│   │   ├── order.py           
+│   ├── dtos/
 │   │   ├── __init__.py
 │   │   ├── order_schema.py    # Pydantic models for orders
 │   ├── db/
