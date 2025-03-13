@@ -2,15 +2,9 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from schemas.payment_schema import PaymentCreate, PaymentResponse  # Define these schemas
-from db.dependencies import get_db
+from dtos.payment_schema import PaymentCreate, PaymentResponse  # Define these schemas
 from services.payment_service import (
-    get_all_payments,
-    get_user_payments,
-    get_payment_by_id,
-    create_payment,
-    update_payment_status,
-    delete_payment,
+    get_payment_service, PaymentService
 )
 
 router = APIRouter(
@@ -19,12 +13,12 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[PaymentResponse])
-def list_payments(db: Session = Depends(get_db)):
+def list_payments(payment_service: PaymentService = Depends(get_payment_service)):
     """
     Retrieve all payments.
     """
     try:
-        payments = get_all_payments(db)
+        payments = payment_service.get_all_payments()
         return payments
     except Exception as e:
         raise HTTPException(
@@ -33,12 +27,12 @@ def list_payments(db: Session = Depends(get_db)):
         )
 
 @router.get("/{payment_id}", response_model=PaymentResponse)
-def get_payment(payment_id: str, db: Session = Depends(get_db)):
+def get_payment(payment_id: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Retrieve a payment by its ID.
     """
     try:
-        payment = get_payment_by_id(db, payment_id)
+        payment = payment_service.get_payment_by_id(payment_id)
         return payment
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -49,12 +43,12 @@ def get_payment(payment_id: str, db: Session = Depends(get_db)):
         )
 
 @router.get("/user/{email}", response_model=list[PaymentResponse])
-def get_payments_by_user(email: str, db: Session = Depends(get_db)):
+def get_payments_by_user(email: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Retrieve all payments for the specified user.
     """
     try:
-        payments = get_user_payments(db, email)
+        payments = payment_service.get_user_payments(email)
         return payments
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -65,12 +59,12 @@ def get_payments_by_user(email: str, db: Session = Depends(get_db)):
         )
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=PaymentResponse)
-def create_payment_endpoint(payment: PaymentCreate, db: Session = Depends(get_db)):
+def create_payment_endpoint(payment: PaymentCreate, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Create a new payment.
     """
     try:
-        new_payment = create_payment(db, payment.model_dump())
+        new_payment = payment_service.create_payment( payment.model_dump())
         return JSONResponse(content={"id": new_payment.id}, status_code=status.HTTP_201_CREATED)
 
     except KeyError as e:
@@ -84,12 +78,12 @@ def create_payment_endpoint(payment: PaymentCreate, db: Session = Depends(get_db
         )
 
 @router.put("/{payment_id}/status/{new_status}", response_model=PaymentResponse)
-def update_payment_status_endpoint(payment_id: str, new_status: str, db: Session = Depends(get_db)):
+def update_payment_status_endpoint(payment_id: str, new_status: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Update the status of a payment.
     """
     try:
-        payment = update_payment_status(db, payment_id, new_status)
+        payment = payment_service.update_payment_status(payment_id, new_status)
         return payment
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -100,12 +94,12 @@ def update_payment_status_endpoint(payment_id: str, new_status: str, db: Session
         )
 
 @router.delete("/{payment_id}", status_code=status.HTTP_200_OK)
-def delete_payment_endpoint(payment_id: str, db: Session = Depends(get_db)):
+def delete_payment_endpoint(payment_id: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Delete a payment by its ID.
     """
     try:
-        delete_payment(db, payment_id)
+        payment_service.delete_payment(payment_id)
         return JSONResponse(content={"message": "Payment deleted successfully"}, status_code=status.HTTP_200_OK)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

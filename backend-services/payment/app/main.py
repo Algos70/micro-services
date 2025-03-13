@@ -4,7 +4,7 @@ from db.dependencies import get_db
 from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
 from db.base import engine, Base
-from models import payment
+from entity import payment
 from api.endpoints import payments
 
 
