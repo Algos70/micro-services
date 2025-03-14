@@ -2,36 +2,27 @@
 from fastapi import APIRouter, HTTPException, Depends, Security, status
 from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
+from api.dependencies import admin_auth_dependency, customer_auth_dependency, vendor_auth_dependency
 from dtos.order_schema import OrderCreate, OrderResponse
 from entity import ALLOWED_STATUSES
 from services.order_service import (
     get_order_service, OrderService
 )
-from services.auth_service import (get_auth_service, AuthenticationService)
 
 router = APIRouter(
     prefix="/orders",
     tags=["orders"]
 )
 
-api_key_header = APIKeyHeader(name="Authorization", auto_error=True)
-
 @router.get("/", response_model=list[OrderResponse])
 def list_orders(
     order_service: OrderService = Depends(get_order_service), 
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
+    auth_status: dict = Depends(admin_auth_dependency)
     ):
     """
     Retrieve all orders.
     """
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization token not provided"
-        )
     try:
-        auth_service.authenticate_admin(token)
         orders = order_service.get_all_orders()
         return orders
     except Exception as e:
@@ -44,8 +35,6 @@ def list_orders(
 def get_order(
     order_id: str,
     order_service: OrderService = Depends(get_order_service),
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
     ):
     """
     Retrieve an order by its ID.
@@ -65,8 +54,6 @@ def get_order(
 def get_orders_by_user(
     email: str, 
     order_service: OrderService = Depends(get_order_service),
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
     ):
     """
     Retrieve all orders for the specified user.
@@ -86,8 +73,6 @@ def get_orders_by_user(
 def create_order_endpoint(
     order: OrderCreate, 
     order_service: OrderService = Depends(get_order_service),
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
     ):
     """
     Create a new order.
@@ -106,8 +91,6 @@ def update_status(
     order_id: str,
     new_status: str,
     order_service: OrderService = Depends(get_order_service),
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
     ):
     """
     Update the status of an order.
@@ -133,8 +116,6 @@ def update_payment(
     order_id: str, 
     payment_id: str, 
     order_service: OrderService = Depends(get_order_service),
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
     ):
     """
     Update the payment ID for an order.
@@ -154,8 +135,6 @@ def update_payment(
 def update_delivery_date(
     order_id: str, 
     order_service: OrderService = Depends(get_order_service),
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
     ):
     """
     Update the delivery date for an order.
@@ -175,8 +154,6 @@ def update_delivery_date(
 def delete_order_endpoint(
     order_id: str, 
     order_service: OrderService = Depends(get_order_service),
-    token: str = Security(api_key_header),
-    auth_service: AuthenticationService = Depends(get_auth_service)
     ):
     """
     Delete an order by its ID.
