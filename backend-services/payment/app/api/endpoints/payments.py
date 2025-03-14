@@ -1,11 +1,11 @@
 """Payment endpoints."""
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from dtos.payment_schema import PaymentCreate, PaymentResponse  # Define these schemas
 from services.payment_service import (
     get_payment_service, PaymentService
 )
+from api.dependencies import admin_auth_dependency, customer_auth_dependency, vendor_auth_dependency
 
 router = APIRouter(
     prefix="/payments",
@@ -13,7 +13,9 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[PaymentResponse])
-def list_payments(payment_service: PaymentService = Depends(get_payment_service)):
+def list_payments(
+    payment_service: PaymentService = Depends(get_payment_service),
+    auth_status: dict = Depends(admin_auth_dependency)):
     """
     Retrieve all payments.
     """
