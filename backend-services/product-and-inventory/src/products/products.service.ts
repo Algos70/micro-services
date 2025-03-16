@@ -8,25 +8,28 @@ import { Model } from 'mongoose';
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectModel(Product.name) private readonly productModel: Model<Product>
+    @InjectModel(Product.name) private readonly productModel: Model<Product>,
   ) {}
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+
+  async create(createProductDto: CreateProductDto) {
+    return this.productModel.create(createProductDto);
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll() {
+    return this.productModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number) {
+    return this.productModel.findOne({ _id: id }).exec();
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    return this.productModel
+      .findByIdAndUpdate(id, updateProductDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    return this.productModel.findByIdAndDelete(id).exec();
   }
 }
