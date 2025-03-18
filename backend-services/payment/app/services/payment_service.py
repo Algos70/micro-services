@@ -2,7 +2,7 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from app.db.dependencies import get_db
+from db.dependencies import get_db
 from entity.payment import Payment
 
 class PaymentService:
