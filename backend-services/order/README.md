@@ -21,6 +21,7 @@ Start the MySQL database using Docker:
 
 ```bash
 docker run --name mysql-dev \
+  --network app-network \
   -e MYSQL_ROOT_PASSWORD=root \
   -e MYSQL_DATABASE=orders_db \
   -e MYSQL_USER=myuser \
@@ -31,6 +32,13 @@ docker run --name mysql-dev \
 ## To Connect To Your Docker Mysql Image
 ```bash
 docker exec -it mysql-dev mysql -u root -p
+```
+
+## Add Access To The DB
+```
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
 ```
 ## Installation
 
@@ -89,6 +97,23 @@ project/
 
 ## Development
 
+
+## Build Docker Image And Run it
+First build the docker image of the app
+```bash
+sudo docker build \
+--build-arg DATABASE_HOST=mysql-dev:3306 \
+--build-arg DATABASE_PASSWORD=root \
+--build-arg DATABASE_NAME=orders_db \
+--build-arg DATABASE_USER=root \
+-t my_fastapi_app:latest .
+```
+Than connect db and service to the same network(all the services and the database must be in the same network):
+For more information $ docker network
+```bash
+sudo docker run --name fastapi-container --network app-network -d my_fastapi_app:latest
+
+```
 Run tests:
 ```bash
 pytest

@@ -1,7 +1,6 @@
 """Orders endpoints."""
-from fastapi import APIRouter, HTTPException, Depends, Security, status
+from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
-from fastapi.security import APIKeyHeader
 from api.dependencies import admin_auth_dependency, customer_auth_dependency, vendor_auth_dependency
 from dtos.order_schema import OrderCreate, OrderResponse
 from entity import ALLOWED_STATUSES
