@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dtos/create-category.dto';
-import { UpdateCategoryDto } from './dtos/update-category.dto';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from './schemas/category.schema';
 import { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
-import { ApiResponse } from '../generics/apiResponse';
+import { ApiResponseInterface } from '../../common/dto/api-response.interface';
 
 @Injectable()
 export class CategoryService {
@@ -15,7 +15,7 @@ export class CategoryService {
 
   async create(
     createCategoryDto: CreateCategoryDto,
-  ): Promise<ApiResponse<Category>> {
+  ): Promise<ApiResponseInterface<Category>> {
     const category = await this.categoryModel
       .findOne({ name: createCategoryDto.name })
       .exec();
@@ -56,7 +56,7 @@ export class CategoryService {
 
   async update(
     updateCategoryDto: UpdateCategoryDto,
-  ): Promise<ApiResponse<Category>> {
+  ): Promise<ApiResponseInterface<Category>> {
     const category = await this.categoryModel
       .findOne({ _id: updateCategoryDto.id })
       .exec();

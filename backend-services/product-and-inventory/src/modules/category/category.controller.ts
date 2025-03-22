@@ -1,9 +1,9 @@
 import { Controller, UseFilters } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto } from './dtos/create-category.dto';
-import { UpdateCategoryDto } from './dtos/update-category.dto';
-import { AllExceptionsFilter } from '../generics/exceptionFilter';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
+import { AllExceptionsFilter } from '../../common/filters/exception.filter';
 
 @Controller()
 @UseFilters(AllExceptionsFilter)
