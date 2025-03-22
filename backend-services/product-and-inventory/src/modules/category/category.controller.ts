@@ -44,4 +44,9 @@ export class CategoryController {
   findAllCategories() {
     return this.categoryService.findAllCategories();
   }
+
+  @EventPattern('find-category-tree')
+  findCategoryTree() {
+    return this.categoryService.findCategoryTree();
+  }
 }

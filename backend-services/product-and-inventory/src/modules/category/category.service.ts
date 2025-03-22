@@ -3,11 +3,12 @@ import { CreateCategoryDto } from './dto/requests/create-category.dto';
 import { UpdateCategoryDto } from './dto/requests/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from './schemas/category.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { ApiResponseInterface } from '../../common/dto/api-response.interface';
 import { mapCategoryToResponseDto } from '../../common/mappers/category.mapper';
 import { CategoryResponseDto } from './dto/responses/category-response.dto';
+import { CategoryTreeResponseDto } from './dto/responses/category-tree-response.dto';
 
 @Injectable()
 export class CategoryService {
@@ -87,7 +88,7 @@ export class CategoryService {
       if (parentCategory == null) {
         throw new RpcException('Parent category does not exist');
       }
-      category.parentCategory = parentCategory;
+      category.parentCategory = new mongoose.Types.ObjectId(parentCategory._id);
     }
 
     await category.save();
@@ -182,5 +183,39 @@ export class CategoryService {
       message: null,
       data: responseDto,
     };
+  }
+
+  async findCategoryTree(): Promise<
+    ApiResponseInterface<CategoryTreeResponseDto[]>
+  > {
+    // fetch all categories
+    const categories = (await this.findAllCategories()).data;
+    if (categories == null || categories.length === 0) {
+      return {
+        status: 'success',
+        message: null,
+        data: [],
+      };
+    }
+
+    const childrenMap = new Map<string, CategoryResponseDto[]>();
+    categories.forEach((category) => {
+      if (category.parentId) {
+        if (!childrenMap.has(category.parentId)) {
+          childrenMap.set(category.parentId, []);
+        }
+        childrenMap.get(category.parentId)!.push(category);
+      }
+    });
+
+    const roots = categories
+      .filter((category) => category.parentId === null)
+      .map((root) => ({
+        id: root.id,
+        name: root.name,
+        children: childrenMap.get(root.id) || [],
+      }));
+
+    return { status: 'success', message: null, data: roots };
   }
 }
