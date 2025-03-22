@@ -13,7 +13,7 @@ export class Product {
   @Prop({ required: true })
   stock: number;
   @Prop({ required: true })
-  vendor_id: number;
+  vendor_id: string;
   @Prop()
   image: string;
   @Prop({
@@ -21,7 +21,7 @@ export class Product {
     ref: 'Category',
     required: true,
   })
-  category_id: Category;
+  category_id: mongoose.Types.ObjectId | Category | null;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -13,7 +13,7 @@ export class Category {
     ref: 'Category',
     default: null,
   })
-  parentCategory: Category | null;
+  parentCategory: mongoose.Types.ObjectId | Category | null;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

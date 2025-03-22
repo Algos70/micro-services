@@ -3,7 +3,7 @@ import { CreateCategoryDto } from './dto/requests/create-category.dto';
 import { UpdateCategoryDto } from './dto/requests/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from './schemas/category.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { ApiResponseInterface } from '../../common/dto/api-response.interface';
 import { mapCategoryToResponseDto } from '../../common/mappers/category.mapper';
@@ -88,7 +88,7 @@ export class CategoryService {
       if (parentCategory == null) {
         throw new RpcException('Parent category does not exist');
       }
-      category.parentCategory = parentCategory;
+      category.parentCategory = new mongoose.Types.ObjectId(parentCategory._id);
     }
 
     await category.save();
