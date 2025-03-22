@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/requests/create-category.dto';
 import { UpdateCategoryDto } from './dto/requests/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Category } from './schemas/category.schema';
+import { Category, CategoryDocument } from './schemas/category.schema';
 import { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { ApiResponseInterface } from '../../common/dto/api-response.interface';
 import { mapCategoryToResponseDto } from '../../common/mappers/category.mapper';
 import { CategoryResponseDto } from './dto/responses/category-response.dto';
+import { CategoryTreeResponseDto } from './dto/responses/category-tree-response.dto';
 
 @Injectable()
 export class CategoryService {
@@ -181,6 +182,45 @@ export class CategoryService {
       status: 'success',
       message: null,
       data: responseDto,
+    };
+  }
+
+  async findCategoryTree(): Promise<
+    ApiResponseInterface<CategoryTreeResponseDto[]>
+  > {
+    const categories = await this.categoryModel.find().exec();
+    const categoryMap = new Map<string, CategoryDocument[]>();
+    categories.forEach((category) => {
+      if (category.parentCategory) {
+        const parentId = category.parentCategory.toString();
+        if (!categoryMap.has(parentId)) {
+          categoryMap.set(parentId, []);
+        }
+        categoryMap.get(parentId)?.push(category);
+      }
+    });
+
+    const tree = categories
+      .filter((category) => !category.parentCategory) // Top-level categories
+      .map((topCategory) => {
+        const children = categoryMap.get(topCategory._id.toString()) || [];
+        const childrenDtos: CategoryResponseDto[] = children.map((child) => ({
+          id: child._id.toString(),
+          name: child.name,
+          parentId: child.parentCategory?.toString() ?? null,
+        }));
+
+        return {
+          id: topCategory._id.toString(),
+          name: topCategory.name,
+          children: childrenDtos,
+        };
+      });
+
+    return {
+      status: 'success',
+      data: tree,
+      message: null,
     };
   }
 }

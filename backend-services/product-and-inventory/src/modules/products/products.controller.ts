@@ -1,10 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseFilters } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { AllExceptionsFilter } from '../../common/filters/exception.filter';
 
 @Controller()
+@UseFilters(AllExceptionsFilter)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
