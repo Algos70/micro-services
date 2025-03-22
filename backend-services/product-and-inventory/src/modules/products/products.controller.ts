@@ -32,6 +32,26 @@ export class ProductsController {
 
   @EventPattern('remove-product')
   remove(@Payload() id: string) {
-    return this.productsService.remove(id);
+    return this.productsService.delete(id);
+  }
+
+  @EventPattern('find-stock')
+  findStock(@Payload() id: string) {
+    return this.productsService.getStock(id);
+  }
+
+  @EventPattern('update-stock')
+  updateStock(@Payload() id: string, stock: number) {
+    return this.productsService.updateStock(id, stock);
+  }
+
+  @EventPattern('find-by-name')
+  findByName(@Payload() name: string) {
+    return this.productsService.findByName(name);
+  }
+
+  @EventPattern('find-by-category')
+  findByCategory(@Payload() category: string) {
+    return this.productsService.findByCategory(category);
   }
 }
