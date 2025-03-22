@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/requests/create-category.dto';
 import { UpdateCategoryDto } from './dto/requests/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Category, CategoryDocument } from './schemas/category.schema';
+import { Category } from './schemas/category.schema';
 import { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { ApiResponseInterface } from '../../common/dto/api-response.interface';
@@ -188,39 +188,34 @@ export class CategoryService {
   async findCategoryTree(): Promise<
     ApiResponseInterface<CategoryTreeResponseDto[]>
   > {
-    const categories = await this.categoryModel.find().exec();
-    const categoryMap = new Map<string, CategoryDocument[]>();
+    // fetch all categories
+    const categories = (await this.findAllCategories()).data;
+    if (categories == null || categories.length === 0) {
+      return {
+        status: 'success',
+        message: null,
+        data: [],
+      };
+    }
+
+    const childrenMap = new Map<string, CategoryResponseDto[]>();
     categories.forEach((category) => {
-      if (category.parentCategory) {
-        const parentId = category.parentCategory.toString();
-        if (!categoryMap.has(parentId)) {
-          categoryMap.set(parentId, []);
+      if (category.parentId) {
+        if (!childrenMap.has(category.parentId)) {
+          childrenMap.set(category.parentId, []);
         }
-        categoryMap.get(parentId)?.push(category);
+        childrenMap.get(category.parentId)!.push(category);
       }
     });
 
-    const tree = categories
-      .filter((category) => !category.parentCategory) // Top-level categories
-      .map((topCategory) => {
-        const children = categoryMap.get(topCategory._id.toString()) || [];
-        const childrenDtos: CategoryResponseDto[] = children.map((child) => ({
-          id: child._id.toString(),
-          name: child.name,
-          parentId: child.parentCategory?.toString() ?? null,
-        }));
+    const roots = categories
+      .filter((category) => category.parentId === null)
+      .map((root) => ({
+        id: root.id,
+        name: root.name,
+        children: childrenMap.get(root.id) || [],
+      }));
 
-        return {
-          id: topCategory._id.toString(),
-          name: topCategory.name,
-          children: childrenDtos,
-        };
-      });
-
-    return {
-      status: 'success',
-      data: tree,
-      message: null,
-    };
+    return { status: 'success', message: null, data: roots };
   }
 }
