@@ -2,5 +2,5 @@
 
 public enum CheckForPolicyOutcomes
 {
-    Success, Failure
+    Success, Failure, EmailNotConfirmed
 }
