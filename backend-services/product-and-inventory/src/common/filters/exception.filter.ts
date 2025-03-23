@@ -1,7 +1,7 @@
 ﻿import { ArgumentsHost, Catch, RpcExceptionFilter } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
 import { RpcException } from '@nestjs/microservices';
-import { ApiResponseInterface } from './dto/api-response.interface';
+import { ApiResponseInterface } from '../dto/api-response.interface';
 
 @Catch(RpcException)
 export class AllExceptionsFilter implements RpcExceptionFilter<RpcException> {

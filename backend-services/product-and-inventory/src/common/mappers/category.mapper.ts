@@ -1,5 +1,5 @@
-﻿import { CategoryDocument } from '../../../modules/category/schemas/category.schema';
-import { CategoryResponseDto } from '../../../modules/category/dto/responses/category-response.dto';
+﻿import { CategoryDocument } from '../../modules/category/schemas/category.schema';
+import { CategoryResponseDto } from '../../modules/category/dto/responses/category-response.dto';
 
 export function mapCategoryToResponseDto(
   category: CategoryDocument,
