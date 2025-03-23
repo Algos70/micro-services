@@ -222,6 +222,15 @@ public class AccountService(
             .ToList();
         return roles;
     }
+    
+    public string? GetUserEmailFromToken(string jwToken)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(jwToken);
+        var emailClaim = token.Claims.FirstOrDefault(c => c.Type == "email");
+
+        return emailClaim?.Value;
+    }
 
     public CheckForPolicyOutcomes CheckForPolicy(CheckForPolicyRequest request, Roles requiredRole)
     {
@@ -229,6 +238,18 @@ public class AccountService(
         if (!isValid)
         {
             return CheckForPolicyOutcomes.Failure;
+        }
+        
+        var email = GetUserEmailFromToken(request.Token);
+        if (string.IsNullOrEmpty(email))
+        {
+            return CheckForPolicyOutcomes.EmailNotConfirmed;
+        }
+        
+        var user = userManager.FindByEmailAsync(email).Result;
+        if ((user == null || !user.EmailConfirmed) && requiredRole != Roles.Admin)
+        {
+            return CheckForPolicyOutcomes.EmailNotConfirmed;
         }
 
         var roles = GetUserRoles(request.Token);
