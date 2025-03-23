@@ -345,7 +345,10 @@ class OrderService:
             
             # Publish a test message to the 'test' queue
             message = {"message": "Hello, RabbitMQ!"}
+            message2 = {"event": "order_created", "data": {"order_id": 123, "customer": "Alice"}}
             publisher.publish_message(message, config.RABBITMQ_PRODUCTS_QUEUE)
+            publisher.publish_message(message2, config.RABBITMQ_ORDERS_QUEUE)
+
             
             # Close the connection
             publisher.close()

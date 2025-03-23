@@ -119,6 +119,8 @@ For more information $ docker network
 sudo docker run --name order-container --network app-network -d order-service:latest
 
 ```
+## Connect Rabbitmq To Network
+docker network connect app-network rabbitmq
 Run tests:
 ```bash
 pytest
