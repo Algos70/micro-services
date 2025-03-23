@@ -12,6 +12,10 @@ router = APIRouter(
     prefix="/orders",
     tags=["orders"]
 )
+@router.get("/test")
+def test_rabbit_mq():
+    get_order_service().test_publish_rabbit_mq()
+    return JSONResponse(content={"message": "Message published successfully"}, status_code=status.HTTP_200_OK)
 
 @router.get("/", response_model=list[OrderResponse])
 def list_orders(

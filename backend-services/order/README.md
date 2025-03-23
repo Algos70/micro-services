@@ -64,6 +64,7 @@ project/
 │   ├── main.py                # Application entry point
 │   ├── api/
 │   │   ├── __init__.py
+│   │   ├── dependencies.py
 │   │   └── endpoints/
 │   │       ├── __init__.py
 │   │       ├── orders.py      # Contains routes for orders
@@ -78,14 +79,18 @@ project/
 │   │   ├── order_schema.py    # Pydantic models for orders
 │   ├── db/
 │   │   ├── __init__.py
+│   │   ├── dependencies.py
 │   │   └── base.py            # Database connection and session handling
 │   └── services/
 │       ├── __init__.py
 │       ├── order_service.py   # Business logic for orders (including Saga pattern)
+│       ├── auth_service.py  
+│       ├── rabbitmq_publisher.py
 ├── tests/                     # Test suite for your application
 │   ├── __init__.py
 │   ├── test_orders.py
 ├── requirements.txt           # Python dependencies
+├── pyproject.toml             # Python dependencies
 ├── Dockerfile                 # (Optional) Containerization file
 └── README.md                  # Project documentation
 
@@ -106,12 +111,12 @@ sudo docker build \
 --build-arg DATABASE_PASSWORD=root \
 --build-arg DATABASE_NAME=orders_db \
 --build-arg DATABASE_USER=root \
--t my_fastapi_app:latest .
+-t order-service:latest .
 ```
 Than connect db and service to the same network(all the services and the database must be in the same network):
 For more information $ docker network
 ```bash
-sudo docker run --name fastapi-container --network app-network -d my_fastapi_app:latest
+sudo docker run --name order-container --network app-network -d order-service:latest
 
 ```
 Run tests:

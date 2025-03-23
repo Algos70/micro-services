@@ -3,6 +3,8 @@ from datetime import datetime
 from fastapi import Depends
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from core import config
+from services.rabbitmq_publisher import get_publisher_service
 from entity.order import Order
 from entity.order_item import OrderItem
 from db.dependencies import get_db
@@ -332,6 +334,26 @@ class OrderService:
             self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
         
+    def test_publish_rabbit_mq(self):
+        """
+        Test RabbitMQ connection and publish a message.
+        """
+        try:
+            # Create a connection to RabbitMQ
+            publisher = get_publisher_service()
+            publisher.connect()
+            
+            # Publish a test message to the 'test' queue
+            message = {"message": "Hello, RabbitMQ!"}
+            publisher.publish_message(message, config.RABBITMQ_PRODUCTS_QUEUE)
+            
+            # Close the connection
+            publisher.close()
+            
+            return "Message published successfully."
+        
+        except Exception as e:
+            return f"An error occurred: {str(e)}"
 def get_order_service(db: Session = Depends(get_db)) -> OrderService:
     """
     Create an instance of the OrderService class."
