@@ -21,3 +21,4 @@ RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", default=5672))
 RABBITMQ_USER = os.getenv("RABBITMQ_USER", default="guest")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", default="guest")
 RABBITMQ_PRODUCTS_QUEUE = "products_queue"
+RABBITMQ_ORDERS_QUEUE = "orders_queue"
