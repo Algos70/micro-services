@@ -8,7 +8,7 @@ import { CategoryModule } from './modules/category/category.module';
   imports: [
     ProductsModule,
     CategoryModule,
-    MongooseModule.forRoot('mongodb://localhost/nest', {
+    MongooseModule.forRoot('mongodb://host.docker.internal:27017/nest', {
       onConnectionCreate: (connection: Connection) => {
         connection.on('connected', () => console.log('connected'));
         connection.on('open', () => console.log('open'));
