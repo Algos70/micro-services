@@ -122,6 +122,9 @@ sudo docker run --name payment-container --network app-network -d payment-servic
 
 ```
 
+## Connect Rabbitmq To Network
+docker network connect app-network rabbitmq
+
 Run tests:
 ```bash
 pytest
