@@ -111,6 +111,10 @@ sudo docker build \
 --build-arg DATABASE_PASSWORD=root \
 --build-arg DATABASE_NAME=orders_db \
 --build-arg DATABASE_USER=root \
+--build-arg RABBITMQ_HOST=rabbitmq \
+--build-arg RABBITMQ_PORT=5672 \
+--build-arg RABBITMQ_USER=guest \
+--build-arg RABBITMQ_PASSWORD=guest \
 -t order-service:latest .
 ```
 Than connect db and service to the same network(all the services and the database must be in the same network):
