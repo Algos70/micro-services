@@ -66,6 +66,7 @@ project/
 │   ├── main.py                # Application entry point
 │   ├── api/
 │   │   ├── __init__.py
+│   │   ├── dependencies.py
 │   │   └── endpoints/
 │   │       ├── __init__.py
 │   │       └── payments.py    # Contains routes for payments
@@ -80,14 +81,18 @@ project/
 │   │   └── payment_schema.py  # Pydantic models for payments
 │   ├── db/
 │   │   ├── __init__.py
+│   │   ├── dependencies.py
 │   │   └── base.py            # Database connection and session handling
 │   └── services/
 │       ├── __init__.py
-│       └── payment_service.py # Business logic for payments
+│       ├── payment_service.py # Business logic for payments
+│       ├── auth_service.py  
+│       └── rabbitmq_publisher.py
 ├── tests/                     # Test suite for your application
 │   ├── __init__.py
 │   └── test_payments.py
 ├── requirements.txt           # Python dependencies
+├── pyproject.toml 
 ├── Dockerfile                 # (Optional) Containerization file
 └── README.md                  # Project documentation
 
@@ -116,6 +121,9 @@ For more information $ docker network
 sudo docker run --name payment-container --network app-network -d payment-service:latest
 
 ```
+
+## Connect Rabbitmq To Network
+docker network connect app-network rabbitmq
 
 Run tests:
 ```bash
