@@ -8,15 +8,24 @@ import { CategoryModule } from './modules/category/category.module';
   imports: [
     ProductsModule,
     CategoryModule,
-    MongooseModule.forRoot('mongodb://host.docker.internal:27017/nest', {
-      onConnectionCreate: (connection: Connection) => {
-        connection.on('connected', () => console.log('connected'));
-        connection.on('open', () => console.log('open'));
-        connection.on('disconnected', () => console.log('disconnected'));
-        connection.on('reconnected', () => console.log('reconnected'));
-        connection.on('disconnecting', () => console.log('disconnecting'));
+    MongooseModule.forRoot(
+      process.env.MONGO_URL || 'mongodb://localhost:27017/nest',
+      {
+        onConnectionCreate: (connection: Connection) => {
+          connection.on('connected', () => console.log('MongoDB Connected'));
+          connection.on('open', () => console.log('MongoDB Connection Open'));
+          connection.on('disconnected', () =>
+            console.log('MongoDB Disconnected'),
+          );
+          connection.on('reconnected', () =>
+            console.log('MongoDB Reconnected'),
+          );
+          connection.on('disconnecting', () =>
+            console.log('MongoDB Disconnecting'),
+          );
+        },
       },
-    }),
+    ),
   ],
   controllers: [],
   providers: [],
