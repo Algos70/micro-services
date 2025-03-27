@@ -1,5 +1,6 @@
 """Order model."""
 from sqlalchemy import Column, String, TIMESTAMP, func, Float, Enum
+from entity.order_item import OrderItem
 from db.base import Base
 from sqlalchemy.orm import relationship
 from . import generate_uuid, ALLOWED_STATUSES
@@ -47,3 +48,63 @@ class Order(Base):
         return (f"<Order(id={self.id}, email={self.email}, payment_id={self.payment_id}, vendor_email={self.vendor_email}, "
                 f"total_price={self.total_price}, status={self.status})>")
     
+    def update_delivery_address(self, new_address: str):
+        """
+        Update the delivery address for the order.
+
+        :param new_address: New delivery address.
+        """
+        self.delivery_address = new_address
+
+    def update_delivery_date(self, new_date):
+        """
+        Update the delivery date for the order.
+
+        :param new_date: New delivery date.
+        """
+        self.delivery_date = new_date
+
+    def update_status(self, new_status: str):
+        """
+        Update the status of the order.
+
+        :param new_status: New status for the order.
+        """
+        if new_status not in ALLOWED_STATUSES:
+            raise ValueError(f"Invalid status. Allowed statuses: {ALLOWED_STATUSES}")
+        self.status = new_status
+
+    def update_payment(self, payment_id: str):
+        """
+        Update the payment ID for the order.
+
+        :param payment_id: Payment ID.
+        """
+        self.payment_id = payment_id
+    def add_item(self, product_id: str, unit_price: float, quantity: int = 1):
+        """
+        Add an item to the order.
+
+        :param product_id: Product ID.
+        :param unit_price: Unit price of the product.
+        :param quantity: Quantity of the product (default is 1).
+        """
+        self.items.append(OrderItem(product_id=product_id, unit_price=unit_price, quantity=quantity))
+
+    def add_items(self, items_list: list):
+        """
+        Add multiple items to the order.
+
+        :param items_list: List of dictionaries, where each dictionary should contain:
+                        - product_id: Product ID.
+                        - unit_price: Unit price of the product.
+                        - quantity: Optional quantity (default is 1 if not provided).
+        """
+        for item in items_list:
+            self.items.append(
+                OrderItem(
+                    product_id=item["product_id"],
+                    unit_price=item["unit_price"],
+                    quantity=item.get("quantity", 1)
+                )
+            )

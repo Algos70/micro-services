@@ -144,20 +144,9 @@ class OrderService:
             )
             
             self.db.add(new_order)
+            new_order.add_items(items_data)
             self.db.commit()
             self.db.refresh(new_order)
-            
-            for item_data in items_data:
-                order_item = OrderItem(
-                    order_id=new_order.id,
-                    product_id=item_data["product_id"],
-                    quantity=item_data["quantity"],
-                    unit_price=item_data["unit_price"],
-                )
-                self.db.add(order_item)
-            
-            self.db.commit()
-            
             return new_order
         
         except KeyError as e:
@@ -207,10 +196,9 @@ class OrderService:
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
             
-            order.status = new_status
+            order.update_status(new_status)
             self.db.commit()
             self.db.refresh(order)
-            
             return order
         
         except SQLAlchemyError as e:
@@ -248,7 +236,7 @@ class OrderService:
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
             
-            order.payment_id = payment_id
+            order.update_payment(payment_id)
             self.db.commit()
             self.db.refresh(order)
             
@@ -284,8 +272,7 @@ class OrderService:
             
             if not order:
                 raise ValueError(f"No order found with ID: {order_id}")
-            
-            order.delivery_date = datetime.now()
+            order.update_delivery_date(datetime.now())
             self.db.commit()
             self.db.refresh(order)
             
@@ -298,6 +285,48 @@ class OrderService:
         except Exception as e:
             self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
+
+    def update_order_address(self, order_id: str, new_address: str) -> Order:
+        """
+        Update the delivery address for an order.
+        
+        Args:
+            order_id (str): The ID of the order to update.
+            new_address (str): The new delivery address to set for the order.
+            
+        Returns:
+            Order: The updated order.
+
+        Raises:
+            ValueError: If the order ID is invalid, the order is not found, or the new address is invalid.
+            SQLAlchemyError: If there is a database error.
+        """
+        if not order_id or not isinstance(order_id, str):
+            raise ValueError("Invalid order ID.")
+        
+        if not new_address or not isinstance(new_address, str):
+            raise ValueError("Invalid delivery address.")
+        
+        try:
+            order = self.db.query(Order).filter(Order.id == order_id).first()
+            
+            if not order:
+                raise ValueError(f"No order found with ID: {order_id}")
+            
+            order.update_delivery_address(new_address)
+            self.db.commit()
+            self.db.refresh(order)
+            
+            return order
+        
+        except SQLAlchemyError as e:
+            self.db.rollback()  
+            raise SQLAlchemyError(f"Database error while updating delivery address: {str(e)}")
+        
+        except Exception as e:
+            self.db.rollback()  
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+        
 
     def delete_order(self, order_id: str) -> None:
         """
