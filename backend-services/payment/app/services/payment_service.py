@@ -179,7 +179,7 @@ class PaymentService:
             if not payment:
                 raise ValueError(f"No payment found with ID: {payment_id}")
             
-            payment_id.status = new_status
+            payment.update_status(new_status)
             self.db.commit()
             self.db.refresh(payment)
             

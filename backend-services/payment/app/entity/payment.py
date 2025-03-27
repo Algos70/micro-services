@@ -40,3 +40,13 @@ class Payment(Base):
         """
         return (f"<Payment(id={self.id}, user_email={self.user_email} order_id={self.order_id}, amount={self.amount}, "
                 f"payment_method={self.payment_method}, payment_status={self.payment_status})>")
+
+    def update_status(self, new_status: str):
+        """
+        Update the status of the payment.
+
+        :param new_status: The new status to set for the payment.
+        """
+        self.payment_status = new_status
+        return self
+    
