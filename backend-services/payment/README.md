@@ -118,7 +118,7 @@ sudo docker build \
 Than connect db and service to the same network(all the services and the database must be in the same network):
 For more information $ docker network
 ```bash
-sudo docker run --name payment-container --network app-network -d payment-service:latest
+sudo docker run --name payment-container --network app-network -d -p 9001:9001 payment-service:latest
 
 ```
 

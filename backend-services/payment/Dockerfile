@@ -43,4 +43,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE $PORT
 
 # Start the application with Uvicorn in production mode, using environment variable references
-CMD ["fastapi", "dev", "app/main.py", "--port", "9001"]
+CMD ["fastapi", "dev", "app/main.py", "--host", "0.0.0.0", "--port", "9001"]
