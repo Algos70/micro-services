@@ -1,0 +1,48 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # RabbitMQ main port
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl node_health_check"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: '30s'
+    networks:
+      - app-network
+
+  nest-app:
+    build: .
+    container_name: nest-app
+    depends_on:
+      - rabbitmq
+      - mongodb
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - MONGO_URL=mongodb://mongodb:27017/nest
+    ports:
+      - "4000:4000"
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge
