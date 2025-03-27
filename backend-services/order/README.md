@@ -116,7 +116,8 @@ sudo docker build \
 Than connect db and service to the same network(all the services and the database must be in the same network):
 For more information $ docker network
 ```bash
-sudo docker run --name order-container --network app-network -d order-service:latest
+sudo docker run --name order-container --network app-network -d -p 8080:8080 order-service:latest
+
 
 ```
 ## Connect Rabbitmq To Network
