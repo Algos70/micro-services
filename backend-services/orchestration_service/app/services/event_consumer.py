@@ -50,19 +50,20 @@ class RabbitMQConsumer:
 
     def start_consuming(self):
         """Start consuming messages from the specified queue."""
-        if not self.connection or self.connection.is_closed:
-            self.connect()
-        
-        self.channel.basic_qos(prefetch_count=1)
-        self.channel.basic_consume(
+        try:
+            if not self.connection or self.connection.is_closed:
+                self.connect()
+            
+            self.channel.basic_qos(prefetch_count=1)
+            self.channel.basic_consume(
             queue=self.queue,
             on_message_callback=self.callback
-        )
-        print(f"Started consuming on queue: {self.queue}")
-        try:
+            )
+            print(f"Started consuming on queue: {self.queue}")
             self.channel.start_consuming()
+
         except Exception as e:
-            print("Error during consuming:", e)
+            print("Error setting up consumer:", e)
         finally:
             if self.connection and not self.connection.is_closed:
                 self.connection.close()
