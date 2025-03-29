@@ -7,9 +7,7 @@ from contextlib import asynccontextmanager
 from routers import order_router
 from services.event_consumer import get_consumer_service
 import config
-app = FastAPI(title="Orchestration Service")
 
-app.include_router(order_router.router)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,6 +24,9 @@ async def lifespan(app: FastAPI):
         thread.join(timeout=5)
         print("Consumer stopped.")
 
+
+app = FastAPI(lifespan=lifespan)
+app.include_router(order_router.router)
 
 @app.get("/")
 def read_root():
