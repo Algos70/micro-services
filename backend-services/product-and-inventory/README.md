@@ -29,28 +29,14 @@ The microservice leverages NestJS's modular architecture to separate concerns in
    git clone git@github.com:Algos70/micro-services.git
    cd backend-services/product-and-inventory
    ```
-
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
+   
 ## Compile and Run the Project
-
-### Development Mode
-
-```bash
-npm run start:dev
-```
 
 ### Production Mode
 
 ```bash
-npm run build
-npm run start:prod
+docker compose up --build
 ```
-
-The application will connect to your MongoDB instance and RabbitMQ as configured in the project.
 
 ## Compodoc Documentation
 
@@ -58,7 +44,12 @@ This project uses [Compodoc](https://compodoc.app) to automatically generate pro
 
 ### Generating Documentation
 
-1. **Generate and run the documentation:**
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Generate and run the documentation:**
 
    ```bash
    npx compodoc -p tsconfig.json -s
@@ -66,14 +57,6 @@ This project uses [Compodoc](https://compodoc.app) to automatically generate pro
 
 
 Open your browser and navigate to `http://localhost:8080` (or the URL provided by Compodoc) to view your project's documentation.
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, consider the following:
-
-- Ensure your environment variables are properly set.
-- Build your project using `npm run build` and run it with `npm run start:prod`.
-- For additional deployment guidelines, please refer to the [NestJS Deployment Docs](https://docs.nestjs.com/deployment).
 
 ## Resources
 

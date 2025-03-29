@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "6w7PZydMIt+qWKPoiFoRVN1BZ7JzWClaMbn4c+YQY9w=",
+  "Source": "OrchestrationService",
+  "BasePath": "_content/OrchestrationService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

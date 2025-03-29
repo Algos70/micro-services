@@ -1,0 +1,21 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  orchestrationservice:
+    build:
+      context: "/home/bkirca/Desktop/Code/micro-services/backend-services/OrchestrationService"
+      dockerfile: "OrchestrationService/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/OrchestrationService.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "orchestrationservice:dev"
+    ports: []
+    volumes:
+    - "/home/bkirca/Desktop/Code/micro-services/backend-services/OrchestrationService/OrchestrationService:/app:rw"
+    - "/home/bkirca/Desktop/Code/micro-services/backend-services/OrchestrationService:/src:rw"
+    - "/home/bkirca/.nuget/packages:/home/app/.nuget/packages"
+    working_dir: "/app"
