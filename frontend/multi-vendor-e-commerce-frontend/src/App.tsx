@@ -5,7 +5,7 @@ import SignUpPage from "@/pages/sign-up.tsx";
 function App() {
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <ModeToggle />
+            <ModeToggle/>
             <SignUpPage></SignUpPage>
         </ThemeProvider>
     )

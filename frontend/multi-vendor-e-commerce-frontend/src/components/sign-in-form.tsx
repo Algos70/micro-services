@@ -7,6 +7,8 @@ import {Input} from "@/components/ui/input";
 import {SignInFormProps} from "@/types.ts";
 import {SignInImage} from "@/components/sign-in-image.tsx";
 import {useNavigate} from "react-router";
+import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
+
 
 const signUpFormSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -33,8 +35,20 @@ export function SignInForm({type}: SignInFormProps) {
         defaultValues: {email: "", password: ""},
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        const axios = await getAuthAxiosInstance();
+        try {
+            const response =  await axios?.post('/register', {
+                email: values.email,
+                password: values.password,
+                userType: 'Customer',
+            });
+            if (response?.status === 200) {
+                alert(response.data.message);
+            }
+        }catch (error) {
+                alert(error);
+        }
     }
 
     return (
@@ -50,7 +64,7 @@ export function SignInForm({type}: SignInFormProps) {
                                 <FormField
                                     control={form.control}
                                     name="email"
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <FormItem>
                                             <FormLabel>Email</FormLabel>
                                             <FormControl>
@@ -60,14 +74,14 @@ export function SignInForm({type}: SignInFormProps) {
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
                                 <FormField
                                     control={form.control}
                                     name="password"
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <FormItem>
                                             <FormLabel>Password</FormLabel>
                                             <FormControl>
@@ -78,7 +92,7 @@ export function SignInForm({type}: SignInFormProps) {
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
@@ -88,7 +102,11 @@ export function SignInForm({type}: SignInFormProps) {
                                 >
                                     {type === "sign-in" ? "Sign In" : "Sign Up"}
                                 </Button>
-                                <p className='text-center'>Already have an account? <a className='underline decoration-dotted underline-offset-2 hover:cursor-pointer' onClick={() => {navigate('/sign-in')}}>Sign in</a></p>
+                                <p className='text-center'>Already have an account? <a
+                                    className='underline decoration-dotted underline-offset-2 hover:cursor-pointer'
+                                    onClick={() => {
+                                        navigate('/sign-in')
+                                    }}>Sign in</a></p>
                             </form>
                         </Form>
                     </div>
@@ -97,7 +115,7 @@ export function SignInForm({type}: SignInFormProps) {
 
             {/* Right Section: Image */}
             <div className="w-1/2 h-screen">
-                <SignInImage />
+                <SignInImage/>
             </div>
         </div>
     );
