@@ -16,7 +16,16 @@ public static class ServiceRegistration
     public static void AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<UserDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+        {
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
+                npgsqlOptions =>
+                {
+                    npgsqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 10,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorCodesToAdd: null);
+                });
+        });
         services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<UserDbContext>()
             .AddDefaultTokenProviders();
         services.AddLogging(configure => configure.AddConsole())
@@ -33,6 +42,5 @@ public static class ServiceRegistration
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IVendorRepository, VendorRepository>();
-
     }
 }
