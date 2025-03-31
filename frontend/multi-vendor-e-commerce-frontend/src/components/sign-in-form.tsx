@@ -75,7 +75,7 @@ export function SignInForm({type}: SignInFormProps) {
             if (response?.status === 200) {
                 console.log(response.data);
                 setSignInSuccess(true);
-                setTimeout(() => navigate("/"), 1000);
+                setTimeout(() => navigate("/dashboard"), 1000);
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {
@@ -172,7 +172,7 @@ export function SignInForm({type}: SignInFormProps) {
                                     )}
                                 />
                                 <Button
-                                    className="w-full dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-800 bg-blue-400 text-gray-50 hover:bg-blue-500 rounded-lg transition-all duration-300 cursor-pointer"
+                                    className="w-full dark:bg-gray-900 dark:text-gray-50 dark:hover:bg-gray-950 bg-violet-400 text-gray-50 hover:bg-violet-500 rounded-lg transition-all duration-300 cursor-pointer"
                                     type="submit"
                                 >
                                     {type === "sign-in" ? "Sign In" : "Sign Up"}
