@@ -33,6 +33,7 @@ const signInFormSchema = z.object({
 
 export function SignInForm({type}: SignInFormProps) {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [signUpSuccess, setSignUpSuccess] = useState(false);
     const navigate = useNavigate();
     const formSchema = type === "sign-in" ? signInFormSchema : signUpFormSchema;
     const form = useForm<z.infer<typeof formSchema>>({
@@ -50,6 +51,7 @@ export function SignInForm({type}: SignInFormProps) {
             });
             if (response?.status === 200) {
                 console.log(response.data);
+                setSignUpSuccess(true);
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {
@@ -71,7 +73,7 @@ export function SignInForm({type}: SignInFormProps) {
     return (
         <div /* Container */ className="min-h-screen flex">
             <Alert variant="destructive"
-                   className={`absolute top-2 left-1/3 max-w-1/3 flex flex-col items-center transition-opacity duration-500 ${errorMessage ? "opacity-100 visible" : "opacity-0 invisible"}`}>
+                   className={`fixed top-2 left-1/3 max-w-1/3 flex flex-col items-center transition-opacity duration-500 ${errorMessage ? "opacity-100 visible" : "opacity-0 invisible"}`}>
                 <div className="flex flex-row gap-2">
                     <AlertCircle className="h-4 w-4"/>
                     <AlertTitle>Error</AlertTitle>
@@ -83,7 +85,15 @@ export function SignInForm({type}: SignInFormProps) {
 
 
             <div /* Content */ className="w-1/2 flex justify-center items-center bg-primary-900 text-white">
-                <div className="max-w-md w-full bg-white text-gray-900 shadow-lg rounded-lg p-8">
+                <div className="relative max-w-md w-full bg-white text-gray-900 shadow-lg rounded-lg p-8">
+                    <div
+                        className={`absolute inset-0 text-center flex flex-col items-center justify-center gap-2 bg-violet-900 text-gray-50 dark:bg-violet-900 dark:text-gray-50 duration-500 transition-opacity  ${signUpSuccess ? "visible opacity-100" : "invisible opacity-0"}`}>
+                        <h1 className='font-bold'>We sent you a confirmation email.</h1>
+                        <p>Please check your inbox.</p>
+                        <p>Back to <a href={"/"}
+                                      className="underline underline-offset-2 cursor-pointer text-violet-50">Homepage</a>
+                        </p>
+                    </div>
                     <h1 className="text-2xl font-extrabold text-center">
                         {type === "sign-in" ? "Sign In" : "Sign Up"}
                     </h1>
