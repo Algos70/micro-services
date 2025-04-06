@@ -227,15 +227,24 @@ import { CategoryModule } from &#x27;./modules/category/category.module&#x27;;
   imports: [
     ProductsModule,
     CategoryModule,
-    MongooseModule.forRoot(&#x27;mongodb://localhost/nest&#x27;, {
-      onConnectionCreate: (connection: Connection) &#x3D;&gt; {
-        connection.on(&#x27;connected&#x27;, () &#x3D;&gt; console.log(&#x27;connected&#x27;));
-        connection.on(&#x27;open&#x27;, () &#x3D;&gt; console.log(&#x27;open&#x27;));
-        connection.on(&#x27;disconnected&#x27;, () &#x3D;&gt; console.log(&#x27;disconnected&#x27;));
-        connection.on(&#x27;reconnected&#x27;, () &#x3D;&gt; console.log(&#x27;reconnected&#x27;));
-        connection.on(&#x27;disconnecting&#x27;, () &#x3D;&gt; console.log(&#x27;disconnecting&#x27;));
+    MongooseModule.forRoot(
+      process.env.MONGO_URL || &#x27;mongodb://localhost:27017/nest&#x27;,
+      {
+        onConnectionCreate: (connection: Connection) &#x3D;&gt; {
+          connection.on(&#x27;connected&#x27;, () &#x3D;&gt; console.log(&#x27;MongoDB Connected&#x27;));
+          connection.on(&#x27;open&#x27;, () &#x3D;&gt; console.log(&#x27;MongoDB Connection Open&#x27;));
+          connection.on(&#x27;disconnected&#x27;, () &#x3D;&gt;
+            console.log(&#x27;MongoDB Disconnected&#x27;),
+          );
+          connection.on(&#x27;reconnected&#x27;, () &#x3D;&gt;
+            console.log(&#x27;MongoDB Reconnected&#x27;),
+          );
+          connection.on(&#x27;disconnecting&#x27;, () &#x3D;&gt;
+            console.log(&#x27;MongoDB Disconnecting&#x27;),
+          );
+        },
       },
-    }),
+    ),
   ],
   controllers: [],
   providers: [],

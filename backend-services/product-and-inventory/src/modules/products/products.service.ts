@@ -9,6 +9,7 @@ import { RpcException } from '@nestjs/microservices';
 import { ApiResponseInterface } from '../../common/dto/api-response.interface';
 import { ProductResponseDto } from './dto/responses/product-response.dto';
 import { mapProductToResponseDto } from '../../common/mappers/product.mapper';
+import { ProductEvents } from '../../common/events/registry.events';
 
 @Injectable()
 export class ProductsService {
@@ -32,6 +33,7 @@ export class ProductsService {
 
     const responseDto = mapProductToResponseDto(newProduct);
     return {
+      event: ProductEvents.CREATE,
       status: 'success',
       message: null,
       data: responseDto,
@@ -87,6 +89,7 @@ export class ProductsService {
     const responseDto = mapProductToResponseDto(product);
 
     return {
+      event: ProductEvents.UPDATE,
       message: null,
       status: 'success',
       data: responseDto,
@@ -99,6 +102,7 @@ export class ProductsService {
       mapProductToResponseDto(product),
     );
     return {
+      event: ProductEvents.FIND_ALL,
       message: null,
       status: 'success',
       data: responseDto,
@@ -112,6 +116,7 @@ export class ProductsService {
     }
     const responseDto = mapProductToResponseDto(product);
     return {
+      event: ProductEvents.FIND_ONE_BY_ID,
       message: null,
       status: 'success',
       data: responseDto,
@@ -134,6 +139,7 @@ export class ProductsService {
       mapProductToResponseDto(product),
     );
     return {
+      event: ProductEvents.FIND_BY_NAME,
       message: null,
       status: 'success',
       data: responseDto,
@@ -152,6 +158,7 @@ export class ProductsService {
       mapProductToResponseDto(product),
     );
     return {
+      event: ProductEvents.FIND_BY_CATEGORY,
       message: null,
       status: 'success',
       data: responseDto,
@@ -164,6 +171,7 @@ export class ProductsService {
       throw new RpcException('Product not found');
     }
     return {
+      event: ProductEvents.FIND_STOCK_BY_ID,
       message: null,
       status: 'success',
       data: product.stock,
@@ -184,6 +192,7 @@ export class ProductsService {
     product.stock = stock;
     await product.save();
     return {
+      event: ProductEvents.UPDATE_STOCK,
       message: null,
       status: 'success',
       data: stock,
@@ -197,6 +206,7 @@ export class ProductsService {
     }
     await this.productModel.findByIdAndDelete(id).exec();
     return {
+      event: ProductEvents.DELETE,
       message: null,
       status: 'success',
       data: id,

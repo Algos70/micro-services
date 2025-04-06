@@ -9,6 +9,7 @@ import { ApiResponseInterface } from '../../common/dto/api-response.interface';
 import { mapCategoryToResponseDto } from '../../common/mappers/category.mapper';
 import { CategoryResponseDto } from './dto/responses/category-response.dto';
 import { CategoryTreeResponseDto } from './dto/responses/category-tree-response.dto';
+import { CategoryEvents } from '../../common/events/registry.events';
 
 @Injectable()
 export class CategoryService {
@@ -41,6 +42,7 @@ export class CategoryService {
       const responseDto = mapCategoryToResponseDto(newCategory);
 
       return {
+        event: CategoryEvents.CREATE,
         status: 'success',
         data: responseDto,
         message: null,
@@ -55,6 +57,7 @@ export class CategoryService {
     const responseDto = mapCategoryToResponseDto(newCategory);
 
     return {
+      event: CategoryEvents.CREATE,
       status: 'success',
       message: 'Category created successfully',
       data: responseDto,
@@ -95,6 +98,7 @@ export class CategoryService {
 
     const responseDto = mapCategoryToResponseDto(category);
     return {
+      event: CategoryEvents.UPDATE,
       status: 'success',
       message: null,
       data: responseDto,
@@ -108,6 +112,7 @@ export class CategoryService {
     }
     await this.categoryModel.findByIdAndDelete(id).exec();
     return {
+      event: CategoryEvents.DELETE,
       status: 'success',
       message: null,
       data: id,
@@ -130,6 +135,7 @@ export class CategoryService {
       mapCategoryToResponseDto(subcategory),
     );
     return {
+      event: CategoryEvents.FIND_SUBCATEGORIES_BY_ID,
       status: 'success',
       message: null,
       data: responseDto,
@@ -147,6 +153,7 @@ export class CategoryService {
       mapCategoryToResponseDto(category),
     );
     return {
+      event: CategoryEvents.FIND_ALL_PARENTS,
       status: 'success',
       message: null,
       data: responseDto,
@@ -164,6 +171,7 @@ export class CategoryService {
     const responseDto = mapCategoryToResponseDto(category);
 
     return {
+      event: CategoryEvents.FIND_ONE_BY_ID,
       status: 'success',
       message: null,
       data: responseDto,
@@ -179,6 +187,7 @@ export class CategoryService {
       mapCategoryToResponseDto(category),
     );
     return {
+      event: CategoryEvents.FIND_ALL,
       status: 'success',
       message: null,
       data: responseDto,
@@ -192,6 +201,7 @@ export class CategoryService {
     const categories = (await this.findAllCategories()).data;
     if (categories == null || categories.length === 0) {
       return {
+        event: CategoryEvents.FIND_CATEGORY_TREE,
         status: 'success',
         message: null,
         data: [],
@@ -216,6 +226,6 @@ export class CategoryService {
         children: childrenMap.get(root.id) || [],
       }));
 
-    return { status: 'success', message: null, data: roots };
+    return { event: CategoryEvents.FIND_CATEGORY_TREE, status: 'success', message: null, data: roots };
   }
 }

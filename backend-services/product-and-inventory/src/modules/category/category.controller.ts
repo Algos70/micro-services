@@ -4,48 +4,49 @@ import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/requests/create-category.dto';
 import { UpdateCategoryDto } from './dto/requests/update-category.dto';
 import { AllExceptionsFilter } from '../../common/filters/exception.filter';
+import { CategoryEvents } from '../../common/events/registry.events';
 
 @Controller()
 @UseFilters(AllExceptionsFilter)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @EventPattern('create-category')
+  @EventPattern(CategoryEvents.CREATE)
   create(@Payload() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
 
-  @EventPattern('update-category')
+  @EventPattern(CategoryEvents.UPDATE)
   update(@Payload() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(updateCategoryDto);
   }
 
-  @EventPattern('remove-category')
+  @EventPattern(CategoryEvents.DELETE)
   delete(@Payload() id: string) {
     return this.categoryService.delete(id);
   }
 
-  @EventPattern('find-all-subcategories-by-id')
+  @EventPattern(CategoryEvents.FIND_SUBCATEGORIES_BY_ID)
   findAllSubcategoriesById(@Payload() id: string) {
     return this.categoryService.findAllSubcategoriesById(id);
   }
 
-  @EventPattern('find-all-parent-categories')
+  @EventPattern(CategoryEvents.FIND_ALL_PARENTS)
   findAllParentCategories() {
     return this.categoryService.findAllParentCategories();
   }
 
-  @EventPattern('find-one-category-by-id')
+  @EventPattern(CategoryEvents.FIND_ONE_BY_ID)
   findOneById(@Payload() id: string) {
     return this.categoryService.findOneById(id);
   }
 
-  @EventPattern('find-all-categories')
+  @EventPattern(CategoryEvents.FIND_ALL)
   findAllCategories() {
     return this.categoryService.findAllCategories();
   }
 
-  @EventPattern('find-category-tree')
+  @EventPattern(CategoryEvents.FIND_CATEGORY_TREE)
   findCategoryTree() {
     return this.categoryService.findCategoryTree();
   }
