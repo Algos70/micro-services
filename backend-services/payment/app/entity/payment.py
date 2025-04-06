@@ -9,7 +9,7 @@ class Payment(Base):
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     user_email = Column(String(100), nullable=False, index=True)
-    order_id = Column(String(36), nullable=False, unique=True, index=True)
+    order_id = Column(String(36), nullable=True, unique=True, index=True)
     amount = Column(Float, nullable=False)
     payment_method = Column(Enum(*PAYMENT_METHODS), nullable=False) 
     payment_status = Column(Enum(*PAYMENT_STATUSES), nullable=False, default="Pending")
