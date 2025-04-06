@@ -24,3 +24,4 @@ RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", default="guest")
 RABBITMQ_PRODUCTS_QUEUE = "products_queue"
 RABBITMQ_ORDERS_QUEUE = "orders_queue"
 RABBITMQ_PAYMENT_QUEUE = "payment_queue"
+RABBITMQ_ORCHESTRATION_QUEUE = "orchestration_queue"
