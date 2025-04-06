@@ -46,11 +46,6 @@ orchestration_service/
 
 Environment variables required:
 ```bash
-# Database
-DATABASE_HOST=mysql-dev:3306
-DATABASE_PASSWORD=root
-DATABASE_NAME=orders_db
-DATABASE_USER=root
 
 # RabbitMQ
 RABBITMQ_HOST=rabbitmq
