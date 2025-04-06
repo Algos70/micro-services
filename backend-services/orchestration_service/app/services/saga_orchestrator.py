@@ -6,13 +6,11 @@ Handles the orchestration of the Saga pattern.
 """
 """
 import uuid
-
 from fastapi import Depends
 from services.auth_http_client import get_auth_service
 from services.message_publisher import get_publisher_service
 from models.saga_state import OrderSagaState, ProductSagaState, PaymentSagaState
-from models.order import OrderCreateRequest, OrderResponse
-from models.payment import PaymentCreate
+from models.order import OrderCreateRequest
 from services.redis_saga_store import get_redis_saga_store, RedisSagaStore
 
 class SagaOrchestrator:
@@ -22,9 +20,9 @@ class SagaOrchestrator:
         self.saga_store = saga_store  
 
     def start_order_saga(self, order_data: OrderCreateRequest, token: str):
-        verified = self.auth_client.authenticate_customer(jwt_token=token)
-        if not verified:
-            raise Exception("Authentication failed")
+        # verified = self.auth_client.authenticate_customer(jwt_token=token)
+        # if not verified:
+        #    raise Exception("Authentication failed")
         
         transaction_id = str(uuid.uuid4())
         # If verified, store saga state

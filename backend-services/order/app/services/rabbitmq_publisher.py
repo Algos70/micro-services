@@ -38,10 +38,23 @@ class RabbitMQPublisher:
                 delivery_mode=2  # make message persistent
             )
         )
+    
+    def publish_order_created_response(self, order_id: str):
+        command = {
+            "event": "create_order",
+            "message": "Order created successfully",
+            "status": "success",
+            "data": {
+                "order_id": order_id,
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_ORCHESTRATION_QUEUE)
+
 
     def close(self):
         if self.connection and not self.connection.is_closed:
             self.connection.close()
 
-def get_publisher_service():
+
+def get_publisher_service() -> RabbitMQPublisher:
     return RabbitMQPublisher()

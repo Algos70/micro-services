@@ -34,3 +34,6 @@ orchestration_service/
 ├── requirements.txt
 ├── Dockerfile
 └── README.md
+
+
+## requires a redis docker image
