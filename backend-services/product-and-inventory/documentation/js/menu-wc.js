@@ -122,22 +122,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                 </ul>
                 </li>
-                        <li class="chapter">
-                            <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ? 'data-bs-target="#controllers-links"' :
-                                'data-bs-target="#xs-controllers-links"' }>
-                                <span class="icon ion-md-swap"></span>
-                                <span>Controllers</span>
-                                <span class="icon ion-ios-arrow-down"></span>
-                            </div>
-                            <ul class="links collapse " ${ isNormalMode ? 'id="controllers-links"' : 'id="xs-controllers-links"' }>
-                                <li class="link">
-                                    <a href="controllers/CategoryController.html" data-type="entity-link" >CategoryController</a>
-                                </li>
-                                <li class="link">
-                                    <a href="controllers/ProductsController.html" data-type="entity-link" >ProductsController</a>
-                                </li>
-                            </ul>
-                        </li>
                     <li class="chapter">
                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ? 'data-bs-target="#classes-links"' :
                             'data-bs-target="#xs-classes-links"' }>
@@ -175,22 +159,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                         </ul>
                     </li>
-                        <li class="chapter">
-                            <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ? 'data-bs-target="#injectables-links"' :
-                                'data-bs-target="#xs-injectables-links"' }>
-                                <span class="icon ion-md-arrow-round-down"></span>
-                                <span>Injectables</span>
-                                <span class="icon ion-ios-arrow-down"></span>
-                            </div>
-                            <ul class="links collapse " ${ isNormalMode ? 'id="injectables-links"' : 'id="xs-injectables-links"' }>
-                                <li class="link">
-                                    <a href="injectables/CategoryService.html" data-type="entity-link" >CategoryService</a>
-                                </li>
-                                <li class="link">
-                                    <a href="injectables/ProductsService.html" data-type="entity-link" >ProductsService</a>
-                                </li>
-                            </ul>
-                        </li>
                     <li class="chapter">
                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ? 'data-bs-target="#interfaces-links"' :
                             'data-bs-target="#xs-interfaces-links"' }>

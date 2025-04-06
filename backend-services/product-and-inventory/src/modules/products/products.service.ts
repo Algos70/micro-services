@@ -9,11 +9,17 @@ import { RpcException } from '@nestjs/microservices';
 import { ApiResponseInterface } from '../../common/dto/api-response.interface';
 import { ProductResponseDto } from './dto/responses/product-response.dto';
 import { mapProductToResponseDto } from '../../common/mappers/product.mapper';
+import { ProductEvents } from '../../common/events/registry.events';
+import { ReduceStockDto } from './dto/requests/reduce-stock.dto';
+import { IncreaseStockDto } from './dto/requests/increase-stock.dto';
+import { StockTransaction } from './schemas/transaction.schema';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    @InjectModel(StockTransaction.name)
+    private readonly transactionModel: Model<StockTransaction>,
   ) {}
 
   async create(
@@ -32,6 +38,7 @@ export class ProductsService {
 
     const responseDto = mapProductToResponseDto(newProduct);
     return {
+      event: ProductEvents.CREATE,
       status: 'success',
       message: null,
       data: responseDto,
@@ -87,6 +94,7 @@ export class ProductsService {
     const responseDto = mapProductToResponseDto(product);
 
     return {
+      event: ProductEvents.UPDATE,
       message: null,
       status: 'success',
       data: responseDto,
@@ -99,6 +107,7 @@ export class ProductsService {
       mapProductToResponseDto(product),
     );
     return {
+      event: ProductEvents.FIND_ALL,
       message: null,
       status: 'success',
       data: responseDto,
@@ -112,6 +121,7 @@ export class ProductsService {
     }
     const responseDto = mapProductToResponseDto(product);
     return {
+      event: ProductEvents.FIND_ONE_BY_ID,
       message: null,
       status: 'success',
       data: responseDto,
@@ -134,6 +144,7 @@ export class ProductsService {
       mapProductToResponseDto(product),
     );
     return {
+      event: ProductEvents.FIND_BY_NAME,
       message: null,
       status: 'success',
       data: responseDto,
@@ -152,6 +163,7 @@ export class ProductsService {
       mapProductToResponseDto(product),
     );
     return {
+      event: ProductEvents.FIND_BY_CATEGORY,
       message: null,
       status: 'success',
       data: responseDto,
@@ -164,29 +176,105 @@ export class ProductsService {
       throw new RpcException('Product not found');
     }
     return {
+      event: ProductEvents.FIND_STOCK_BY_ID,
       message: null,
       status: 'success',
       data: product.stock,
     };
   }
 
-  async updateStock(
-    id: string,
-    stock: number,
-  ): Promise<ApiResponseInterface<number>> {
-    const product = await this.productModel.findOne({ _id: id }).exec();
+  async reduceStock(
+    reduceStockDto: ReduceStockDto,
+  ): Promise<ApiResponseInterface<null>> {
+    const product = await this.productModel
+      .findOne({ _id: reduceStockDto.id })
+      .exec();
     if (product == null) {
       throw new RpcException('Product not found');
     }
-    if (stock < 0) {
+    if (product.stock - reduceStockDto.stock < 0) {
       throw new RpcException('Stock cannot be negative');
     }
-    product.stock = stock;
+    if (reduceStockDto.stock < 1) {
+      throw new RpcException('Stock must be reduced by at least 1');
+    }
+    product.stock -= reduceStockDto.stock;
     await product.save();
+
+    await this.transactionModel.create({
+      transaction_id: reduceStockDto.transaction_id,
+      product_id: reduceStockDto.id,
+      stock: reduceStockDto.stock,
+      rolled_back: false,
+    });
+
     return {
+      event: ProductEvents.REDUCE_STOCK,
       message: null,
       status: 'success',
-      data: stock,
+      data: null,
+    };
+  }
+
+  async reduceRollBack(
+    transaction_id: string,
+  ): Promise<ApiResponseInterface<null>> {
+    const transaction = await this.transactionModel
+      .findOne({
+        transaction_id: transaction_id,
+      })
+      .exec();
+
+    if (!transaction) {
+      throw new RpcException('Transaction not found');
+    }
+
+    if (transaction.rolled_back) {
+      throw new RpcException('Already rolled back');
+    }
+
+    const product = await this.productModel
+      .findOne({
+        _id: transaction.product_id,
+      })
+      .exec();
+    if (!product) {
+      throw new RpcException('Product not found for rollback');
+    }
+
+    product.stock += transaction.stock;
+    await product.save();
+
+    transaction.rolled_back = true;
+    await transaction.save();
+
+    return {
+      event: ProductEvents.ROLLBACK_STOCK,
+      message: null,
+      status: 'success',
+      data: null,
+    };
+  }
+
+  async increaseStock(
+    increaseStockDto: IncreaseStockDto,
+  ): Promise<ApiResponseInterface<null>> {
+    const product = await this.productModel
+      .findOne({ _id: increaseStockDto.id })
+      .exec();
+    if (product == null) {
+      throw new RpcException('Product not found');
+    }
+    if (increaseStockDto.stock < 1) {
+      throw new RpcException('Stock must be increased by at least 1');
+    }
+    product.stock += increaseStockDto.stock;
+    await product.save();
+    return {
+      event: ProductEvents.INCREASE_STOCK,
+      message: null,
+      status: 'success',
+      data: null,
     };
   }
 
@@ -197,6 +285,7 @@ export class ProductsService {
     }
     await this.productModel.findByIdAndDelete(id).exec();
     return {
+      event: ProductEvents.DELETE,
       message: null,
       status: 'success',
       data: id,

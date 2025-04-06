@@ -106,53 +106,29 @@
 <li><p><strong>Clone the repository:</strong></p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-bash">git clone git&#64;github.com:Algos70/micro-services.git
 cd backend-services/product-and-inventory</code></pre></div></li>
-<li><p><strong>Install dependencies:</strong></p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm install</code></pre></div></li>
 </ol>
 <h2>Compile and Run the Project</h2>
-<h3>Development Mode</h3>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run start:dev</code></pre></div><h3>Production Mode</h3>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run build
-npm run start:prod</code></pre></div><p>The application will connect to your MongoDB instance and RabbitMQ as configured in the project.</p>
-<h2>Compodoc Documentation</h2>
+<h3>Production Mode</h3>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">docker compose up --build</code></pre></div><h2>Compodoc Documentation</h2>
 <p>This project uses <a href="https://compodoc.app">Compodoc</a> to automatically generate project documentation.</p>
 <h3>Generating Documentation</h3>
 <ol>
-<li><p><strong>Generate the documentation:</strong></p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npx compodoc -p tsconfig.json</code></pre></div></li>
-<li><p><strong>Serve the documentation locally:</strong></p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npx compodoc -s</code></pre></div></li>
+<li><p><strong>Install dependencies</strong></p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm install</code></pre></div></li>
+<li><p><strong>Generate and run the documentation:</strong></p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npx compodoc -p tsconfig.json -s</code></pre></div></li>
 </ol>
 <p>Open your browser and navigate to <code>http://localhost:8080</code> (or the URL provided by Compodoc) to view your project&#39;s documentation.</p>
-<h2>Deployment</h2>
-<p>When you&#39;re ready to deploy your NestJS application to production, consider the following:</p>
-<ul>
-<li>Ensure your environment variables are properly set.</li>
-<li>Build your project using <code>npm run build</code> and run it with <code>npm run start:prod</code>.</li>
-<li>For additional deployment guidelines, please refer to the <a href="https://docs.nestjs.com/deployment">NestJS Deployment Docs</a>.</li>
-</ul>
 <h2>Resources</h2>
 <ul>
 <li><a href="https://docs.nestjs.com">NestJS Documentation</a></li>
 <li><a href="https://docs.mongodb.com">MongoDB Documentation</a></li>
 <li><a href="https://www.rabbitmq.com/documentation.html">RabbitMQ Documentation</a></li>
 <li><a href="https://compodoc.app">Compodoc Documentation</a></li>
-<li>For questions and support, join the <a href="https://discord.gg/G7Qnnhy">NestJS Discord channel</a>.</li>
-</ul>
-<h2>Support</h2>
-<p>NestJS is an MIT-licensed open source project. It can grow thanks to the sponsors and support of the community. To support the project, please visit the <a href="https://docs.nestjs.com/support">NestJS support page</a>.</p>
-<h2>Stay in Touch</h2>
-<ul>
-<li><strong>Author:</strong> [Your Name or Team]</li>
-<li><strong>Website:</strong> <a href="https://yourprojectwebsite.com">https://yourprojectwebsite.com</a></li>
-<li><strong>Twitter:</strong> <a href="https://twitter.com/your_twitter">@your_twitter</a></li>
 </ul>
 <h2>License</h2>
-<p>This project is licensed under the MIT License. See the <a href="LICENSE">LICENSE</a> file for details.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-none">
----
+<p>This project is licensed under the MIT License.</p>
 
-Simply update the placeholder URLs and details (like GitHub repository URL, author, website, etc.) to match your project specifics.</code></pre></div>
 
 
 
