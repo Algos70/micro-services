@@ -35,6 +35,7 @@ class RabbitMQConsumer:
         # Mapping event types to handler methods
         self.event_handlers = {
             "create_order": self.handle_order_created,
+            "update_order_payment_id": self.handle_update_order_payment_id,
             "order_updated": self.handle_order_updated,
             # Add more event mappings as needed
         }
@@ -66,12 +67,21 @@ class RabbitMQConsumer:
     def handle_order_created(self, message):
         """Handle order creation logic."""
         data = message.get("data", {})
+        transection_id = message.get("transaction_id")
         self.order_service.create_order(
             order_data=data,
         )
-        self.publisher.publish_order_created_response(order_id=data.get("order_id"))
+        self.publisher.publish_order_created_response(order_id=data.get("order_id"), transection_id=transection_id)
 
+    def handle_update_order_payment_id(self, message):
+        """Handle order payment ID update logic."""
+        data = message.get("data", {})
+        order_id = data.get("order_id")
+        payment_id = data.get("payment_id")
+        self.order_service.update_order_payment(order_id, payment_id)
+        print(f"Updated payment ID for order {order_id} to {payment_id}")
 
+        
     def handle_order_updated(self, data):
         """Handle order update logic."""
         print("Processing order updated with data:", data)

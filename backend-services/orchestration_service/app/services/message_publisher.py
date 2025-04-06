@@ -49,8 +49,8 @@ class RabbitMQPublisher:
         """Publish a command to reduce stock."""
         command = {
             "event": "reduce_stock",
-            "data": {
                 "transaction_id": transaction_id,
+            "data": {
                 "products": [{"product_id": product.product_id, "quantity": product.quantity} for product in products]
             }
         }
@@ -60,8 +60,8 @@ class RabbitMQPublisher:
         """Publish a command to create an order."""
         command = {
             "event": "create_order",
-            "data": {
                 "transaction_id": transaction_id,
+            "data": {
                 "user_email": order_data.user_email,
                 "vendor_email": order_data.vendor_email,
                 "delivery_address": order_data.delivery_address,
@@ -76,8 +76,8 @@ class RabbitMQPublisher:
         """Publish a command to take payment."""
         command = {
             "event": "take_payment",
+            "transaction_id": payment_data.transaction_id,
             "data": {
-                "transaction_id": payment_data.transaction_id,
                 "user_email": payment_data.user_email,
                 "order_id": payment_data.order_id,
                 "amount": payment_data.amount,
@@ -91,8 +91,9 @@ class RabbitMQPublisher:
         """Publish a command to rollback stock."""
         command = {
             "event": "rollback_stock",
+            "transaction_id": transaction_id,
             "data": {
-                "transaction_id": transaction_id
+                
             }
         }
         self.publish_message(command, config.RABBITMQ_PRODUCTS_QUEUE)
@@ -101,14 +102,37 @@ class RabbitMQPublisher:
         """Publish a command to rollback payment."""
         command = {
             "event": "rollback_payment",
+            "transaction_id": transaction_id,
             "data": {
-                "transaction_id": transaction_id
+                
             }
         }
         self.publish_message(command, config.RABBITMQ_PAYMENT_QUEUE)
     def close(self):
         if self.connection and not self.connection.is_closed:
             self.connection.close()
+
+    def publish_update_order_payment_id(self, order_id: str, payment_id: str):
+        """Publish a command to update order with payment ID."""
+        command = {
+            "event": "update_order_payment_id",
+            "data": {
+                "order_id": order_id,
+                "payment_id": payment_id
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_ORDERS_QUEUE)
+    
+    def publish_update_payment_order_id(self, payment_id: str, order_id: str):
+        """Publish a command to update payment with order ID."""
+        command = {
+            "event": "update_payment_order_id",
+            "data": {
+                "payment_id": payment_id,
+                "order_id": order_id
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_PAYMENT_QUEUE)
 
 def get_publisher_service() -> RabbitMQPublisher:
     return RabbitMQPublisher()

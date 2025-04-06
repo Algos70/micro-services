@@ -23,7 +23,9 @@ class ProductSagaState:
             "quantity": self.quantity
         }
 class OrderSagaState:
-    def __init__(self, transaction_id: str, description: str, user_email: str, vendor_email: str, delivery_address: str, payment_method: str, status: str = "Pending", items: list = None):
+    def __init__(self, transaction_id: str, description: str, user_email: str, vendor_email: str,
+                  delivery_address: str, payment_method: str, status: str = "Pending", items: list = None
+                  ,payment_id: str = None):
         """
         Represents the state of an Order in a Saga.
 
@@ -41,6 +43,7 @@ class OrderSagaState:
         self.status = status
         self.items = items or []
         self.payment_method = payment_method
+        self.payment_id = payment_id
 
     def total_price(self) -> float:
         """
@@ -61,7 +64,8 @@ class OrderSagaState:
             "delivery_address": self.delivery_address,
             "status": self.status,
             "items": [item.dict() for item in self.items],
-            "payment_method": self.payment_method
+            "payment_method": self.payment_method,
+            "payment_id": self.payment_id
         }
     
 class PaymentSagaState:

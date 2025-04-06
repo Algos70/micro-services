@@ -226,6 +226,40 @@ class PaymentService:
             self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
         
+    def update_order_id(self, order_id: str, payment_id: str) -> None:
+        """
+        Update the order ID of a payment.
+
+        Args:
+            order_id (str): The new order ID to set for the payment.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the order ID is invalid.
+            SQLAlchemyError: If there is a database error.
+        """
+        if not order_id or not isinstance(order_id, str):
+            raise ValueError("Invalid order ID.")
+        
+        try:
+            payment = self.db.query(Payment).filter(Payment.id == payment_id).first()
+            
+            if not payment:
+                raise ValueError(f"No payment found with payment_id ID: {payment_id}")
+            
+            payment.update_order_id(order_id)
+            self.db.commit()
+        
+        except SQLAlchemyError as e:
+            self.db.rollback()  
+            raise SQLAlchemyError(f"Database error while updating order ID: {str(e)}")
+        
+        except Exception as e:
+            self.db.rollback()  
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+        
 def get_payment_service(db: Session = Depends(get_db)) -> PaymentService:
     """
     Return an instance of the PaymentService class.

@@ -50,3 +50,11 @@ class Payment(Base):
         self.payment_status = new_status
         return self
     
+    def update_order_id(self, order_id: str):
+        """
+        Update the order ID of the payment.
+
+        :param order_id: The new order ID to set for the payment.
+        """
+        self.order_id = order_id
+        return self

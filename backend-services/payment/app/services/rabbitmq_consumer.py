@@ -36,6 +36,7 @@ class RabbitMQConsumer:
         # Mapping event types to handler methods
         self.event_handlers = {
             "take_payment": self.handle_take_payment,
+            "update_payment_order_id": self.handle_order_id_updated,
         }
 
     def connect(self):
@@ -66,15 +67,26 @@ class RabbitMQConsumer:
         """Handle payment processing logic."""
         try:
             data = message.get("data")
-
+            transaction_id = message.get("transaction_id")
             # Call the payment service to process the payment
             payment_response = self.payment_service.create_payment(data)
             self.payment_service.update_payment_status(payment_response.id, "Success")
 
             # Publish a success message or take further action
-            self.publisher.publish_payment_message(payment_response.id)
+            self.publisher.publish_payment_message(payment_response.id, transaction_id)
         except Exception as e:
             print("Error in handle_take_payment:", e)
+
+    def handle_order_id_updated(self, message):
+        """Handle order ID update logic."""
+        try:
+            data = message.get("data")
+            order_id = data.get("order_id")
+            payment_id = data.get("payment_id")
+            # Call the payment service to update the order ID
+            self.payment_service.update_order_id(order_id=order_id, payment_id=payment_id)
+        except Exception as e:
+            print("Error in handle_order_id_updated:", e)
 
     def handle_order_created(self, data):
         """Handle order creation logic."""

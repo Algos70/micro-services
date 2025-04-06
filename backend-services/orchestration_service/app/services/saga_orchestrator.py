@@ -79,9 +79,12 @@ class SagaOrchestrator:
     def hande_take_payment_event(self, message: dict):
         transaction_id : str = message["transaction_id"]
         data : dict = message["data"]
+        payment_id : str = data["payment_id"]
         status : str = message["status"]
         saga_state = self.saga_store.get_payment_saga(transaction_id)
-        if not saga_state:
+        order_saga_state = self.saga_store.get_order_saga(transaction_id)
+        
+        if not saga_state or not order_saga_state:
             print(f"Transaction ID {transaction_id} not found in saga store.")
         if "error" in status:
             print(f"Error taking payment: {status}")
@@ -94,7 +97,8 @@ class SagaOrchestrator:
         # Update saga state
         saga_state.payment_status = status
         self.saga_store.save_payment_saga(saga_state)
-
+        order_saga_state.payment_id = payment_id
+        self.saga_store.save_order_saga(order_saga_state)
         order_saga_state = self.saga_store.get_order_saga(transaction_id)
         if not order_saga_state:
             print(f"Transaction ID {transaction_id} not found in saga store.")
@@ -109,9 +113,11 @@ class SagaOrchestrator:
     def handle_create_order_event(self, message: dict):
         transaction_id : str = message["transaction_id"]
         data : dict = message["data"]
+        order_id : str = data["order_id"]
         status : str = message["status"]
         saga_state = self.saga_store.get_order_saga(transaction_id)
-        if not saga_state:
+        payment_saga_state = self.saga_store.get_payment_saga(transaction_id)
+        if not saga_state or not payment_saga_state:
             print(f"Transaction ID {transaction_id} not found in saga store.")
         
         if "error" in status:
@@ -128,6 +134,13 @@ class SagaOrchestrator:
         # Update saga state
         saga_state.status = status
         self.saga_store.save_order_saga(saga_state)
+        payment_saga_state.order_id = order_id
+        self.saga_store.save_payment_saga(payment_saga_state)
+        self.publisher.publish_update_order_payment_id(order_id=order_id, payment_id=saga_state.payment_id)
+        self.publisher.publish_update_payment_order_id(
+            order_id=order_id,
+            payment_id=saga_state.payment_id
+        )
         # Notify user(can send e mail to user at a later date)
 
 

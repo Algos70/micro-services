@@ -39,8 +39,9 @@ class RabbitMQPublisher:
             )
         )
     
-    def publish_order_created_response(self, order_id: str):
+    def publish_order_created_response(self, order_id: str, transaction_id: str):
         command = {
+            "transaction_id": transaction_id,
             "event": "create_order",
             "message": "Order created successfully",
             "status": "success",

@@ -39,8 +39,8 @@ class RabbitMQPublisher:
             )
         )
     
-    def publish_payment_message(self, payment_id: int):
-        command = {"event": "take_payment", "status": "success", "message": "Payment is succesfully done", "data": {"payment_id": payment_id}}
+    def publish_payment_message(self, payment_id: int, transaction_id: str):
+        command = {"transaction_id": transaction_id ,"event": "take_payment", "status": "success", "message": "Payment is succesfully done", "data": {"payment_id": payment_id}}
         self.publish_message(command, config.RABBITMQ_ORCHESTRATION_QUEUE)
 
     def close(self):
