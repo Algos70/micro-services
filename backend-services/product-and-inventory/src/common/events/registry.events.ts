@@ -16,7 +16,9 @@ export const ProductEvents = {
   FIND_ALL: 'find-all-products',
   FIND_ONE_BY_ID: 'find-one-product',
   FIND_STOCK_BY_ID: 'find-stock',
-  UPDATE_STOCK: 'update-stock',
+  REDUCE_STOCK: 'reduce-stock',
+  INCREASE_STOCK: 'increase-stock',
+  ROLLBACK_STOCK: 'rollback-stock',
   FIND_BY_NAME: 'find-by-name',
   FIND_BY_CATEGORY: 'find-by-category',
 } as const;

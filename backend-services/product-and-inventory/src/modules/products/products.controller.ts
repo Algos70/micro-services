@@ -5,6 +5,8 @@ import { CreateProductDto } from './dto/requests/create-product.dto';
 import { UpdateProductDto } from './dto/requests/update-product.dto';
 import { AllExceptionsFilter } from '../../common/filters/exception.filter';
 import { ProductEvents } from '../../common/events/registry.events';
+import { ReduceStockDto } from './dto/requests/reduce-stock.dto';
+import { IncreaseStockDto } from './dto/requests/increase-stock.dto';
 
 @Controller()
 @UseFilters(AllExceptionsFilter)
@@ -41,11 +43,6 @@ export class ProductsController {
     return this.productsService.getStock(id);
   }
 
-  @EventPattern(ProductEvents.UPDATE_STOCK)
-  updateStock(@Payload() id: string, stock: number) {
-    return this.productsService.updateStock(id, stock);
-  }
-
   @EventPattern(ProductEvents.FIND_BY_NAME)
   findByName(@Payload() name: string) {
     return this.productsService.findByName(name);
@@ -54,5 +51,20 @@ export class ProductsController {
   @EventPattern(ProductEvents.FIND_BY_CATEGORY)
   findByCategory(@Payload() category: string) {
     return this.productsService.findByCategory(category);
+  }
+
+  @EventPattern(ProductEvents.REDUCE_STOCK)
+  reduceStock(@Payload() reduceStockDto: ReduceStockDto) {
+    return this.productsService.reduceStock(reduceStockDto);
+  }
+
+  @EventPattern(ProductEvents.INCREASE_STOCK)
+  increaseStock(@Payload() increaseStockDto: IncreaseStockDto) {
+    return this.productsService.increaseStock(increaseStockDto);
+  }
+
+  @EventPattern(ProductEvents.ROLLBACK_STOCK)
+  rollbackStock(@Payload() transaction_id: string) {
+    return this.productsService.reduceRollBack(transaction_id);
   }
 }
