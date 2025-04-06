@@ -2,9 +2,13 @@
 RabbitMQ message publisher for sending messages to a queue.
 This module provides a simple interface for publishing messages to RabbitMQ queues.
 """
+from typing import List
 import pika
 import json
+from models.saga_state import OrderSagaState, PaymentSagaState
 import config
+from models.order import OrderCreateRequest, OrderResponse, OrderItemCreate
+from models.payment import PaymentCreate, PaymentResponse
 class RabbitMQPublisher:
     def __init__(self):
         credentials = pika.PlainCredentials(
@@ -41,20 +45,70 @@ class RabbitMQPublisher:
             )
         )
 
-    def publish_reduce_stock_command(self, order_id: str, product_id: str, quantity: int):
+    def publish_reduce_stock_command(self, products: List[OrderItemCreate], transaction_id: str):
+        """Publish a command to reduce stock."""
         command = {
-            "event": "ReduceStockCommand",
+            "event": "reduce_stock",
             "data": {
-                "order_id": order_id,
-                "product_id": product_id,
-                "quantity": quantity
+                "transaction_id": transaction_id,
+                "products": [{"product_id": product.product_id, "quantity": product.quantity} for product in products]
             }
         }
         self.publish_message(command, config.RABBITMQ_PRODUCTS_QUEUE)
 
+    def publish_create_order_command(self, order_data: OrderCreateRequest | OrderSagaState, transaction_id: str):
+        """Publish a command to create an order."""
+        command = {
+            "event": "create_order",
+            "data": {
+                "transaction_id": transaction_id,
+                "user_email": order_data.user_email,
+                "vendor_email": order_data.vendor_email,
+                "delivery_address": order_data.delivery_address,
+                "description": order_data.description,
+                "status": order_data.status,
+                "items": order_data.items
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_ORDERS_QUEUE)
+
+    def publish_take_payment_command(self, payment_data: PaymentSagaState):
+        """Publish a command to take payment."""
+        command = {
+            "event": "take_payment",
+            "data": {
+                "transaction_id": payment_data.transaction_id,
+                "user_email": payment_data.user_email,
+                "order_id": payment_data.order_id,
+                "amount": payment_data.amount,
+                "payment_method": payment_data.payment_method,
+                "payment_status": payment_data.payment_status
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_PAYMENT_QUEUE)
+    
+    def publish_rollback_stock_command(self, transaction_id: str):
+        """Publish a command to rollback stock."""
+        command = {
+            "event": "rollback_stock",
+            "data": {
+                "transaction_id": transaction_id
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_PRODUCTS_QUEUE)
+
+    def publish_rollback_payment_command(self, transaction_id: str):
+        """Publish a command to rollback payment."""
+        command = {
+            "event": "rollback_payment",
+            "data": {
+                "transaction_id": transaction_id
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_PAYMENT_QUEUE)
     def close(self):
         if self.connection and not self.connection.is_closed:
             self.connection.close()
 
-def get_publisher_service():
+def get_publisher_service() -> RabbitMQPublisher:
     return RabbitMQPublisher()

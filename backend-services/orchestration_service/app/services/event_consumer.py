@@ -20,7 +20,9 @@ class RabbitMQConsumer:
         orchestrator = SagaOrchestrator()
         # Mapping event types to handler methods
         self.event_handlers = {
-            "StockReducedEvent": orchestrator.handle_stock_reduced_event
+            "reduce_stock": orchestrator.handle_stock_reduced_event,
+            "take_payment": orchestrator.hande_take_payment_event,
+            "create_order": orchestrator.handle_create_order_event,
             # Add more event mappings as needed
         }
 
@@ -38,7 +40,7 @@ class RabbitMQConsumer:
 
             # Dispatch the message to the appropriate handler if it exists
             if event_type in self.event_handlers:
-                self.event_handlers[event_type](message.get("data"))
+                self.event_handlers[event_type](message)
             else:
                 print(f"Unhandled event type: {event_type}")
 
@@ -75,5 +77,5 @@ class RabbitMQConsumer:
             self.connection.add_callback_threadsafe(self.channel.stop_consuming)
 
 
-def get_consumer_service(queue: str):
+def get_consumer_service(queue: str) -> RabbitMQConsumer:
     return RabbitMQConsumer(queue)

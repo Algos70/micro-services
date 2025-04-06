@@ -4,76 +4,136 @@ Handles the orchestration of the Saga pattern.
 """# saga_orchestrator.py
 
 """
-TODO: Implement the Saga Orchestrator from scratch. These are just examples.
 """
-from services.auth_http_client import AuthHttpClient
-from services.message_publisher import RabbitMQPublisher
-from models.saga_state import SagaState
+import uuid
+
+from fastapi import Depends
+from services.auth_http_client import get_auth_service
+from services.message_publisher import get_publisher_service
+from models.saga_state import OrderSagaState, ProductSagaState, PaymentSagaState
+from models.order import OrderCreateRequest, OrderResponse
+from models.payment import PaymentCreate
+from services.redis_saga_store import get_redis_saga_store, RedisSagaStore
 
 class SagaOrchestrator:
-    def __init__(self):
-        self.auth_client = AuthHttpClient()  # Synchronous calls
-        self.publisher = RabbitMQPublisher()  # Publishes to RabbitMQ
-        self.saga_store = {}  # In-memory or DB for storing saga states
+    def __init__(self, saga_store: RedisSagaStore):
+        self.auth_client = get_auth_service()  # Synchronous calls
+        self.publisher = get_publisher_service()  # Publishes to RabbitMQ
+        self.saga_store = saga_store  
 
-    def start_order_saga(self, order_id: str, order_data: dict):
-        # Step 1: Verify user over HTTP
-        verified = self.auth_client.verify_customer(order_data["customer_id"])
+    def start_order_saga(self, order_data: OrderCreateRequest, token: str):
+        verified = self.auth_client.authenticate_customer(jwt_token=token)
         if not verified:
-            # End saga immediately
-            # Possibly notify the client or publish an 'OrderFailedEvent'
-            return False
-
+            raise Exception("Authentication failed")
+        
+        transaction_id = str(uuid.uuid4())
         # If verified, store saga state
-        saga_state = SagaState(
-            order_id=order_id,
-            status="AUTH_VERIFIED",
-            current_step="REDUCE_STOCK",
-            order_data=order_data
+        order_saga_state = OrderSagaState(
+            transaction_id=transaction_id,
+            user_email=order_data.user_email,
+            vendor_email=order_data.vendor_email,
+            delivery_address=order_data.delivery_address,
+            description=order_data.description,
+            status=order_data.status,
+            items=order_data.items,
+            payment_method=order_data.payment_method
         )
-        self.saga_store[saga_state.transaction_id] = saga_state  # Store by transaction_id
+        prouct_saga_state = ProductSagaState(
+            transaction_id=transaction_id,
+            product_id=order_data.items[0].product_id,
+            quantity=order_data.items[0].quantity
+        )
 
-        # Step 2: Publish command to reduce stock
+        self.saga_store.save_product_saga(prouct_saga_state)
+        self.saga_store.save_order_saga(order_saga_state)
+
         self.publisher.publish_reduce_stock_command(
-            transaction_id=saga_state.transaction_id,  # Include transaction_id
-            order_id=order_id,
-            product_id=order_data["product_id"],
-            quantity=order_data["quantity"]
+            transaction_id=transaction_id, 
+            products=order_data.items
         )
         return True
 
-    def handle_stock_reduced_event(self, transaction_id: str):
+
+
+    def handle_stock_reduced_event(self, message: dict):
         # Update saga state
-        saga_state = self.saga_store.get(transaction_id)
+        transaction_id : str = message["transaction_id"]
+        data : dict = message["data"]
+        status : str = message["status"]
+        saga_state = self.saga_store.get_product_saga(transaction_id)
+        order_saga_state = self.saga_store.get_order_saga(transaction_id)
         if not saga_state:
-            return  # Not found, or possibly handle error
+            print(f"Transaction ID {transaction_id} not found in saga store.")
 
-        saga_state.current_step = "TAKE_PAYMENT"
-
-        # Step 3: Publish "TakePaymentCommand"
-        self.publisher.publish_take_payment_command(
-            transaction_id=transaction_id,  # Include transaction_id
-            order_id=saga_state.order_id,
-            payment_info=saga_state.payment_info
+        if "error" in status:
+            print(f"Error reducing stock: {status}")
+        
+        payment_saga_state = PaymentSagaState(
+            transaction_id=transaction_id,
+            user_email=order_saga_state.user_email,
+            amount=order_saga_state.total_price(),
+            payment_method=order_saga_state.payment_method,
+            payment_status="Pending"
         )
+        self.saga_store.save_payment_saga(payment_saga_state)
+        self.publisher.publish_take_payment_command(payment_data=payment_saga_state)
 
-    def handle_insufficient_stock_event(self, transaction_id: str):
-        # Saga fails here; possibly trigger compensation or just end
-        saga_state = self.saga_store.get(transaction_id)
-        saga_state.status = "FAILED"
-        # Notify client or publish "OrderFailedEvent" if desired
+    def hande_take_payment_event(self, message: dict):
+        transaction_id : str = message["transaction_id"]
+        data : dict = message["data"]
+        status : str = message["status"]
+        saga_state = self.saga_store.get_payment_saga(transaction_id)
+        if not saga_state:
+            print(f"Transaction ID {transaction_id} not found in saga store.")
+        if "error" in status:
+            print(f"Error taking payment: {status}")
+            # Trigger rollback stock if needed
+            self.publisher.publish_rollback_stock_command(
+                transaction_id=transaction_id
+            )
+            return
+        
+        # Update saga state
+        saga_state.payment_status = status
+        self.saga_store.save_payment_saga(saga_state)
 
-    def handle_payment_verified_event(self, transaction_id: str):
-        # Next step: publish "CreateOrderCommand"
-        saga_state = self.saga_store.get(transaction_id)
-        saga_state.current_step = "CREATE_ORDER"
-        self.publisher.publish_create_order_command(saga_state.order_id, saga_state.order_data)
+        order_saga_state = self.saga_store.get_order_saga(transaction_id)
+        if not order_saga_state:
+            print(f"Transaction ID {transaction_id} not found in saga store.")
+        
+        # next step: publih create order command
+        self.publisher.publish_create_order_command(
+            order_data=order_saga_state,
+            transaction_id=transaction_id
+        )
+        return
+    
+    def handle_create_order_event(self, message: dict):
+        transaction_id : str = message["transaction_id"]
+        data : dict = message["data"]
+        status : str = message["status"]
+        saga_state = self.saga_store.get_order_saga(transaction_id)
+        if not saga_state:
+            print(f"Transaction ID {transaction_id} not found in saga store.")
+        
+        if "error" in status:
+            print(f"Error creating order: {status}")
+            # Trigger rollback stock if needed
+            self.publisher.publish_rollback_stock_command(
+                transaction_id=transaction_id
+            )
+            self.publisher.publish_rollback_payment_command(
+                transaction_id=transaction_id
+            )
+            return
+        
+        # Update saga state
+        saga_state.status = status
+        self.saga_store.save_order_saga(saga_state)
+        # Notify user(can send e mail to user at a later date)
 
-    def handle_payment_unverified_event(self, transaction_id: str):
-        # Trigger rollback stock if needed
-        saga_state = self.saga_store.get(transaction_id)
-        saga_state.status = "FAILED"
-        self.publisher.publish_rollback_stock_command(saga_state.order_id, ...)
-        # Possibly notify the user or publish "OrderFailedEvent"
 
     # etc.
+
+def get_saga_orchestrator(saga_store: RedisSagaStore = Depends(get_redis_saga_store)) -> SagaOrchestrator:
+    return SagaOrchestrator(saga_store=saga_store)

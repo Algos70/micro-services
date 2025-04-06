@@ -13,6 +13,10 @@ class OrderCreateRequest(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = "Pending"
     items: List[OrderItemCreate]
+    payment_method: str
+
+    def total_price(self) -> float:
+        return sum(item.quantity * item.unit_price for item in self.items)
 
 class OrderResponse(BaseModel):
     id: str
