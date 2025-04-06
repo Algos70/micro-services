@@ -37,3 +37,6 @@ orchestration_service/
 
 
 ## requires a redis docker image
+```bash
+docker run --name redis-instance -p 6379:6379 -d redis
+```
