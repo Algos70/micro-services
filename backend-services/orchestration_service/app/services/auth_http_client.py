@@ -5,7 +5,7 @@ import config
 class AuthenticationService:
     """Authentication service."""
     def __init__(self):
-        self.base_url = f"{config.AUTHERIZATION_SERVER_URL}:{config.AUTHORIZATION_SERVER_PORT}"
+        self.base_url = f"{config.AUTHERIZATION_SERVER_HOST}:{config.AUTHORIZATION_SERVER_PORT}"
         self.headers = {"accept": "*/*", "Content-Type": "application/json"}
         self.timeout = 5  
 

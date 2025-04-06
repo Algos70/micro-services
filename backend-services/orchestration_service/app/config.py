@@ -17,7 +17,7 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", default=6379))
 REDIS_DB = int(os.getenv("REDIS_DB", default=0))
 
 
-AUTHERIZATION_SERVER_URL = os.getenv("AUTHERIZATION_SERVER_URL",default="http://localhost")
+AUTHERIZATION_SERVER_HOST = os.getenv("AUTHERIZATION_SERVER_HOST",default="http://localhost")
 AUTHORIZATION_SERVER_PORT = os.getenv("AUTHORIZATION_SERVER_PORT",default=5206)
 AUTHORIZATION_SERVER_CUSTOMER_ENDPOINT = "/customer-policy"
 AUTHORIZATION_SERVER_VENDOR_ENDPOINT = "/vendor-policy"

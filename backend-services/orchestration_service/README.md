@@ -1,42 +1,136 @@
-## Folder structure
+# Order Orchestration Service
+
+This service implements the Saga pattern to coordinate distributed transactions across multiple microservices (Orders, Products, Payments) using event-driven architecture.
+
+## Architecture
+
+### Components
+- **Saga Orchestrator**: Coordinates the distributed transaction workflow
+- **Event Consumer**: Listens for events from other services
+- **Message Publisher**: Publishes commands to RabbitMQ
+- **Redis Saga Store**: Maintains saga state during transactions
+- **Auth Client**: Verifies user authentication
+
+### Event Flow
+1. Create Order Request → Verify Auth
+2. Reduce Stock Command → Stock Service
+3. Take Payment Command → Payment Service
+4. Create Order Command → Order Service
+5. Update Related Services
+
+## Folder Structure
+```
 orchestration_service/
 │
 ├── app/
-│   ├── main.py
-│   ├── config.py
-│   ├── routers/
-│   │   ├── __init__.py
-│   │   ├── order_router.py
-│   │   └── ...
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── saga_orchestrator.py
-│   │   ├── rabbitmq_connection.py
-│   │   ├── message_publisher.py
-│   │   ├── event_consumer.py
-│   │   └── ...
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── order.py
-│   │   ├── saga_state.py
-│   │   └── ...
-│   └── events/
-│       ├── __init__.py
-│       ├── commands.py
-│       ├── events.py
-│       └── ...
+│   ├── main.py                 # FastAPI application entry point
+│   ├── config.py              # Configuration settings
+│   ├── routers/              # API route handlers
+│   ├── services/             # Business logic & external services
+│   ├── models/               # Data models & schemas
+│   └── events/               # Event definitions
 │
-├── tests/
-│   ├── __init__.py
-│   ├── test_order_flow.py
-│   └── ...
-│
-├── requirements.txt
-├── Dockerfile
-└── README.md
+├── tests/                    # Test files
+├── requirements.txt          # Python dependencies
+├── Dockerfile               # Container configuration
+└── README.md                # Documentation
+```
 
+## Prerequisites
+- Python 3.11+
+- RabbitMQ
+- Redis
+- Docker & Docker Compose
 
-## requires a redis docker image
+## Configuration
+
+Environment variables required:
 ```bash
-docker run --name redis-instance -p 6379:6379 -d redis
+# Database
+DATABASE_HOST=mysql-dev:3306
+DATABASE_PASSWORD=root
+DATABASE_NAME=orders_db
+DATABASE_USER=root
+
+# RabbitMQ
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_DB=0
+
+# Auth Server
+AUTHERIZATION_SERVER_HOST=http://auth-service
+AUTHERIZATION_SERVER_PORT=5206
+```
+
+## Setup & Running
+
+### 1. Build Docker Image
+```bash
+docker build \
+--build-arg DATABASE_HOST=mysql-dev:3306 \
+--build-arg DATABASE_PASSWORD=root \
+--build-arg DATABASE_NAME=orders_db \
+--build-arg DATABASE_USER=root \
+--build-arg RABBITMQ_HOST=rabbitmq \
+--build-arg RABBITMQ_PORT=5672 \
+--build-arg RABBITMQ_USER=guest \
+--build-arg RABBITMQ_PASSWORD=guest \
+--build-arg REDIS_HOST=redis \
+--build-arg REDIS_PORT=6379 \
+--build-arg REDIS_DB=0 \
+--build-arg AUTHERIZATION_SERVER_HOST=http://auth-service \
+--build-arg AUTHERIZATION_SERVER_PORT=5206 \
+-t orchestration-service:latest .
+```
+
+### 2. Setup Network
+```bash
+# Create network if not exists
+docker network create app-network
+
+# Connect services to network
+docker network connect app-network rabbitmq
+docker network connect app-network redis
+```
+
+### 3. Run Services
+```bash
+# Run Redis
+docker run --name redis-instance --network app-network -d -p 6379:6379 redis
+
+# Run Orchestration Service
+docker run --name orchestration-service \
+  --network app-network \
+  -d -p 7001:7001 \
+  orchestration-service:latest
+```
+
+## API Endpoints
+
+- `POST /orders/create_order` - Create a new order (starts saga)
+- `GET /` - Health check endpoint
+
+## Development
+
+1. Create virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+.venv\Scripts\activate     # Windows
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Run locally:
+```bash
+uvicorn app.main:app --reload --port 7001
 ```
