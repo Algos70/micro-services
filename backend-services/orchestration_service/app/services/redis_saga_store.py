@@ -1,9 +1,9 @@
 import redis
 import json
 from models.saga_state import OrderSagaState, ProductSagaState, PaymentSagaState
-
+import config
 class RedisSagaStore:
-    def __init__(self, host="localhost", port=6379, db=0):
+    def __init__(self, host=config.REDIS_HOST, port=config.REDIS_PORT, db=config.REDIS_DB):
         self.client = redis.Redis(host=host, port=port, db=db, decode_responses=True)
 
     def save_order_saga(self, saga: OrderSagaState, ttl: int = 600):

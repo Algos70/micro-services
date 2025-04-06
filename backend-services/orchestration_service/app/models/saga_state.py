@@ -1,8 +1,7 @@
-import uuid
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel
 
 class ProductSagaState:
-    def __init__(self, product_id: str, quantity: int):
+    def __init__(self, transaction_id: str, product_id: str, quantity: int):
         """
         Represents the state of a Product in a Saga.
 
@@ -10,12 +9,21 @@ class ProductSagaState:
         :param product_id: The ID of the product.
         :param quantity: The quantity of the product.
         """
-        self.transaction_id = str(uuid.uuid4())
+        self.transaction_id = transaction_id
         self.product_id = product_id
         self.quantity = quantity
 
+    def dict(self):
+        """
+        Returns the attributes of the ProductSagaState as a dictionary.
+        """
+        return {
+            "transaction_id": self.transaction_id,
+            "product_id": self.product_id,
+            "quantity": self.quantity
+        }
 class OrderSagaState:
-    def __init__(self, description: str, user_email: str, vendor_email: str, delivery_address: str, payment_method: str, status: str = "Pending", items: list = None):
+    def __init__(self, transaction_id: str, description: str, user_email: str, vendor_email: str, delivery_address: str, payment_method: str, status: str = "Pending", items: list = None):
         """
         Represents the state of an Order in a Saga.
 
@@ -25,7 +33,7 @@ class OrderSagaState:
         :param vendor_email: The email of the vendor fulfilling the order.
         :param delivery_address: The delivery address for the order.
         """
-        self.transaction_id = str(uuid.uuid4())
+        self.transaction_id = transaction_id
         self.description = description
         self.user_email = user_email
         self.vendor_email = vendor_email
@@ -40,21 +48,49 @@ class OrderSagaState:
         Assumes each item has 'quantity' and 'unit_price' attributes.
         """
         return sum(item.quantity * item.unit_price for item in self.items)
+    
+    def dict(self):
+        """
+        Returns the attributes of the OrderSagaState as a dictionary.
+        """
+        return {
+            "transaction_id": self.transaction_id,
+            "description": self.description,
+            "user_email": self.user_email,
+            "vendor_email": self.vendor_email,
+            "delivery_address": self.delivery_address,
+            "status": self.status,
+            "items": [item.dict() for item in self.items],
+            "payment_method": self.payment_method
+        }
+    
 class PaymentSagaState:
-    def __init__(self, user_email: str, amount: float, payment_method: str, payment_status: str = "Pending", order_id: str = None):
+    def __init__(self, transaction_id: str, user_email: str, amount: float, payment_method: str, payment_status: str = "Pending", order_id: str = None):
         """
         Represents the state of a Payment in a Saga.
 
         :param transaction_id: The unique transaction ID for the Saga.
         :param payment_info: The payment information.
         """
-        self.transaction_id = str(uuid.uuid4())
+        self.transaction_id = transaction_id
         self.user_email = user_email
         self.order_id = order_id
         self.amount = amount
         self.payment_method = payment_method
         self.payment_status = payment_status
 
+    def dict(self):
+        """
+        Returns the attributes of the PaymentSagaState as a dictionary.
+        """
+        return {
+            "transaction_id": self.transaction_id,
+            "user_email": self.user_email,
+            "order_id": self.order_id,
+            "amount": self.amount,
+            "payment_method": self.payment_method,
+            "payment_status": self.payment_status
+        }
 
 
 class SagaEvent(BaseModel):

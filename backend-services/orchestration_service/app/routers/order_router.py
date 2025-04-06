@@ -14,7 +14,7 @@ def create_order(order_req: OrderCreateRequest):
         raise HTTPException(status_code=400, detail=result.message)
     return result.data
 
-@router.post("/create_order", response_model=OrderResponse)
+@router.post("/create_order")
 def create_order(
     order_req: OrderCreateRequest,
     request: Request,
@@ -22,8 +22,8 @@ def create_order(
 
 ):  
     auth_header = request.headers.get("Authorization")
-    if not auth_header:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
+    # if not auth_header:
+    #    raise HTTPException(status_code=401, detail="Authorization header missing")
     payment_method = order_req.payment_method
     if payment_method not in PAYMENT_METHODS:
         raise HTTPException(status_code=400, detail="Invalid payment method")

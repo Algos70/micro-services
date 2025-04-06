@@ -1,7 +1,7 @@
 """Event Consumer for Saga Orchestrator"""
 import pika
 import json
-from services.saga_orchestrator import SagaOrchestrator
+from services.saga_orchestrator import get_saga_orchestrator
 import config
 class RabbitMQConsumer:
     def __init__(self, queue: str):
@@ -17,7 +17,7 @@ class RabbitMQConsumer:
         )
         self.connection = None
         self.channel = None
-        orchestrator = SagaOrchestrator()
+        orchestrator = get_saga_orchestrator()
         # Mapping event types to handler methods
         self.event_handlers = {
             "reduce_stock": orchestrator.handle_stock_reduced_event,

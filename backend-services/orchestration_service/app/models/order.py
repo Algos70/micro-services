@@ -5,6 +5,13 @@ class OrderItemCreate(BaseModel):
     product_id: str
     quantity: int
     unit_price: float
+
+    def dict(self):
+        return {
+            "product_id": self.product_id,
+            "quantity": self.quantity,
+            "unit_price": self.unit_price,
+        }
     
 class OrderCreateRequest(BaseModel):
     user_email: EmailStr
