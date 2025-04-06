@@ -69,7 +69,7 @@ class RabbitMQConsumer:
         self.order_service.create_order(
             order_data=data,
         )
-        self.publisher
+        self.publisher.publish_order_created_response(order_id=data.get("order_id"))
 
 
     def handle_order_updated(self, data):
