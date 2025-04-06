@@ -73,10 +73,6 @@ AUTHERIZATION_SERVER_PORT=5206
 ### 1. Build Docker Image
 ```bash
 docker build \
---build-arg DATABASE_HOST=mysql-dev:3306 \
---build-arg DATABASE_PASSWORD=root \
---build-arg DATABASE_NAME=orders_db \
---build-arg DATABASE_USER=root \
 --build-arg RABBITMQ_HOST=rabbitmq \
 --build-arg RABBITMQ_PORT=5672 \
 --build-arg RABBITMQ_USER=guest \
@@ -85,7 +81,7 @@ docker build \
 --build-arg REDIS_PORT=6379 \
 --build-arg REDIS_DB=0 \
 --build-arg AUTHERIZATION_SERVER_HOST=http://auth-service \
---build-arg AUTHERIZATION_SERVER_PORT=5206 \
+--build-arg AUTHERIZATION_SERVER_PORT=8086 \
 -t orchestration-service:latest .
 ```
 
