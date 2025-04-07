@@ -7,6 +7,7 @@ import { AllExceptionsFilter } from '../../common/filters/exception.filter';
 import { ProductEvents } from '../../common/events/registry.events';
 import { ReduceStockDto } from './dto/requests/reduce-stock.dto';
 import { IncreaseStockDto } from './dto/requests/increase-stock.dto';
+import { RollbackStockDto } from './dto/requests/rollback-stock.dto';
 
 @Controller()
 @UseFilters(AllExceptionsFilter)
@@ -64,7 +65,7 @@ export class ProductsController {
   }
 
   @EventPattern(ProductEvents.ROLLBACK_STOCK)
-  rollbackStock(@Payload() transaction_id: string) {
-    return this.productsService.reduceRollBack(transaction_id);
+  rollbackStock(@Payload() rollbackDto: RollbackStockDto) {
+    return this.productsService.reduceRollBack(rollbackDto);
   }
 }
