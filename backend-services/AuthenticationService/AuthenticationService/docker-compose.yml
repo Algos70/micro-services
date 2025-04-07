@@ -3,14 +3,14 @@ services:
     build: .
     container_name: auth-service
     ports:
-      - "8080:8080"
+      - "8086:8086"
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=authentication_service;Username=electi;Password=536051;Port=5432;Pooling=true;
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_URLS=http://+:8086
     networks:
       - app-network
 
