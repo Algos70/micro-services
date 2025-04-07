@@ -9,10 +9,14 @@ async function bootstrap() {
 
   const maxRetries = 5;
   const retryDelay = 5000;
+  let app = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const app = await NestFactory.create(AppModule);
+      if (app) {
+        await app.close();
+      }
+      app = await NestFactory.create(AppModule);
 
       const config = new DocumentBuilder()
         .setTitle('My Hybrid App')
@@ -30,7 +34,7 @@ async function bootstrap() {
           urls: [
             process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672',
           ],
-          queue: 'products-queue',
+          queue: 'products_queue',
           queueOptions: { durable: true },
           socketOptions: {
             heartbeatIntervalInSeconds: 30,
@@ -39,8 +43,9 @@ async function bootstrap() {
         },
       });
       await app.startAllMicroservices();
-      await app.listen(4040);
+      await app.listen(process.env.PORT || 4000);
       logger.log('Microservice connected to RabbitMQ');
+      break;
     } catch ({ stack }) {
       logger.error(
         `RabbitMQ connection attempt ${attempt}/${maxRetries} failed`,

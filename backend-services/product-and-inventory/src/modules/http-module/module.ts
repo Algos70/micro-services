@@ -13,7 +13,7 @@ import { ProductGatewayController } from './product.controller';
           urls: [
             process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672',
           ],
-          queue: 'products-queue',
+          queue: 'products_queue',
           queueOptions: {
             durable: true,
           },
