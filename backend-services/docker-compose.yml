@@ -94,7 +94,7 @@ services:
     ports:
       - '9001:9001'
     environment:
-      DATABASE_HOST: mysql-dev
+      DATABASE_HOST: mysql
       DATABASE_NAME: payments_db
       DATABASE_USER: root
       DATABASE_PASSWORD: root
@@ -117,7 +117,7 @@ services:
     ports:
       - '8080:8080'
     environment:
-      DATABASE_HOST: mysql-dev
+      DATABASE_HOST: mysql
       DATABASE_NAME: orders_db
       DATABASE_USER: root
       DATABASE_PASSWORD: root

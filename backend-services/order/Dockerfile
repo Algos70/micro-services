@@ -2,7 +2,7 @@
 FROM python:3.13-bookworm AS builder
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-        build-essential && \
+    build-essential && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Download the latest installer, install it and then remove it
