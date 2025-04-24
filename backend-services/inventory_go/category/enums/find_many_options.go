@@ -1,4 +1,4 @@
-package find_many_options
+package enums
 
 type FindManyOptions int
 

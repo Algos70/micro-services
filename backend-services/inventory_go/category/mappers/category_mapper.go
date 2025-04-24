@@ -2,7 +2,7 @@ package mappers
 
 import (
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"inventory_go/domain/category"
+	"inventory_go/category"
 	"inventory_go/infrastructure/models"
 )
 
@@ -26,7 +26,7 @@ func ToDocument(category *category.Category) (*models.CategoryDocument, error) {
 	}, nil
 }
 
-func ToDomain(document models.CategoryDocument) *category.Category {
+func ToDomain(document *models.CategoryDocument) *category.Category {
 	id := document.Id.Hex()
 
 	var parentId string
