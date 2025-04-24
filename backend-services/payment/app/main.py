@@ -14,7 +14,7 @@ async def lifespan(app: FastAPI):
     # Startup: create and start the consumer thread
     Base.metadata.create_all(bind=engine)
     print("Database connected")
-    consumer = get_consumer_service(queue=config.RABBITMQ_ORDERS_QUEUE)
+    consumer = get_consumer_service(queue=config.RABBITMQ_PAYMENT_QUEUE)
     thread = threading.Thread(target=consumer.start_consuming, daemon=True)
     thread.start()
     print("Consumer thread started.")

@@ -9,7 +9,7 @@ class Payment(Base):
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     user_email = Column(String(100), nullable=False, index=True)
-    order_id = Column(String(36), nullable=False, unique=True, index=True)
+    order_id = Column(String(36), nullable=True, unique=True, index=True)
     amount = Column(Float, nullable=False)
     payment_method = Column(Enum(*PAYMENT_METHODS), nullable=False) 
     payment_status = Column(Enum(*PAYMENT_STATUSES), nullable=False, default="Pending")
@@ -40,3 +40,21 @@ class Payment(Base):
         """
         return (f"<Payment(id={self.id}, user_email={self.user_email} order_id={self.order_id}, amount={self.amount}, "
                 f"payment_method={self.payment_method}, payment_status={self.payment_status})>")
+
+    def update_status(self, new_status: str):
+        """
+        Update the status of the payment.
+
+        :param new_status: The new status to set for the payment.
+        """
+        self.payment_status = new_status
+        return self
+    
+    def update_order_id(self, order_id: str):
+        """
+        Update the order ID of the payment.
+
+        :param order_id: The new order ID to set for the payment.
+        """
+        self.order_id = order_id
+        return self

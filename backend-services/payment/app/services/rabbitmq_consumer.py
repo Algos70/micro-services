@@ -12,9 +12,14 @@ Message structure:
 import pika
 import json
 from core import config
+from services.payment_service import PaymentService, get_payment_service
+from services.rabbitmq_publisher import RabbitMQPublisher, get_publisher_service
+from fastapi import Depends
 
 class RabbitMQConsumer:
-    def __init__(self, queue: str):
+    def __init__(self, queue: str, payment_service: PaymentService, publisher: RabbitMQPublisher):
+        self.payment_service = payment_service
+        self.publisher = publisher
         self.queue = queue
         credentials = pika.PlainCredentials(
             username=config.RABBITMQ_USER,
@@ -30,9 +35,8 @@ class RabbitMQConsumer:
 
         # Mapping event types to handler methods
         self.event_handlers = {
-            "order_created": self.handle_order_created,
-            "order_updated": self.handle_order_updated,
-            # Add more event mappings as needed
+            "take_payment": self.handle_take_payment,
+            "update_payment_order_id": self.handle_order_id_updated,
         }
 
     def connect(self):
@@ -49,7 +53,7 @@ class RabbitMQConsumer:
 
             # Dispatch the message to the appropriate handler if it exists
             if event_type in self.event_handlers:
-                self.event_handlers[event_type](message.get("data"))
+                self.event_handlers[event_type](message)
             else:
                 print(f"Unhandled event type: {event_type}")
 
@@ -58,6 +62,31 @@ class RabbitMQConsumer:
         except Exception as e:
             print("Error processing message:", e)
             # Optionally, you might choose to nack the message or log it for further inspection
+
+    def handle_take_payment(self, message):
+        """Handle payment processing logic."""
+        try:
+            data = message.get("data")
+            transaction_id = message.get("transaction_id")
+            # Call the payment service to process the payment
+            payment_response = self.payment_service.create_payment(data)
+            self.payment_service.update_payment_status(payment_response.id, "Success")
+
+            # Publish a success message or take further action
+            self.publisher.publish_payment_message(payment_response.id, transaction_id)
+        except Exception as e:
+            print("Error in handle_take_payment:", e)
+
+    def handle_order_id_updated(self, message):
+        """Handle order ID update logic."""
+        try:
+            data = message.get("data")
+            order_id = data.get("order_id")
+            payment_id = data.get("payment_id")
+            # Call the payment service to update the order ID
+            self.payment_service.update_order_id(order_id=order_id, payment_id=payment_id)
+        except Exception as e:
+            print("Error in handle_order_id_updated:", e)
 
     def handle_order_created(self, data):
         """Handle order creation logic."""
@@ -94,14 +123,8 @@ class RabbitMQConsumer:
             # Signal the consumer's thread to stop consuming in a thread-safe manner
             self.connection.add_callback_threadsafe(self.channel.stop_consuming)
 
-def get_consumer_service(queue: str):
-    return RabbitMQConsumer(queue)
-"""Usage example: run this script to start the consumer
-if __name__ == "__main__":
-    consumer = RabbitMQConsumer(queue="orders_queue")
-    try:
-        consumer.start_consuming()
-    except KeyboardInterrupt:
-        consumer.stop_consuming()
-        print("Stopped consuming.")
-"""
+def get_consumer_service(queue: str, 
+                           payment_service: PaymentService = Depends(get_payment_service),
+                           publisher: RabbitMQPublisher = Depends(get_publisher_service)):
+    
+    return RabbitMQConsumer(queue=queue, payment_service=payment_service, publisher=publisher)

@@ -2,9 +2,6 @@
 from sqlalchemy import Column, String, Integer, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from db.base import Base
-
-
-
 class OrderItem(Base):
     __tablename__ = "order_items"
 
@@ -15,7 +12,7 @@ class OrderItem(Base):
     unit_price = Column(Float, nullable=False)
     order = relationship("Order", back_populates="items")
 
-    def __init__(self, order_id: str, product_id: str, unit_price: float, quantity: int = 1):
+    def __init__(self, product_id: str, unit_price: float, quantity: int = 1):
         """
         Initializes a new OrderItem instance.
 
@@ -24,7 +21,6 @@ class OrderItem(Base):
         :param unit_price: Unit price of the product.
         :param quantity: Quantity of the product (default is 1).
         """
-        self.order_id = order_id
         self.product_id = product_id
         self.unit_price = unit_price
         self.quantity = quantity
@@ -33,5 +29,5 @@ class OrderItem(Base):
         """
         Returns a readable string representation of the OrderItem instance.
         """
-        return (f"<OrderItem(id={self.id}, order_id={self.order_id}, product_id={self.product_id}, "
+        return (f"<OrderItem(id={self.id}, product_id={self.product_id}, "
                 f"unit_price={self.unit_price}, quantity={self.quantity})>")

@@ -12,9 +12,13 @@ Message structure:
 import pika
 import json
 from core import config
-
+from services.order_service import OrderService, get_order_service
+from services.rabbitmq_publisher import RabbitMQPublisher, get_publisher_service
+from fastapi import Depends
 class RabbitMQConsumer:
-    def __init__(self, queue: str):
+    def __init__(self, queue: str, order_service: OrderService, publisher: RabbitMQPublisher):
+        self.order_service = order_service
+        self.publisher = publisher
         self.queue = queue
         credentials = pika.PlainCredentials(
             username=config.RABBITMQ_USER,
@@ -30,7 +34,8 @@ class RabbitMQConsumer:
 
         # Mapping event types to handler methods
         self.event_handlers = {
-            "order_created": self.handle_order_created,
+            "create_order": self.handle_order_created,
+            "update_order_payment_id": self.handle_update_order_payment_id,
             "order_updated": self.handle_order_updated,
             # Add more event mappings as needed
         }
@@ -49,7 +54,7 @@ class RabbitMQConsumer:
 
             # Dispatch the message to the appropriate handler if it exists
             if event_type in self.event_handlers:
-                self.event_handlers[event_type](message.get("data"))
+                self.event_handlers[event_type](message)
             else:
                 print(f"Unhandled event type: {event_type}")
 
@@ -59,11 +64,24 @@ class RabbitMQConsumer:
             print("Error processing message:", e)
             # Optionally, you might choose to nack the message or log it for further inspection
 
-    def handle_order_created(self, data):
+    def handle_order_created(self, message):
         """Handle order creation logic."""
-        print("Processing order created with data:", data)
-        # Add your business logic for order creation here
+        data = message.get("data", {})
+        transection_id = message.get("transaction_id")
+        self.order_service.create_order(
+            order_data=data,
+        )
+        self.publisher.publish_order_created_response(order_id=data.get("order_id"), transection_id=transection_id)
 
+    def handle_update_order_payment_id(self, message):
+        """Handle order payment ID update logic."""
+        data = message.get("data", {})
+        order_id = data.get("order_id")
+        payment_id = data.get("payment_id")
+        self.order_service.update_order_payment(order_id, payment_id)
+        print(f"Updated payment ID for order {order_id} to {payment_id}")
+
+        
     def handle_order_updated(self, data):
         """Handle order update logic."""
         print("Processing order updated with data:", data)
@@ -94,14 +112,9 @@ class RabbitMQConsumer:
             # Signal the consumer's thread to stop consuming in a thread-safe manner
             self.connection.add_callback_threadsafe(self.channel.stop_consuming)
 
-def get_consumer_service(queue: str):
-    return RabbitMQConsumer(queue)
-"""Usage example: run this script to start the consumer
-if __name__ == "__main__":
-    consumer = RabbitMQConsumer(queue="orders_queue")
-    try:
-        consumer.start_consuming()
-    except KeyboardInterrupt:
-        consumer.stop_consuming()
-        print("Stopped consuming.")
-"""
+def get_consumer_service(
+        queue: str, 
+        order_service: OrderService = Depends(get_order_service),
+        publisher: RabbitMQPublisher = Depends(get_publisher_service)
+        ) -> RabbitMQConsumer:
+    return RabbitMQConsumer(queue, order_service, publisher)

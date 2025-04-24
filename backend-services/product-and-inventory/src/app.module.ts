@@ -3,11 +3,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { ProductsModule } from './modules/products/products.module';
 import { CategoryModule } from './modules/category/category.module';
+import { GateWayModule } from './modules/http-module/module';
 
 @Module({
   imports: [
     ProductsModule,
     CategoryModule,
+    GateWayModule,
     MongooseModule.forRoot(
       process.env.MONGO_URL || 'mongodb://localhost:27017/nest',
       {
