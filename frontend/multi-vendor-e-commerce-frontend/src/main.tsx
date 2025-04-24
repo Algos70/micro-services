@@ -5,12 +5,14 @@ import {BrowserRouter, Route, Routes} from "react-router";
 import App from "@/App.tsx";
 import SignInPage from "@/pages/sign-in.tsx";
 import SignUpPage from "@/pages/sign-up.tsx";
+import LandingPage from './pages/landing';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<App/>}/>
+                <Route path="/landing" element={<LandingPage/>}/>
                 <Route path="/sign-up" element={<SignUpPage/>}/>
                 <Route path="/sign-in" element={<SignInPage/>}/>
             </Routes>
