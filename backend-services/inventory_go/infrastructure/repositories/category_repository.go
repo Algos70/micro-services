@@ -6,9 +6,9 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
-	"inventory_go/domain/category"
-	findmanyoptions "inventory_go/infrastructure/enums"
-	"inventory_go/infrastructure/mappers"
+	"inventory_go/category"
+	findmanyoptions "inventory_go/category/enums"
+	"inventory_go/category/mappers"
 	"inventory_go/infrastructure/models"
 	"time"
 )
@@ -79,6 +79,19 @@ func (r *CategoryRepositoryImpl) Delete(id string) error {
 		return errors.New("category not found")
 	}
 	return err
+}
+
+func (r *CategoryRepositoryImpl) FindByName(name string) (*models.CategoryDocument, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var _category models.CategoryDocument
+	err := r.collection.FindOne(ctx, bson.M{"name": name}).Decode(&_category)
+
+	if err != nil {
+		return nil, err
+	}
+	return &_category, nil
 }
 
 func (r *CategoryRepositoryImpl) FindManyByFilter(option findmanyoptions.FindManyOptions, id string) ([]*models.CategoryDocument, error) {
