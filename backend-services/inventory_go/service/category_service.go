@@ -17,6 +17,10 @@ func NewCategoryService(repository category.CategoryRepository) *CategoryService
 }
 
 func (service *CategoryServiceImpl) Create(category *category.Category) error {
+	if category.Id() != "" {
+		return errors.New("id should be empty when creating a category")
+	}
+
 	// Rule 0: Each category should have a unique name
 	_category, err := service.repository.FindByName(category.Name())
 	if err != nil {

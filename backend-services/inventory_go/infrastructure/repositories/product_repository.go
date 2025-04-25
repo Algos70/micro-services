@@ -96,7 +96,7 @@ func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.F
 			"$regex": bson.Regex{Pattern: escaped, Options: "i"},
 		}}
 		cursor, err = r.collection.Find(ctx, filter)
-	} else if option == findmanyproductoptions.FindByCategory {
+	} else if option == findmanyproductoptions.FindByCategory && categoryId != "" {
 		objectId, err := bson.ObjectIDFromHex(categoryId)
 		if err != nil {
 			return nil, err

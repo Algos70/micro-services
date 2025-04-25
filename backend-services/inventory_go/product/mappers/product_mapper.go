@@ -21,13 +21,14 @@ func ProductDomainToDocument(product *product.Product) (*models.ProductDocument,
 	}
 
 	return &models.ProductDocument{
-		Id:         id,
-		CategoryId: categoryId,
-		Name:       product.Name(),
-		Price:      product.Price(),
-		Stock:      product.Stock(),
-		VendorId:   product.VendorId(),
-		Image:      product.Image(),
+		Id:          id,
+		CategoryId:  categoryId,
+		Name:        product.Name(),
+		Price:       product.Price(),
+		Stock:       product.Stock(),
+		VendorId:    product.VendorId(),
+		Image:       product.Image(),
+		Description: product.Description(),
 	}, nil
 }
 
@@ -37,6 +38,6 @@ func ProductDocumentToDomain(document *models.ProductDocument) *product.Product 
 	if !bson.ObjectID.IsZero(document.CategoryId) {
 		categoryId = document.CategoryId.Hex()
 	}
-	return product.NewProduct(id, document.Name, document.Price, document.Stock, document.VendorId, document.Image, categoryId)
+	return product.NewProduct(id, document.Name, document.Price, document.Stock, document.VendorId, document.Image, categoryId, document.Description)
 
 }
