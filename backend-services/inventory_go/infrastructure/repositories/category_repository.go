@@ -40,11 +40,11 @@ func (r *CategoryRepositoryImpl) GetById(id string) (*models.CategoryDocument, e
 	return &_category, nil
 }
 
-func (r *CategoryRepositoryImpl) Save(category category.Category) error {
+func (r *CategoryRepositoryImpl) Save(category *category.Category) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	categoryDocument, err := mappers.ToDocument(&category)
+	categoryDocument, err := mappers.ToDocument(category)
 	if err != nil {
 		return err
 	}
