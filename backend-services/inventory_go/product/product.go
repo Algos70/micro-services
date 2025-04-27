@@ -48,6 +48,10 @@ func (p *Product) UpdateImage(image string) {
 	p.Image = image
 }
 
+func (p *Product) UpdateStock(stock int) {
+	p.Stock = stock
+}
+
 func (p *Product) ValidateProduct() error {
 	if p.GetName() == "" {
 		return errors.New("name is required")

@@ -73,7 +73,7 @@ func (controller *CategoryController) CreateCategory() {
 			}
 			return
 		}
-		c.JSON(http.StatusCreated, gin.H{"status": Success, "data": _category, "message": nil})
+		c.JSON(http.StatusCreated, gin.H{"status": Success, "data": nil, "message": nil})
 	})
 }
 

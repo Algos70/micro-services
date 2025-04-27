@@ -8,6 +8,7 @@ import (
 	_ "inventory_go/docs"
 	"inventory_go/infrastructure"
 	"inventory_go/infrastructure/repositories"
+	"inventory_go/rabbitmq"
 	"inventory_go/service"
 	"log"
 	"os"
@@ -34,12 +35,61 @@ func main() {
 		productCollectionName = "products"
 	}
 
+	transactionCollectionName := os.Getenv("TRANSACTION_COLLECTION")
+	if transactionCollectionName == "" {
+		transactionCollectionName = "transactions"
+	}
+
 	categoryRepository := repositories.NewCategoryRepository(db, categoryCollectionName)
 	productRepository := repositories.NewProductRepository(db, productCollectionName)
+	transactionRepository := repositories.NewTransactionRepository(db, transactionCollectionName)
 
 	// Get services
 	categoryService := service.NewCategoryService(categoryRepository)
-	productService := service.NewProductService(productRepository, categoryRepository)
+	productService := service.NewProductService(productRepository, categoryRepository, transactionRepository)
+
+	// Connect to rabbitmq
+	rabbitmqConnectionString := os.Getenv("RABBITMQ_URL")
+	if rabbitmqConnectionString == "" {
+		rabbitmqConnectionString = "amqp://guest:guest@localhost:5672"
+	}
+
+	connection, err := rabbitmq.Connect(rabbitmqConnectionString)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		maxTries := 10
+		err = connection.Close()
+		for err != nil && maxTries > 0 {
+			err = connection.Close()
+			maxTries--
+		}
+	}()
+
+	// Set up consumer
+	productQueue := os.Getenv("PRODUCT_QUEUE")
+	if productQueue == "" {
+		productQueue = "products_queue"
+	}
+	consumer, err := rabbitmq.NewConsumer(connection, productQueue)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set up publisher
+	orchestrationQueue := os.Getenv("ORCHESTRATION_QUEUE")
+	if orchestrationQueue == "" {
+		orchestrationQueue = "orchestration_queue"
+	}
+	publisher, err := rabbitmq.NewPublisher(connection, orchestrationQueue)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Handle delivered packages
+	rabbitmq.HandleConsumer(consumer, productService, publisher)
 
 	// Set up router
 	router := gin.Default()

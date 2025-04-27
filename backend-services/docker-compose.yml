@@ -16,6 +16,8 @@ services:
       start_period: '30s'
     networks:
       - app-network
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
 
   redis:
     image: redis:latest
@@ -159,27 +161,6 @@ services:
     networks:
       - app-network
 
-  product-inventory-service:
-    build:
-      context: ./product-and-inventory
-    container_name: product-inventory-service
-    ports:
-      - '4000:4000'
-    environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-      MONGO_URL: mongodb://mongodb:27017/nest
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      mongodb:
-        condition: service_healthy
-    networks:
-      - app-network
-
   mongodb:
     image: mongo:6
     container_name: mongodb
@@ -196,6 +177,28 @@ services:
     networks:
       - app-network
 
+  product-and-inventory-go:
+    build:
+      context: ./inventory_go
+    container_name: go_app
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - ORCHESTRATION_QUEUE=orchestration_queue
+      - PRODUCT_QUEUE=products_queue
+      - MONGO_URL=mongodb://mongodb:27017/inventory
+      - CATEGORY_COLLECTION=categories
+      - PRODUCT_COLLECTION=products
+      - TRANSACTION_COLLECTION=transactions
+    ports:
+      - '9292:9292'
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -203,3 +206,4 @@ networks:
 volumes:
   pgdata:
   mongo-data:
+  rabbitmq_data:
