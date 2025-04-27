@@ -6,6 +6,7 @@ import (
 	"inventory_go/api/payloads"
 	"inventory_go/infrastructure/repositories"
 	"inventory_go/product"
+	"inventory_go/product/mappers"
 	"inventory_go/service"
 	"net/http"
 )
@@ -42,7 +43,7 @@ func (controller *ProductController) ExposeEndpoints() {
 // @Tags         products
 // @Accept       json
 // @Produce      json
-// @Param        product   body      product.Product   true  "Product payload"
+// @Param        product   body      payloads.CreateProductPayload  true  "Product payload"
 // @Success      200       {object}  map[string]interface{}
 // @Failure      400       {object}  map[string]interface{}
 // @Failure      404       {object}  map[string]interface{}
@@ -50,12 +51,13 @@ func (controller *ProductController) ExposeEndpoints() {
 // @Router       /product [post]
 func (controller *ProductController) Create() {
 	controller.router.POST("product", func(c *gin.Context) {
-		var _product product.Product
-		if err := c.ShouldBindJSON(&_product); err != nil {
+		var payload payloads.CreateProductPayload
+		if err := c.ShouldBindJSON(&payload); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": Error, "message": err.Error(), "data": nil})
 			return
 		}
-		err := controller.service.Create(&_product)
+		_product := mappers.ProductPayloadToDomain(payload)
+		err := controller.service.Create(_product)
 		if err != nil {
 			switch {
 			case errors.Is(err, service.ErrIdShouldBeEmpty):

@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"inventory_go/api/payloads"
 	"inventory_go/category"
+	"inventory_go/category/mappers"
 	"inventory_go/infrastructure/repositories"
 	"inventory_go/service"
 	"net/http"
@@ -39,7 +40,7 @@ func (controller *CategoryController) ExposeEndpoints() {
 // @Tags         categories
 // @Accept       json
 // @Produce      json
-// @Param        category  body      category.Category  true  "Category payload"
+// @Param        category  body      payloads.CreateCategoryPayload  true  "Category payload"
 // @Success      200       {object}  map[string]interface{}
 // @Failure      400       {object}  map[string]interface{}
 // @Failure      404       {object}  map[string]interface{}
@@ -48,12 +49,13 @@ func (controller *CategoryController) ExposeEndpoints() {
 // @Router       /category [post]
 func (controller *CategoryController) CreateCategory() {
 	controller.router.POST("/category", func(c *gin.Context) {
-		var _category category.Category
-		if err := c.ShouldBindJSON(&_category); err != nil {
+		var payload payloads.CreateCategoryPayload
+		if err := c.ShouldBindJSON(&payload); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": Error, "message": err.Error(), "data": nil})
 			return
 		}
-		err := controller.service.Create(&_category)
+		_category := mappers.PayloadToDomain(payload)
+		err := controller.service.Create(_category)
 		if err != nil {
 			switch {
 			case errors.Is(err, service.ErrIdShouldBeEmpty):

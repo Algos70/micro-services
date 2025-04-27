@@ -9,6 +9,7 @@ import (
 	findmanyoptions "inventory_go/category/enums"
 	"inventory_go/category/mappers"
 	"inventory_go/infrastructure/models"
+	"log"
 	"time"
 )
 
@@ -110,7 +111,7 @@ func (r *CategoryRepositoryImpl) FindManyByFilter(option findmanyoptions.FindMan
 	if option == findmanyoptions.FindAll {
 		cursor, err = r.collection.Find(ctx, bson.M{})
 	} else if option == findmanyoptions.FindAllParents {
-		filter := bson.M{"parent_id": bson.M{"$eq": nil}}
+		filter := bson.M{"parent_id": bson.M{"$eq": bson.NilObjectID}}
 		cursor, err = r.collection.Find(ctx, filter)
 	} else if option == findmanyoptions.FindAllSubCategoriesById && id != "" {
 		objectId, err := bson.ObjectIDFromHex(id)
@@ -123,7 +124,7 @@ func (r *CategoryRepositoryImpl) FindManyByFilter(option findmanyoptions.FindMan
 	} else {
 		return nil, ErrInvalidOption
 	}
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +140,8 @@ func (r *CategoryRepositoryImpl) FindManyByFilter(option findmanyoptions.FindMan
 
 	var categories []*models.CategoryDocument
 	if err := cursor.All(ctx, &categories); err != nil {
-		return nil, nil
+		log.Println("Error reading categories from cursor:", err)
+		return nil, err
 	}
 
 	return categories, nil

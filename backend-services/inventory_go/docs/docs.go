@@ -62,7 +62,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/category.Category"
+                            "$ref": "#/definitions/payloads.CreateCategoryPayload"
                         }
                     }
                 ],
@@ -433,7 +433,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/product.Product"
+                            "$ref": "#/definitions/payloads.CreateProductPayload"
                         }
                     }
                 ],
@@ -934,8 +934,51 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "category.Category": {
-            "type": "object"
+        "payloads.CreateCategoryPayload": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "payloads.CreateProductPayload": {
+            "type": "object",
+            "required": [
+                "name",
+                "price",
+                "stock",
+                "vendor_id"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "vendor_id": {
+                    "type": "string"
+                }
+            }
         },
         "payloads.UpdateCategoryPayload": {
             "type": "object",
@@ -991,9 +1034,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "product.Product": {
-            "type": "object"
         }
     }
 }`

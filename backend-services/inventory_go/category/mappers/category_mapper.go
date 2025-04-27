@@ -2,6 +2,7 @@ package mappers
 
 import (
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"inventory_go/api/payloads"
 	"inventory_go/category"
 	"inventory_go/infrastructure/models"
 )
@@ -9,16 +10,16 @@ import (
 func ToDocument(category *category.Category) (*models.CategoryDocument, error) {
 	var id bson.ObjectID
 	var err error
-	if category.Id() != "" {
-		id, err = bson.ObjectIDFromHex(category.Id())
+	if category.GetId() != "" {
+		id, err = bson.ObjectIDFromHex(category.GetId())
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	var parentId bson.ObjectID
-	if category.ParentId() != "" {
-		parentId, err = bson.ObjectIDFromHex(category.ParentId())
+	if category.GetParentId() != "" {
+		parentId, err = bson.ObjectIDFromHex(category.GetParentId())
 		if err != nil {
 			return nil, err
 		}
@@ -26,7 +27,7 @@ func ToDocument(category *category.Category) (*models.CategoryDocument, error) {
 
 	return &models.CategoryDocument{
 		Id:       id,
-		Name:     category.Name(),
+		Name:     category.GetName(),
 		ParentId: parentId,
 	}, nil
 }
@@ -42,4 +43,8 @@ func ToDomain(document *models.CategoryDocument) *category.Category {
 		parentId = document.ParentId.Hex()
 	}
 	return category.NewCategory(id, document.Name, parentId)
+}
+
+func PayloadToDomain(payload payloads.CreateCategoryPayload) *category.Category {
+	return category.NewCategory("", payload.Name, payload.ParentId)
 }
