@@ -123,10 +123,11 @@ func (r *CategoryRepositoryImpl) FindManyByFilter(option findmanyoptions.FindMan
 	} else {
 		return nil, ErrInvalidOption
 	}
-
+	
 	if err != nil {
-		return nil, ErrCategoryNotFound
+		return nil, err
 	}
+
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		maxTries := 10
 		err := cursor.Close(ctx)

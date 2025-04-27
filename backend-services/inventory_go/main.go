@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"inventory_go/api"
 	"inventory_go/infrastructure"
 	"inventory_go/infrastructure/repositories"
 	"inventory_go/service"
 	"log"
-	"net/http"
 	"os"
 )
 
@@ -43,6 +43,13 @@ func main() {
 
 	router.Use(gin.Recovery())
 	router.Use(gin.Logger())
+
+	// Expose endpoints
+	categoryController := api.NewCategoryController(router, categoryService)
+	categoryController.ExposeEndpoints()
+
+	productController := api.NewProductController(router, productService)
+	productController.ExposeEndpoints()
 
 	// Run the router on port 9292
 	err = router.Run(":9292")

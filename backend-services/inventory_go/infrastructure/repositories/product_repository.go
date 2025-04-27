@@ -113,7 +113,7 @@ func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.F
 	}
 
 	if err != nil {
-		return nil, ErrProductNotFound
+		return nil, err
 	}
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		maxTries := 10
