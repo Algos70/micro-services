@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"errors"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -30,13 +29,13 @@ func (r *ProductRepositoryImpl) GetById(id string) (*models.ProductDocument, err
 
 	objectId, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, err
+		return nil, ErrInvalidId
 	}
 
 	var _product models.ProductDocument
 	err = r.collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&_product)
 	if err != nil {
-		return nil, err
+		return nil, ErrProductNotFound
 	}
 	return &_product, nil
 }
@@ -47,19 +46,25 @@ func (r *ProductRepositoryImpl) Save(product *product.Product) error {
 
 	productDocument, err := mappers.ProductDomainToDocument(product)
 	if err != nil {
-		return err
+		return ErrMappingError
 	}
 
 	if productDocument.Id.IsZero() {
 		productDocument.Id = bson.NewObjectID()
 		_, err = r.collection.InsertOne(ctx, productDocument)
-		return err
+		if err != nil {
+			return ErrDuplicateKey
+		}
+		return nil
 	}
 
 	filter := bson.M{"_id": productDocument.Id}
 	update := bson.M{"$set": productDocument}
 	_, err = r.collection.UpdateOne(ctx, filter, update, options.UpdateOne().SetUpsert(true))
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *ProductRepositoryImpl) Delete(id string) error {
@@ -68,7 +73,7 @@ func (r *ProductRepositoryImpl) Delete(id string) error {
 
 	objectId, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return ErrInvalidId
 	}
 
 	res, err := r.collection.DeleteOne(ctx, bson.M{"_id": objectId})
@@ -76,7 +81,7 @@ func (r *ProductRepositoryImpl) Delete(id string) error {
 		return err
 	}
 	if res.DeletedCount == 0 {
-		return errors.New("product not found")
+		return ErrProductNotFound
 	}
 	return err
 }
@@ -99,16 +104,16 @@ func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.F
 	} else if option == findmanyproductoptions.FindByCategory && categoryId != "" {
 		objectId, err := bson.ObjectIDFromHex(categoryId)
 		if err != nil {
-			return nil, err
+			return nil, ErrInvalidId
 		}
 		filter := bson.M{"category": bson.M{"$eq": objectId}}
 		cursor, err = r.collection.Find(ctx, filter)
 	} else {
-		return nil, errors.New("invalid option")
+		return nil, ErrInvalidOption
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, ErrProductNotFound
 	}
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		maxTries := 10
@@ -121,7 +126,7 @@ func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.F
 
 	var productDocuments []*models.ProductDocument
 	if err := cursor.All(ctx, &productDocuments); err != nil {
-		return nil, err
+		return nil, nil
 	}
 	return productDocuments, nil
 }

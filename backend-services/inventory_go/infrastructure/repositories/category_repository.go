@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"errors"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -29,13 +28,14 @@ func (r *CategoryRepositoryImpl) GetById(id string) (*models.CategoryDocument, e
 
 	objectId, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, err
+		return nil, ErrInvalidId
 	}
 
 	var _category models.CategoryDocument
 	err = r.collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&_category)
 	if err != nil {
-		return nil, err
+		return nil, ErrCategoryNotFound
+
 	}
 	return &_category, nil
 }
@@ -46,19 +46,25 @@ func (r *CategoryRepositoryImpl) Save(category *category.Category) error {
 
 	categoryDocument, err := mappers.ToDocument(category)
 	if err != nil {
-		return err
+		return ErrMappingError
 	}
 
 	if categoryDocument.Id.IsZero() {
 		categoryDocument.Id = bson.NewObjectID()
 		_, err = r.collection.InsertOne(ctx, categoryDocument)
-		return err
+		if err != nil {
+			return ErrDuplicateKey
+		}
+		return nil
 	}
 
 	filter := bson.M{"_id": categoryDocument.Id}
 	update := bson.M{"$set": categoryDocument}
 	_, err = r.collection.UpdateOne(ctx, filter, update, options.UpdateOne().SetUpsert(true))
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *CategoryRepositoryImpl) Delete(id string) error {
@@ -67,7 +73,7 @@ func (r *CategoryRepositoryImpl) Delete(id string) error {
 
 	objectId, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return ErrInvalidId
 	}
 
 	res, err := r.collection.DeleteOne(ctx, bson.M{"_id": objectId})
@@ -76,7 +82,7 @@ func (r *CategoryRepositoryImpl) Delete(id string) error {
 	}
 
 	if res.DeletedCount == 0 {
-		return errors.New("category not found")
+		return ErrCategoryNotFound
 	}
 	return err
 }
@@ -89,7 +95,7 @@ func (r *CategoryRepositoryImpl) FindByName(name string) (*models.CategoryDocume
 	err := r.collection.FindOne(ctx, bson.M{"name": name}).Decode(&_category)
 
 	if err != nil {
-		return nil, err
+		return nil, ErrCategoryNotFound
 	}
 	return &_category, nil
 }
@@ -109,17 +115,17 @@ func (r *CategoryRepositoryImpl) FindManyByFilter(option findmanyoptions.FindMan
 	} else if option == findmanyoptions.FindAllSubCategoriesById && id != "" {
 		objectId, err := bson.ObjectIDFromHex(id)
 		if err != nil {
-			return nil, err
+			return nil, ErrInvalidId
 		}
 		filter := bson.M{"parent_id": bson.M{"$eq": objectId}}
 
 		cursor, err = r.collection.Find(ctx, filter)
 	} else {
-		return nil, errors.New("invalid option")
+		return nil, ErrInvalidOption
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, ErrCategoryNotFound
 	}
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		maxTries := 10
@@ -132,7 +138,7 @@ func (r *CategoryRepositoryImpl) FindManyByFilter(option findmanyoptions.FindMan
 
 	var categories []*models.CategoryDocument
 	if err := cursor.All(ctx, &categories); err != nil {
-		return nil, err
+		return nil, nil
 	}
 
 	return categories, nil

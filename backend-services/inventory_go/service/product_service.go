@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"inventory_go/category"
 	"inventory_go/product"
 	findmanyproductoptions "inventory_go/product/enums"
@@ -19,21 +18,18 @@ func NewProductService(repository product.ProductRepository, categoryRepository 
 
 func (service *ProductServiceImpl) Create(product *product.Product) error {
 	if product.Id() != "" {
-		return errors.New("id should be empty when creating a product")
+		return ErrIdShouldBeEmpty
 	}
 	if product.CategoryId() != "" {
-		_category, err := service.categoryRepository.GetById(product.CategoryId())
+		_, err := service.categoryRepository.GetById(product.CategoryId())
 		if err != nil {
 			return err
-		}
-		if _category == nil {
-			return errors.New("category not found")
 		}
 	}
 
 	err := product.ValidateProduct()
 	if err != nil {
-		return err
+		return ErrProductValidationFailed
 	}
 
 	// later there can be a vendor id check from authentication service
@@ -50,7 +46,7 @@ func (service *ProductServiceImpl) UpdateName(id string, name string) error {
 
 	err = _product.Rename(name)
 	if err != nil {
-		return err
+		return ErrProductValidationFailed
 	}
 	err = service.repository.Save(_product)
 	return err
@@ -64,7 +60,7 @@ func (service *ProductServiceImpl) UpdatePrice(id string, price float64) error {
 	_product := mappers.ProductDocumentToDomain(document)
 	err = _product.Reprice(price)
 	if err != nil {
-		return err
+		return ErrProductValidationFailed
 	}
 	err = service.repository.Save(_product)
 	return err
@@ -90,7 +86,7 @@ func (service *ProductServiceImpl) UpdateDescription(id string, description stri
 	_product := mappers.ProductDocumentToDomain(document)
 	err = _product.Redescribe(description)
 	if err != nil {
-		return err
+		return ErrProductValidationFailed
 	}
 	err = service.repository.Save(_product)
 	return err
@@ -105,9 +101,6 @@ func (service *ProductServiceImpl) FindById(id string) (*product.Product, error)
 	document, err := service.repository.GetById(id)
 	if err != nil {
 		return nil, err
-	}
-	if document == nil {
-		return nil, errors.New("product not found")
 	}
 	_product := mappers.ProductDocumentToDomain(document)
 	return _product, nil
