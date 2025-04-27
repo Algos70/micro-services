@@ -26,6 +26,9 @@ WORKDIR /app
 # Copy the binary from the builder image
 COPY --from=builder /app/main .
 
+# Copy swagger docs
+COPY --from=builder /app/docs ./docs
+
 # Expose port (optional, just for documentation)
 EXPOSE 9292
 

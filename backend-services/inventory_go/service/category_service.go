@@ -1,9 +1,11 @@
 package service
 
 import (
+	"errors"
 	"inventory_go/category"
 	findmanyoptions "inventory_go/category/enums"
 	"inventory_go/category/mappers"
+	"inventory_go/infrastructure/repositories"
 	"log"
 )
 
@@ -22,20 +24,23 @@ func (service *CategoryServiceImpl) Create(category *category.Category) error {
 
 	// Rule 0: Each category should have a unique name
 	_category, err := service.repository.FindByName(category.Name())
-	if err != nil {
+	if err != nil && !errors.Is(err, repositories.ErrCategoryNotFound) {
 		return err
 	}
+
 	if _category != nil {
 		return ErrDuplicateCategoryName
 	}
 
-	// Check if the parent category exists
-	parentCategory, err := service.repository.GetById(category.ParentId())
-	if err != nil {
-		return err
-	}
-	if parentCategory == nil {
-		return ErrInvalidParentCategory
+	if category.ParentId() != "" {
+		// Check if the parent category exists
+		parentCategory, err := service.repository.GetById(category.ParentId())
+		if err != nil && !errors.Is(err, repositories.ErrCategoryNotFound) {
+			return err
+		}
+		if parentCategory == nil {
+			return ErrInvalidParentCategory
+		}
 	}
 
 	err = service.repository.Save(category)
@@ -45,7 +50,7 @@ func (service *CategoryServiceImpl) Create(category *category.Category) error {
 func (service *CategoryServiceImpl) Update(id string, name string) error {
 	// Rule 0: Each category should have a unique name
 	_category, err := service.repository.FindByName(name)
-	if err != nil {
+	if err != nil && !errors.Is(err, repositories.ErrCategoryNotFound) {
 		return err
 	}
 	if _category != nil {

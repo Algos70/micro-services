@@ -7,9 +7,13 @@ import (
 )
 
 func ToDocument(category *category.Category) (*models.CategoryDocument, error) {
-	id, err := bson.ObjectIDFromHex(category.Id())
-	if err != nil {
-		return nil, err
+	var id bson.ObjectID
+	var err error
+	if category.Id() != "" {
+		id, err = bson.ObjectIDFromHex(category.Id())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var parentId bson.ObjectID
@@ -19,6 +23,7 @@ func ToDocument(category *category.Category) (*models.CategoryDocument, error) {
 			return nil, err
 		}
 	}
+
 	return &models.CategoryDocument{
 		Id:       id,
 		Name:     category.Name(),
@@ -27,7 +32,10 @@ func ToDocument(category *category.Category) (*models.CategoryDocument, error) {
 }
 
 func ToDomain(document *models.CategoryDocument) *category.Category {
-	id := document.Id.Hex()
+	var id string
+	if !bson.ObjectID.IsZero(document.Id) {
+		id = document.Id.Hex()
+	}
 
 	var parentId string
 	if !bson.ObjectID.IsZero(document.ParentId) {

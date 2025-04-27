@@ -7,9 +7,14 @@ import (
 )
 
 func ProductDomainToDocument(product *product.Product) (*models.ProductDocument, error) {
-	id, err := bson.ObjectIDFromHex(product.Id())
-	if err != nil {
-		return nil, err
+	var id bson.ObjectID
+	var err error
+
+	if product.Id() != "" {
+		id, err = bson.ObjectIDFromHex(product.Id())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var categoryId bson.ObjectID
@@ -33,7 +38,11 @@ func ProductDomainToDocument(product *product.Product) (*models.ProductDocument,
 }
 
 func ProductDocumentToDomain(document *models.ProductDocument) *product.Product {
-	id := document.Id.Hex()
+	var id string
+	if !bson.ObjectID.IsZero(document.Id) {
+		id = document.Id.Hex()
+	}
+
 	var categoryId string
 	if !bson.ObjectID.IsZero(document.CategoryId) {
 		categoryId = document.CategoryId.Hex()
