@@ -3,28 +3,28 @@ package product
 import "errors"
 
 type Product struct {
-	id          string
-	name        string
-	price       float64
-	stock       int
-	vendorId    string
-	image       string
-	categoryId  string
-	description string
+	Id          string
+	Name        string
+	Price       float64
+	Stock       int
+	VendorId    string
+	Image       string
+	CategoryId  string
+	Description string
 }
 
 func NewProduct(id string, name string, price float64, stock int, vendorId string, image string, categoryId string, description string) *Product {
-	return &Product{id: id, name: name, price: price, stock: stock, vendorId: vendorId, image: image, categoryId: categoryId, description: description}
+	return &Product{Id: id, Name: name, Price: price, Stock: stock, VendorId: vendorId, Image: image, CategoryId: categoryId, Description: description}
 }
 
 func (p *Product) Rename(name string) error {
-	if name == p.name {
+	if name == p.Name {
 		return errors.New("product name hasn't changed")
 	}
 	if name == "" {
 		return errors.New("name cannot be empty")
 	}
-	p.name = name
+	p.Name = name
 	return nil
 }
 
@@ -32,7 +32,7 @@ func (p *Product) Reprice(price float64) error {
 	if price <= 0 {
 		return errors.New("price must be greater than zero")
 	}
-	p.price = price
+	p.Price = price
 	return nil
 }
 
@@ -40,38 +40,37 @@ func (p *Product) Redescribe(description string) error {
 	if description == "" {
 		return errors.New("description cannot be empty")
 	}
-	p.description = description
+	p.Description = description
 	return nil
 }
 
 func (p *Product) UpdateImage(image string) {
-	p.image = image
+	p.Image = image
 }
 
 func (p *Product) ValidateProduct() error {
-	if p.Name() == "" {
+	if p.GetName() == "" {
 		return errors.New("name is required")
 	}
-	if p.Price() <= 0 {
+	if p.GetPrice() <= 0 {
 		return errors.New("price is required")
 	}
-	if p.Stock() <= 0 {
+	if p.GetStock() <= 0 {
 		return errors.New("stock is required")
 	}
-	if p.VendorId() == "" {
+	if p.GetVendorId() == "" {
 		return errors.New("vendorId is required")
 	}
-	if p.Description() == "" {
+	if p.GetDescription() == "" {
 		return errors.New("description is required")
 	}
 	return nil
 }
-func (p *Product) Id() string         { return p.id }
-func (p *Product) Name() string       { return p.name }
-func (p *Product) Price() float64     { return p.price }
-func (p *Product) Stock() int         { return p.stock }
-func (p *Product) VendorId() string   { return p.vendorId }
-func (p *Product) Image() string      { return p.image }
-func (p *Product) CategoryId() string { return p.categoryId }
-
-func (p *Product) Description() string { return p.description }
+func (p *Product) GetId() string          { return p.Id }
+func (p *Product) GetName() string        { return p.Name }
+func (p *Product) GetPrice() float64      { return p.Price }
+func (p *Product) GetStock() int          { return p.Stock }
+func (p *Product) GetVendorId() string    { return p.VendorId }
+func (p *Product) GetImage() string       { return p.Image }
+func (p *Product) GetCategoryId() string  { return p.CategoryId }
+func (p *Product) GetDescription() string { return p.Description }

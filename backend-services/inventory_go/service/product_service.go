@@ -17,11 +17,11 @@ func NewProductService(repository product.ProductRepository, categoryRepository 
 }
 
 func (service *ProductServiceImpl) Create(product *product.Product) error {
-	if product.Id() != "" {
+	if product.GetId() != "" {
 		return ErrIdShouldBeEmpty
 	}
-	if product.CategoryId() != "" {
-		_, err := service.categoryRepository.GetById(product.CategoryId())
+	if product.GetCategoryId() != "" {
+		_, err := service.categoryRepository.GetById(product.GetCategoryId())
 		if err != nil {
 			return err
 		}

@@ -7,13 +7,13 @@ import (
 )
 
 type Category struct {
-	id       string
-	name     string
-	parentId string
+	Id       string
+	Name     string
+	ParentId string
 }
 
 func NewCategory(id string, name string, parentId string) *Category {
-	return &Category{id: id, name: name, parentId: parentId}
+	return &Category{Id: id, Name: name, ParentId: parentId}
 }
 
 func (c *Category) Rename(newName string, isNameUnique bool) (DomainEvent, error) {
@@ -23,11 +23,11 @@ func (c *Category) Rename(newName string, isNameUnique bool) (DomainEvent, error
 	if newName == "" {
 		return nil, errors.New("name is empty")
 	}
-	oldName := c.name
-	c.name = newName
-	return category.CategoryRenamed{Id: c.id, OldName: oldName, NewName: c.name, OccurredAt: time.Now()}, nil
+	oldName := c.Name
+	c.Name = newName
+	return category.CategoryRenamed{Id: c.Id, OldName: oldName, NewName: c.Name, OccurredAt: time.Now()}, nil
 }
 
-func (c *Category) Id() string       { return c.id }
-func (c *Category) Name() string     { return c.name }
-func (c *Category) ParentId() string { return c.parentId }
+func (c *Category) GetId() string       { return c.Id }
+func (c *Category) GetName() string     { return c.Name }
+func (c *Category) GetParentId() string { return c.ParentId }

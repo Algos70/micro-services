@@ -2,11 +2,14 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"inventory_go/api"
+	_ "inventory_go/docs"
 	"inventory_go/infrastructure"
 	"inventory_go/infrastructure/repositories"
 	"inventory_go/service"
 	"log"
-	"net/http"
 	"os"
 )
 
@@ -43,6 +46,15 @@ func main() {
 
 	router.Use(gin.Recovery())
 	router.Use(gin.Logger())
+
+	// Expose endpoints
+	categoryController := api.NewCategoryController(router, categoryService)
+	categoryController.ExposeEndpoints()
+
+	productController := api.NewProductController(router, productService)
+	productController.ExposeEndpoints()
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Run the router on port 9292
 	err = router.Run(":9292")

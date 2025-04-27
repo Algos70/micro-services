@@ -9,6 +9,7 @@ import (
 	"inventory_go/product"
 	"inventory_go/product/enums"
 	"inventory_go/product/mappers"
+	"log"
 	"regexp"
 	"time"
 )
@@ -106,14 +107,14 @@ func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.F
 		if err != nil {
 			return nil, ErrInvalidId
 		}
-		filter := bson.M{"category": bson.M{"$eq": objectId}}
+		filter := bson.M{"category_id": bson.M{"$eq": objectId}}
 		cursor, err = r.collection.Find(ctx, filter)
 	} else {
 		return nil, ErrInvalidOption
 	}
 
 	if err != nil {
-		return nil, ErrProductNotFound
+		return nil, err
 	}
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		maxTries := 10
@@ -126,7 +127,8 @@ func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.F
 
 	var productDocuments []*models.ProductDocument
 	if err := cursor.All(ctx, &productDocuments); err != nil {
-		return nil, nil
+		log.Println("Error reading products from cursor:", err)
+		return nil, err
 	}
 	return productDocuments, nil
 }

@@ -1,9 +1,11 @@
 package service
 
 import (
+	"errors"
 	"inventory_go/category"
 	findmanyoptions "inventory_go/category/enums"
 	"inventory_go/category/mappers"
+	"inventory_go/infrastructure/repositories"
 	"log"
 )
 
@@ -16,26 +18,29 @@ func NewCategoryService(repository category.CategoryRepository) *CategoryService
 }
 
 func (service *CategoryServiceImpl) Create(category *category.Category) error {
-	if category.Id() != "" {
+	if category.GetId() != "" {
 		return ErrIdShouldBeEmpty
 	}
 
 	// Rule 0: Each category should have a unique name
-	_category, err := service.repository.FindByName(category.Name())
-	if err != nil {
+	_category, err := service.repository.FindByName(category.GetName())
+	if err != nil && !errors.Is(err, repositories.ErrCategoryNotFound) {
 		return err
 	}
+
 	if _category != nil {
 		return ErrDuplicateCategoryName
 	}
 
-	// Check if the parent category exists
-	parentCategory, err := service.repository.GetById(category.ParentId())
-	if err != nil {
-		return err
-	}
-	if parentCategory == nil {
-		return ErrInvalidParentCategory
+	if category.GetParentId() != "" {
+		// Check if the parent category exists
+		parentCategory, err := service.repository.GetById(category.GetParentId())
+		if err != nil && !errors.Is(err, repositories.ErrCategoryNotFound) {
+			return err
+		}
+		if parentCategory == nil {
+			return ErrInvalidParentCategory
+		}
 	}
 
 	err = service.repository.Save(category)
@@ -45,7 +50,7 @@ func (service *CategoryServiceImpl) Create(category *category.Category) error {
 func (service *CategoryServiceImpl) Update(id string, name string) error {
 	// Rule 0: Each category should have a unique name
 	_category, err := service.repository.FindByName(name)
-	if err != nil {
+	if err != nil && !errors.Is(err, repositories.ErrCategoryNotFound) {
 		return err
 	}
 	if _category != nil {
@@ -140,31 +145,43 @@ func (service *CategoryServiceImpl) FindCategoryTree() ([]*category.CategoryTree
 	if err != nil {
 		return nil, err
 	}
-	if len(categories) == 0 || categories[0] == nil {
+	if len(categories) == 0 {
 		return nil, ErrCategoryTreeIsEmpty
 	}
 
-	var childrenMap map[string][]*category.Category
-	for _, _category := range categories {
-		if _category.ParentId() != "" {
-			_, ok := childrenMap[_category.ParentId()]
-			if !ok {
-				childrenMap[_category.ParentId()] = []*category.Category{}
-			}
-			childrenMap[_category.ParentId()] = append(childrenMap[_category.ParentId()], _category)
+	childrenMap := make(map[string][]*category.Category)
+
+	for _, cat := range categories {
+		pid := cat.GetParentId()
+		childrenMap[pid] = append(childrenMap[pid], cat)
+	}
+	var result []*category.CategoryTreeNode
+	for _, cat := range categories {
+		if cat.GetParentId() != "" {
+			// not a root
+			continue
 		}
+		// get its children (may be nil but that's fine—empty slice)
+		childCats := childrenMap[cat.GetId()]
+
+		// convert []*Category → []*CategoryTreeNode if you want multi-level,
+		// or store Category children directly if your TreeNode accepts that.
+		var childNodes []*category.CategoryTreeNode
+		for _, ch := range childCats {
+			childNodes = append(childNodes, &category.CategoryTreeNode{
+				Id:       ch.GetId(),
+				Name:     ch.GetName(),
+				Children: nil, // no grandchildren in this simple example
+			})
+		}
+
+		node := &category.CategoryTreeNode{
+			Id:       cat.GetId(),
+			Name:     cat.GetName(),
+			Children: childNodes,
+		}
+		result = append(result, node)
 	}
 
-	var result []*category.CategoryTreeNode
-	for _, _category := range categories {
-		if _category.ParentId() != "" {
-			continue
-		}
-		children, ok := childrenMap[_category.ParentId()]
-		if !ok {
-			continue
-		}
-		result = append(result, &category.CategoryTreeNode{Id: _category.Id(), Name: _category.Name(), Children: children})
-	}
-	return result, err
+	return result, nil
 }
