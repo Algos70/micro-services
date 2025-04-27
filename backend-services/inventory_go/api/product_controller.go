@@ -71,7 +71,7 @@ func (controller *ProductController) Create() {
 			}
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"status": Success, "message": nil, "data": nil})
+		c.JSON(http.StatusCreated, gin.H{"status": Success, "message": nil, "data": nil})
 	})
 }
 

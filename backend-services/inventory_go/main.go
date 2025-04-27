@@ -77,8 +77,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Set up publisher
+	orchestrationQueue := os.Getenv("ORCHESTRATION_QUEUE")
+	if orchestrationQueue == "" {
+		orchestrationQueue = "orchestration_queue"
+	}
+	publisher, err := rabbitmq.NewPublisher(connection, orchestrationQueue)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Handle delivered packages
-	rabbitmq.HandleConsumer(consumer)
+	rabbitmq.HandleConsumer(consumer, productService, publisher)
 
 	// Set up router
 	router := gin.Default()

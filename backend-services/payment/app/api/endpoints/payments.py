@@ -14,8 +14,7 @@ router = APIRouter(
 
 @router.get("/", response_model=list[PaymentResponse])
 def list_payments(
-    payment_service: PaymentService = Depends(get_payment_service),
-    auth_status: dict = Depends(admin_auth_dependency)):
+    payment_service: PaymentService = Depends(get_payment_service)):
     """
     Retrieve all payments.
     """

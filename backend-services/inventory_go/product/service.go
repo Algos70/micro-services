@@ -12,4 +12,7 @@ type ProductService interface {
 	FindManyByName(name string) ([]*Product, error)
 	FindManyByCategory(categoryId string) ([]*Product, error)
 	FindStock(id string) (int, error)
+	ReduceStock(id string, quantity int, transactionId string) error
+	IncreaseStock(id string, quantity int) error
+	StockRollback(transactionId string) error
 }

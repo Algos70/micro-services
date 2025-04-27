@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"encoding/json"
 	"github.com/rabbitmq/amqp091-go"
+	"inventory_go/product"
 	"log"
 )
 
@@ -23,7 +24,14 @@ type RollbackStockPayload struct {
 	TransactionID string `json:"transaction_id"`
 }
 
-func HandleConsumer(consumer *Consumer) {
+type ReduceResponse struct {
+	event   string
+	status  string
+	message string
+	data    interface{}
+}
+
+func HandleConsumer(consumer *Consumer, productService product.ProductService, publisher *Publisher) {
 	err := consumer.Start(func(delivery amqp091.Delivery) {
 		var env Envelope
 		if err := json.Unmarshal(delivery.Body, &env); err != nil {
@@ -37,7 +45,36 @@ func HandleConsumer(consumer *Consumer) {
 				log.Printf("rabbitmq: bad reduce_stock payload: %v", err)
 				return
 			}
-			handleReduceStock(payload)
+
+			for _, operation := range payload.Products {
+				err := productService.ReduceStock(operation.ProductID, operation.Quantity, payload.TransactionID)
+				if err != nil {
+					response := &ReduceResponse{event: "reduce_stock", status: "error", message: "", data: nil}
+					bytes, err := json.Marshal(response)
+					if err != nil {
+						log.Printf("rabbitmq: failed to marshal response: %v", err)
+						return
+					}
+
+					err = publisher.Publish(bytes)
+					if err != nil {
+						log.Printf("rabbitmq: failed to publish response: %v", err)
+						return
+					}
+					return
+				}
+			}
+			response := &ReduceResponse{event: "reduce_stock", status: "success", message: "", data: nil}
+			bytes, err := json.Marshal(response)
+			if err != nil {
+				log.Printf("rabbitmq: failed to marshal response: %v", err)
+				return
+			}
+			err = publisher.Publish(bytes)
+			if err != nil {
+				log.Printf("rabbitmq: failed to publish response: %v", err)
+				return
+			}
 
 		case "rollback_stock":
 			var payload RollbackStockPayload
@@ -45,7 +82,10 @@ func HandleConsumer(consumer *Consumer) {
 				log.Printf("rabbitmq: bad rollback_stock payload: %v", err)
 				return
 			}
-			handleRollbackStock(payload)
+			err := productService.StockRollback(payload.TransactionID)
+			if err != nil {
+				return
+			}
 
 		default:
 			log.Printf("rabbitmq: unknown event %q", env.Event)
