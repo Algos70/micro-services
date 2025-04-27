@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"inventory_go/category"
 	findmanyoptions "inventory_go/category/enums"
 	"inventory_go/category/mappers"
@@ -17,13 +16,17 @@ func NewCategoryService(repository category.CategoryRepository) *CategoryService
 }
 
 func (service *CategoryServiceImpl) Create(category *category.Category) error {
+	if category.Id() != "" {
+		return ErrIdShouldBeEmpty
+	}
+
 	// Rule 0: Each category should have a unique name
 	_category, err := service.repository.FindByName(category.Name())
 	if err != nil {
 		return err
 	}
 	if _category != nil {
-		return errors.New("category already exists")
+		return ErrDuplicateCategoryName
 	}
 
 	// Check if the parent category exists
@@ -32,7 +35,7 @@ func (service *CategoryServiceImpl) Create(category *category.Category) error {
 		return err
 	}
 	if parentCategory == nil {
-		return errors.New("parent category not found")
+		return ErrInvalidParentCategory
 	}
 
 	err = service.repository.Save(category)
@@ -46,7 +49,7 @@ func (service *CategoryServiceImpl) Update(id string, name string) error {
 		return err
 	}
 	if _category != nil {
-		return errors.New("name already exists")
+		return ErrDuplicateCategoryName
 	}
 
 	// Check if category exists
@@ -54,12 +57,13 @@ func (service *CategoryServiceImpl) Update(id string, name string) error {
 	if err != nil {
 		return err
 	}
-	if _category == nil {
-		return errors.New("category not found")
-	}
 
 	domain := mappers.ToDomain(_category)
 	event, err := domain.Rename(name, true)
+
+	if err != nil {
+		return ErrInvalidCategoryName
+	}
 
 	// For now, log the event as nobody is listening
 	log.Print(event)
@@ -75,7 +79,7 @@ func (service *CategoryServiceImpl) Delete(id string) error {
 		return err
 	}
 	if len(subcategories) > 0 {
-		return errors.New("subcategories still exists")
+		return ErrCantDeleteCategoryWithSubcategories
 	}
 	err = service.repository.Delete(id)
 	return err
@@ -86,22 +90,17 @@ func (service *CategoryServiceImpl) FindOneById(id string) (*category.Category, 
 	if err != nil {
 		return nil, err
 	}
-	if _category == nil {
-		return nil, errors.New("category not found")
-	}
 	domain := mappers.ToDomain(_category)
-	return domain, err
+	return domain, nil
 }
 
 func (service *CategoryServiceImpl) FindAllSubCategoriesById(id string) ([]*category.Category, error) {
 	// Check if category exists
-	_category, err := service.repository.GetById(id)
+	_, err := service.repository.GetById(id)
 	if err != nil {
 		return nil, err
 	}
-	if _category == nil {
-		return nil, errors.New("category not found")
-	}
+
 	subcategories, err := service.repository.FindManyByFilter(findmanyoptions.FindAllSubCategoriesById, id)
 	if err != nil {
 		return nil, err
@@ -142,7 +141,7 @@ func (service *CategoryServiceImpl) FindCategoryTree() ([]*category.CategoryTree
 		return nil, err
 	}
 	if len(categories) == 0 || categories[0] == nil {
-		return nil, errors.New("no category found")
+		return nil, ErrCategoryTreeIsEmpty
 	}
 
 	var childrenMap map[string][]*category.Category

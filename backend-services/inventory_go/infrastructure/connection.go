@@ -9,14 +9,11 @@ import (
 	"time"
 )
 
-func Connect() *mongo.Client {
+func Connect() (*mongo.Client, error) {
 	uri := os.Getenv("MONGO_URL")
 	if uri == "" {
 		uri = "mongodb://localhost:27017"
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 
 	clientOptions := options.Client().ApplyURI(uri)
 
@@ -24,12 +21,17 @@ func Connect() *mongo.Client {
 
 	if err != nil {
 		log.Fatalf("mongo.Connect error: %v", err)
+		return nil, err
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	if err := client.Ping(ctx, nil); err != nil {
 		log.Fatalf("mongo.Ping error: %v", err)
+		return nil, err
 	}
 
 	log.Println("✅ Connected to MongoDB")
-	return client
+	return client, err
 }

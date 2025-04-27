@@ -9,6 +9,6 @@ type ProductRepository interface {
 	GetById(id string) (*models.ProductDocument, error)
 	Save(product *Product) error
 	Delete(id string) error
-	FindManyByFilter(options findmanyproductoptions.FindManyProductOptions) ([]*models.ProductDocument, error)
+	FindManyByFilter(options findmanyproductoptions.FindManyProductOptions, name string, categoryId string) ([]*models.ProductDocument, error)
 	GetStock(id string) (int, error)
 }

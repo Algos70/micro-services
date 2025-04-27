@@ -1,21 +1,52 @@
 package main
 
 import (
-	"fmt"
+	"github.com/gin-gonic/gin"
+	"inventory_go/infrastructure"
+	"inventory_go/infrastructure/repositories"
+	"inventory_go/service"
+	"log"
+	"net/http"
+	"os"
 )
 
-//TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
-
 func main() {
-	//TIP <p>Press <shortcut actionId="ShowIntentionActions"/> when your caret is at the underlined text
-	// to see how GoLand suggests fixing the warning.</p><p>Alternatively, if available, click the lightbulb to view possible fixes.</p>
-	s := "gopher"
-	fmt.Printf("Hello and welcome, %s!\n", s)
 
-	for i := 1; i <= 5; i++ {
-		//TIP <p>To start your debugging session, right-click your code in the editor and select the Debug option.</p> <p>We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-		// for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.</p>
-		fmt.Println("i =", 100/i)
+	// Connect to mongodb
+	client, err := infrastructure.Connect()
+	if err != nil {
+		os.Exit(1)
+	}
+
+	// Get the database
+	db := client.Database("inventory")
+
+	// Get repositories
+	categoryCollectionName := os.Getenv("CATEGORY_COLLECTION")
+	if categoryCollectionName == "" {
+		categoryCollectionName = "categories"
+	}
+	productCollectionName := os.Getenv("PRODUCT_COLLECTION")
+	if productCollectionName == "" {
+		productCollectionName = "products"
+	}
+
+	categoryRepository := repositories.NewCategoryRepository(db, categoryCollectionName)
+	productRepository := repositories.NewProductRepository(db, productCollectionName)
+
+	// Get services
+	categoryService := service.NewCategoryService(categoryRepository)
+	productService := service.NewProductService(productRepository, categoryRepository)
+
+	// Set up router
+	router := gin.Default()
+
+	router.Use(gin.Recovery())
+	router.Use(gin.Logger())
+
+	// Run the router on port 9292
+	err = router.Run(":9292")
+	if err != nil {
+		log.Fatal("Server failed to start:", err)
 	}
 }
