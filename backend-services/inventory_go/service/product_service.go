@@ -1,19 +1,22 @@
 package service
 
 import (
+	"errors"
 	"inventory_go/category"
 	"inventory_go/product"
 	findmanyproductoptions "inventory_go/product/enums"
 	"inventory_go/product/mappers"
+	"inventory_go/transaction"
 )
 
 type ProductServiceImpl struct {
-	repository         product.ProductRepository
-	categoryRepository category.CategoryRepository
+	repository            product.ProductRepository
+	categoryRepository    category.CategoryRepository
+	transactionRepository transaction.TransactionRepository
 }
 
-func NewProductService(repository product.ProductRepository, categoryRepository category.CategoryRepository) *ProductServiceImpl {
-	return &ProductServiceImpl{repository: repository, categoryRepository: categoryRepository}
+func NewProductService(repository product.ProductRepository, categoryRepository category.CategoryRepository, transactionRepository transaction.TransactionRepository) *ProductServiceImpl {
+	return &ProductServiceImpl{repository: repository, categoryRepository: categoryRepository, transactionRepository: transactionRepository}
 }
 
 func (service *ProductServiceImpl) Create(product *product.Product) error {
@@ -145,4 +148,65 @@ func (service *ProductServiceImpl) FindManyByCategory(categoryId string) ([]*pro
 func (service *ProductServiceImpl) FindStock(id string) (int, error) {
 	stock, err := service.repository.GetStock(id)
 	return stock, err
+}
+
+func (service *ProductServiceImpl) ReduceStock(id string, quantity int, transactionId string) error {
+	document, err := service.repository.GetById(id)
+	if err != nil {
+		return err
+	}
+	if quantity < 0 || quantity > document.Stock {
+		return errors.New("invalid quantity")
+	}
+
+	stock := document.Stock - quantity
+
+	_product := mappers.ProductDocumentToDomain(document)
+	_product.UpdateStock(stock)
+
+	err = service.transactionRepository.InsertTransaction(transaction.Transaction{TransactionId: transactionId, Stock: quantity, ProductId: id})
+	if err != nil {
+		return err
+	}
+
+	err = service.repository.Save(_product)
+	return err
+}
+
+func (service *ProductServiceImpl) IncreaseStock(id string, quantity int) error {
+	document, err := service.repository.GetById(id)
+	if err != nil {
+		return err
+	}
+	if quantity < 0 {
+		return errors.New("invalid quantity")
+	}
+	stock := document.Stock + quantity
+
+	_product := mappers.ProductDocumentToDomain(document)
+	_product.UpdateStock(stock)
+
+	err = service.repository.Save(_product)
+	return err
+}
+
+func (service *ProductServiceImpl) StockRollback(transactionId string) error {
+	_transaction, err := service.transactionRepository.GetByTransactionId(transactionId)
+	if err != nil {
+		return err
+	}
+
+	if _transaction.RolledBack {
+		return errors.New("transaction is already rolled back")
+	}
+
+	err = service.IncreaseStock(_transaction.ProductId, _transaction.Stock)
+	if err != nil {
+		return err
+	}
+	err = service.transactionRepository.SetRolledBack(_transaction.TransactionId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
