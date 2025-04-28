@@ -13,10 +13,10 @@ class PaymentCreate(BaseModel):
 class PaymentResponse(BaseModel):
     id : str
     user_email : str
-    order_id : str
+    order_id : Optional[str]
     amount : float
     payment_method : str
-    payment_status : str
+    payment_status : Optional[str]
     transaction_id : Optional[str]
     created_at : datetime
     class Config:

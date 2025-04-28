@@ -1,5 +1,6 @@
 import redis
 import json
+from models.order import OrderItemCreate
 from models.saga_state import OrderSagaState, ProductSagaState, PaymentSagaState
 import config
 class RedisSagaStore:
@@ -10,10 +11,27 @@ class RedisSagaStore:
         key = f"order_saga:{saga.transaction_id}"
         self.client.set(key, json.dumps(saga.dict()), ex=ttl)
 
+
     def get_order_saga(self, transaction_id: str) -> OrderSagaState | None:
-        key = f"order_saga:{transaction_id}"
-        data = self.client.get(key)
-        return OrderSagaState(**json.loads(data)) if data else None
+        raw = self.client.get(f"order_saga:{transaction_id}")
+        if not raw:
+            return None
+
+        payload = json.loads(raw)
+        items_data = payload.pop("items", [])
+        items = [OrderItemCreate(**it) for it in items_data]
+
+        return OrderSagaState(
+            transaction_id   = payload["transaction_id"],
+            description      = payload["description"],
+            user_email       = payload["user_email"],
+            vendor_email     = payload["vendor_email"],
+            delivery_address = payload["delivery_address"],
+            payment_method   = payload["payment_method"],
+            status           = payload.get("status", "Pending"),
+            items            = items,
+            payment_id       = payload.get("payment_id"),
+        )
 
     def delete_order_saga(self, transaction_id: str):
         key = f"order_saga:{transaction_id}"

@@ -62,7 +62,8 @@ class SagaOrchestrator:
         order_saga_state = self.saga_store.get_order_saga(transaction_id)
         if not saga_state:
             print(f"Transaction ID {transaction_id} not found in saga store.")
-
+            return
+        
         if "error" in status:
             print(f"Error reducing stock: {status}")
             return
@@ -147,5 +148,6 @@ class SagaOrchestrator:
 
     # etc.
 
-def get_saga_orchestrator(saga_store: RedisSagaStore = Depends(get_redis_saga_store)) -> SagaOrchestrator:
-    return SagaOrchestrator(saga_store=saga_store)
+def get_saga_orchestrator() -> SagaOrchestrator:
+    store = get_redis_saga_store()
+    return SagaOrchestrator(saga_store=store)

@@ -14,7 +14,6 @@ import json
 from core import config
 from services.order_service import OrderService, get_order_service
 from services.rabbitmq_publisher import RabbitMQPublisher, get_publisher_service
-from fastapi import Depends
 class RabbitMQConsumer:
     def __init__(self, queue: str, order_service: OrderService, publisher: RabbitMQPublisher):
         self.order_service = order_service
@@ -68,10 +67,10 @@ class RabbitMQConsumer:
         """Handle order creation logic."""
         data = message.get("data", {})
         transection_id = message.get("transaction_id")
-        self.order_service.create_order(
+        order = self.order_service.create_order(
             order_data=data,
         )
-        self.publisher.publish_order_created_response(order_id=data.get("order_id"), transection_id=transection_id)
+        self.publisher.publish_order_created_response(order_id=order.id, transaction_id=transection_id)
 
     def handle_update_order_payment_id(self, message):
         """Handle order payment ID update logic."""
@@ -113,8 +112,8 @@ class RabbitMQConsumer:
             self.connection.add_callback_threadsafe(self.channel.stop_consuming)
 
 def get_consumer_service(
-        queue: str, 
-        order_service: OrderService = Depends(get_order_service),
-        publisher: RabbitMQPublisher = Depends(get_publisher_service)
+        queue: str,
         ) -> RabbitMQConsumer:
+    order_service = get_order_service()
+    publisher = get_publisher_service()
     return RabbitMQConsumer(queue, order_service, publisher)

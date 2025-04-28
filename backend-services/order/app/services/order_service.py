@@ -386,8 +386,10 @@ class OrderService:
         
         except Exception as e:
             return f"An error occurred: {str(e)}"
-def get_order_service(db: Session = Depends(get_db)) -> OrderService:
+def get_order_service() -> OrderService:
     """
     Create an instance of the OrderService class."
     """
+    db_gen = get_db()         # this is a generator
+    db: Session = next(db_gen)
     return OrderService(db)

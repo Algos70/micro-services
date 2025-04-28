@@ -19,8 +19,7 @@ def test_rabbit_mq():
 
 @router.get("/", response_model=list[OrderResponse])
 def list_orders(
-    order_service: OrderService = Depends(get_order_service), 
-    auth_status: dict = Depends(admin_auth_dependency)
+    order_service: OrderService = Depends(get_order_service)
     ):
     """
     Retrieve all orders.

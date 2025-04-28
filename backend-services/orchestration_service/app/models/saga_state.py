@@ -46,11 +46,16 @@ class OrderSagaState:
         self.payment_id = payment_id
 
     def total_price(self) -> float:
-        """
-        Calculates the total price of all items.
-        Assumes each item has 'quantity' and 'unit_price' attributes.
-        """
-        return sum(item.quantity * item.unit_price for item in self.items)
+        total = 0.0
+        for item in self.items:
+            if isinstance(item, dict):
+                qty  = item.get("quantity", 0)
+                unit = item.get("unit_price", 0)
+            else:
+                qty  = getattr(item, "quantity", 0)
+                unit = getattr(item, "unit_price", 0)
+            total += qty * unit
+        return total
     
     def dict(self):
         """

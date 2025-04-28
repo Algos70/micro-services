@@ -123,8 +123,9 @@ class RabbitMQConsumer:
             # Signal the consumer's thread to stop consuming in a thread-safe manner
             self.connection.add_callback_threadsafe(self.channel.stop_consuming)
 
-def get_consumer_service(queue: str, 
-                           payment_service: PaymentService = Depends(get_payment_service),
-                           publisher: RabbitMQPublisher = Depends(get_publisher_service)):
-    
+def get_consumer_service(
+        queue: str
+    ):
+    publisher = get_publisher_service()
+    payment_service = get_payment_service()
     return RabbitMQConsumer(queue=queue, payment_service=payment_service, publisher=publisher)

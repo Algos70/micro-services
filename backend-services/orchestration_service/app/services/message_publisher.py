@@ -33,13 +33,18 @@ class RabbitMQPublisher:
         if not self.connection or self.connection.is_closed:
             self.connect()
 
-        # Declare the queue dynamically based on the provided name
+        # make every object with .dict() into a plain dict,
+        # and leave primitives/lists alone
+        body_str = json.dumps(
+            message,
+            default=lambda o: o.dict() if hasattr(o, "dict") else super(type(o), o)
+        )
+
         self.channel.queue_declare(queue=queue, durable=True)
-        
         self.channel.basic_publish(
             exchange='',
             routing_key=queue,
-            body=json.dumps(message),
+            body=body_str,
             properties=pika.BasicProperties(
                 delivery_mode=2  # make message persistent
             )
@@ -49,7 +54,7 @@ class RabbitMQPublisher:
         """Publish a command to reduce stock."""
         command = {
             "event": "reduce_stock",
-                "transaction_id": transaction_id,
+            "transaction_id": transaction_id,
             "data": {
                 "products": [{"product_id": product.product_id, "quantity": product.quantity} for product in products]
             }

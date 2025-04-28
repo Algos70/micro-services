@@ -260,7 +260,7 @@ class PaymentService:
             self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
         
-def get_payment_service(db: Session = Depends(get_db)) -> PaymentService:
+def get_payment_service() -> PaymentService:
     """
     Return an instance of the PaymentService class.
 
@@ -270,4 +270,6 @@ def get_payment_service(db: Session = Depends(get_db)) -> PaymentService:
     Returns:
         PaymentService: An instance of the PaymentService class.
     """
+    db_gen = get_db()         # this is a generator
+    db: Session = next(db_gen)
     return PaymentService(db)
