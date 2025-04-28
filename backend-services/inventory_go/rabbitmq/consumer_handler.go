@@ -8,13 +8,13 @@ import (
 )
 
 type Envelope struct {
-	Event string          `json:"event"`
-	Data  json.RawMessage `json:"data"`
+	Event         string          `json:"event"`
+	Data          json.RawMessage `json:"data"`
+	TransactionID string          `json:"transaction_id"`
 }
 
 type ReduceStockPayload struct {
-	TransactionID string `json:"transaction_id"`
-	Products      []struct {
+	Products []struct {
 		ProductID string `json:"product_id"`
 		Quantity  int    `json:"quantity"`
 	} `json:"products"`
@@ -46,9 +46,9 @@ func HandleConsumer(consumer *Consumer, productService product.ProductService, p
 				log.Printf("rabbitmq: bad reduce_stock payload: %v", err)
 				return
 			}
-			transactionId := payload.TransactionID
+			transactionId := env.TransactionID
 			for _, operation := range payload.Products {
-				err := productService.ReduceStock(operation.ProductID, operation.Quantity, payload.TransactionID)
+				err := productService.ReduceStock(operation.ProductID, operation.Quantity, transactionId)
 				if err != nil {
 					response := &ReduceResponse{Event: "reduce_stock", Status: "error", Message: "", Data: nil, TransactionId: transactionId}
 					bytes, err := json.Marshal(response)
