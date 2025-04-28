@@ -150,13 +150,13 @@ func (service *ProductServiceImpl) FindStock(id string) (int, error) {
 	return stock, err
 }
 
-func (service *ProductServiceImpl) ReduceStock(id string, quantity int, transactionId string) error {
+func (service *ProductServiceImpl) ReduceStock(id string, quantity int, transactionId string) (string, error) {
 	document, err := service.repository.GetById(id)
 	if err != nil {
-		return err
+		return transactionId, err
 	}
 	if quantity < 0 || quantity > document.Stock {
-		return errors.New("invalid quantity")
+		return transactionId, errors.New("invalid quantity")
 	}
 
 	stock := document.Stock - quantity
@@ -166,11 +166,11 @@ func (service *ProductServiceImpl) ReduceStock(id string, quantity int, transact
 
 	err = service.transactionRepository.InsertTransaction(transaction.Transaction{TransactionId: transactionId, Stock: quantity, ProductId: id})
 	if err != nil {
-		return err
+		return transactionId, err
 	}
 
 	err = service.repository.Save(_product)
-	return err
+	return transactionId, err
 }
 
 func (service *ProductServiceImpl) IncreaseStock(id string, quantity int) error {
