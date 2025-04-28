@@ -103,13 +103,13 @@ class RabbitMQPublisher:
         }
         self.publish_message(command, config.RABBITMQ_PRODUCTS_QUEUE)
 
-    def publish_rollback_payment_command(self, transaction_id: str):
+    def publish_rollback_payment_command(self, transaction_id: str, payment_id: str):
         """Publish a command to rollback payment."""
         command = {
             "event": "rollback_payment",
             "transaction_id": transaction_id,
             "data": {
-                
+                "payment_id": payment_id
             }
         }
         self.publish_message(command, config.RABBITMQ_PAYMENT_QUEUE)

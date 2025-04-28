@@ -72,7 +72,7 @@ class RabbitMQConsumer:
             # Call the payment service to process the payment
             payment_response = self.payment_service.create_payment(data)
             self.payment_service.update_payment_status(payment_response.id, "Success")
-
+            self.payment_service.update_transaction_id(transaction_id=transaction_id, payment_id=payment_response.id)
             # Publish a success message or take further action
             self.publisher.publish_payment_message(payment_response.id, transaction_id)
         except Exception as e:
