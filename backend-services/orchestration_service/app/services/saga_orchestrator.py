@@ -65,6 +65,7 @@ class SagaOrchestrator:
 
         if "error" in status:
             print(f"Error reducing stock: {status}")
+            return
         
         payment_saga_state = PaymentSagaState(
             transaction_id=transaction_id,

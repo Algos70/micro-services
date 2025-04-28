@@ -23,7 +23,7 @@ class PaymentService:
             SQLAlchemyError: If there is a database error.
         """
         try:
-            payments = self.db.query(Payment).options(joinedload(Payment.items)).all()
+            payments = self.db.query(Payment).all()
             return payments
         
         except SQLAlchemyError as e:
