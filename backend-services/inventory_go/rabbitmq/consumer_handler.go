@@ -46,10 +46,9 @@ func HandleConsumer(consumer *Consumer, productService product.ProductService, p
 				log.Printf("rabbitmq: bad reduce_stock payload: %v", err)
 				return
 			}
-			var transactionId string
-			var err error
+			transactionId := payload.TransactionID
 			for _, operation := range payload.Products {
-				transactionId, err = productService.ReduceStock(operation.ProductID, operation.Quantity, payload.TransactionID)
+				err := productService.ReduceStock(operation.ProductID, operation.Quantity, payload.TransactionID)
 				if err != nil {
 					response := &ReduceResponse{Event: "reduce_stock", Status: "error", Message: "", Data: nil, TransactionId: transactionId}
 					bytes, err := json.Marshal(response)
