@@ -259,6 +259,74 @@ class PaymentService:
         except Exception as e:
             self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
+    
+    def update_transaction_id(self, transaction_id: str, payment_id: str) -> None:
+        """
+        Update the transaction ID of a payment.
+
+        Args:
+            transaction_id (str): The new transaction ID to set for the payment.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the transaction ID is invalid.
+            SQLAlchemyError: If there is a database error.
+        """
+        if not transaction_id or not isinstance(transaction_id, str):
+            raise ValueError("Invalid transaction ID.")
+        
+        try:
+            payment = self.db.query(Payment).filter(Payment.id == payment_id).first()
+            
+            if not payment:
+                raise ValueError(f"No payment found with payment_id ID: {payment_id}")
+            
+            payment.update_transaction_id(transaction_id)
+            self.db.commit()
+        
+        except SQLAlchemyError as e:
+            self.db.rollback()  
+            raise SQLAlchemyError(f"Database error while updating transaction ID: {str(e)}")
+        
+        except Exception as e:
+            self.db.rollback()  
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+    
+    def rollback_payment(self, transaction_id: str, payment_id: str) -> None:
+        """
+        Rollback a payment by its transaction ID.
+
+        Args:
+            transaction_id (str): The transaction ID of the payment to rollback.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the transaction ID is invalid.
+            SQLAlchemyError: If there is a database error.
+        """
+        if not transaction_id or not isinstance(transaction_id, str):
+            raise ValueError("Invalid transaction ID.")
+        
+        try:
+            payment = self.db.query(Payment).filter(Payment.transaction_id == transaction_id).first()
+            
+            if not payment:
+                raise ValueError(f"No payment found with transaction ID: {transaction_id}")
+            
+            payment.update_status("Cancelled")
+            self.db.commit()
+        
+        except SQLAlchemyError as e:
+            self.db.rollback()  
+            raise SQLAlchemyError(f"Database error while rolling back payment: {str(e)}")
+        
+        except Exception as e:
+            self.db.rollback()  
+            raise Exception(f"An unexpected error occurred: {str(e)}")
         
 def get_payment_service() -> PaymentService:
     """

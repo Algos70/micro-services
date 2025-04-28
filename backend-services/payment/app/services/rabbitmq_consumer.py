@@ -37,6 +37,7 @@ class RabbitMQConsumer:
         self.event_handlers = {
             "take_payment": self.handle_take_payment,
             "update_payment_order_id": self.handle_order_id_updated,
+            "rollback_payment": self.handle_rollback_payment,
         }
 
     def connect(self):
@@ -88,15 +89,16 @@ class RabbitMQConsumer:
         except Exception as e:
             print("Error in handle_order_id_updated:", e)
 
-    def handle_order_created(self, data):
-        """Handle order creation logic."""
-        print("Processing order created with data:", data)
-        # Add your business logic for order creation here
-
-    def handle_order_updated(self, data):
-        """Handle order update logic."""
-        print("Processing order updated with data:", data)
-        # Add your business logic for order update here
+    def handle_rollback_payment(self, message):
+        """Handle payment rollback logic."""
+        try:
+            data = message.get("data")
+            payment_id = data.get("payment_id")
+            transaction_id = message.get("transaction_id")
+            # Call the payment service to rollback the payment
+            self.payment_service.rollback_payment(transaction_id=transaction_id, payment_id=payment_id)
+        except Exception as e:
+            print("Error in handle_rollback_payment:", e)
 
     def start_consuming(self):
         """Start consuming messages from the specified queue."""

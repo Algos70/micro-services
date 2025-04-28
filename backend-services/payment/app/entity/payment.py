@@ -58,3 +58,12 @@ class Payment(Base):
         """
         self.order_id = order_id
         return self
+    
+    def update_transaction_id(self, transaction_id: str):
+        """
+        Update the transaction ID of the payment.
+
+        :param transaction_id: The new transaction ID to set for the payment.
+        """
+        self.transaction_id = transaction_id
+        return self
