@@ -25,10 +25,10 @@ type RollbackStockPayload struct {
 }
 
 type ReduceResponse struct {
-	event   string
-	status  string
-	message string
-	data    interface{}
+	Event   string      `json:"event"`
+	Status  string      `json:"status"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 func HandleConsumer(consumer *Consumer, productService product.ProductService, publisher *Publisher) {
@@ -49,7 +49,7 @@ func HandleConsumer(consumer *Consumer, productService product.ProductService, p
 			for _, operation := range payload.Products {
 				err := productService.ReduceStock(operation.ProductID, operation.Quantity, payload.TransactionID)
 				if err != nil {
-					response := &ReduceResponse{event: "reduce_stock", status: "error", message: "", data: nil}
+					response := &ReduceResponse{Event: "reduce_stock", Status: "error", Message: "", Data: nil}
 					bytes, err := json.Marshal(response)
 					if err != nil {
 						log.Printf("rabbitmq: failed to marshal response: %v", err)
@@ -64,7 +64,7 @@ func HandleConsumer(consumer *Consumer, productService product.ProductService, p
 					return
 				}
 			}
-			response := &ReduceResponse{event: "reduce_stock", status: "success", message: "", data: nil}
+			response := &ReduceResponse{Event: "reduce_stock", Status: "success", Message: "", Data: nil}
 			bytes, err := json.Marshal(response)
 			if err != nil {
 				log.Printf("rabbitmq: failed to marshal response: %v", err)
