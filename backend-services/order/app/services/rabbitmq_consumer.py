@@ -35,7 +35,7 @@ class RabbitMQConsumer:
         self.event_handlers = {
             "create_order": self.handle_order_created,
             "update_order_payment_id": self.handle_update_order_payment_id,
-            "order_updated": self.handle_order_updated,
+            "rollback_order": self.handle_rollback_order,
             # Add more event mappings as needed
         }
 
@@ -68,7 +68,7 @@ class RabbitMQConsumer:
         data = message.get("data", {})
         transection_id = message.get("transaction_id")
         order = self.order_service.create_order(
-            order_data=data,
+            order_data=data, transaction_id=transection_id
         )
         self.publisher.publish_order_created_response(order_id=order.id, transaction_id=transection_id)
 
@@ -78,13 +78,12 @@ class RabbitMQConsumer:
         order_id = data.get("order_id")
         payment_id = data.get("payment_id")
         self.order_service.update_order_payment(order_id, payment_id)
-        print(f"Updated payment ID for order {order_id} to {payment_id}")
 
         
-    def handle_order_updated(self, data):
-        """Handle order update logic."""
-        print("Processing order updated with data:", data)
-        # Add your business logic for order update here
+    def handle_rollback_order(self, message):
+        """Handle order rollback logic."""
+        transaction_id = message.get("transaction_id")
+        self.order_service.rollback_order(transaction_id)
 
     def start_consuming(self):
         """Start consuming messages from the specified queue."""

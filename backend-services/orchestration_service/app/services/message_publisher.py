@@ -65,7 +65,7 @@ class RabbitMQPublisher:
         """Publish a command to create an order."""
         command = {
             "event": "create_order",
-                "transaction_id": transaction_id,
+            "transaction_id": transaction_id,
             "data": {
                 "user_email": order_data.user_email,
                 "vendor_email": order_data.vendor_email,
@@ -116,6 +116,17 @@ class RabbitMQPublisher:
     def close(self):
         if self.connection and not self.connection.is_closed:
             self.connection.close()
+
+    def publish_rollback_order_command(self, transaction_id: str):
+        """Publish a command to rollback order."""
+        command = {
+            "event": "rollback_order",
+            "transaction_id": transaction_id,
+            "data": {
+                
+            }
+        }
+        self.publish_message(command, config.RABBITMQ_ORDERS_QUEUE)
 
     def publish_update_order_payment_id(self, order_id: str, payment_id: str):
         """Publish a command to update order with payment ID."""

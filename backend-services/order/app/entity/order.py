@@ -17,11 +17,12 @@ class Order(Base):
     delivery_date = Column(TIMESTAMP, nullable=True)
     total_price = Column(Float, nullable=False)
     delivery_address = Column(String(255), nullable=False)
+    transaction_id = Column(String(36), nullable=True)
     status = Column(Enum(*ALLOWED_STATUSES), nullable=False, default="Pending")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
     def __init__(self, user_email: str, vendor_email: str, total_price: float, delivery_address: str,
-                 description: str = None, delivery_date = None, status: str = "Pending"):
+                 description: str = None, delivery_date = None, status: str = "Pending", transaction_id: str = None):
         """
         Initializes a new Order instance.
 
@@ -40,6 +41,7 @@ class Order(Base):
         self.description = description
         self.delivery_date = delivery_date
         self.status = status
+        self.transaction_id = transaction_id
 
     def __str__(self):
         """

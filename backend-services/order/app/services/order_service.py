@@ -99,7 +99,7 @@ class OrderService:
         except Exception as e:
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
-    def create_order(self, order_data: dict) -> Order:
+    def create_order(self, order_data: dict, transaction_id: str) -> Order:
         """
         Create a new order with the provided order data.
         
@@ -120,6 +120,9 @@ class OrderService:
             if not isinstance(items_data, list):
                 raise ValueError("Items data must be a list.")
             
+            if not isinstance(transaction_id, str):
+                raise ValueError("Transaction ID must be a string.")
+
             total_price = 0
             for item in items_data:
                 if not all(key in item for key in ["quantity", "unit_price", "product_id"]):
@@ -141,6 +144,7 @@ class OrderService:
                 description=order_data.get("description"),
                 status=order_data.get("status", "Pending"),
                 total_price=total_price,
+                transaction_id=transaction_id,
             )
             
             self.db.add(new_order)
@@ -362,7 +366,28 @@ class OrderService:
         except Exception as e:
             self.db.rollback()  
             raise Exception(f"An unexpected error occurred: {str(e)}")
+    
+    def rollback_order(self, transaction_id: str) -> None:
+        """ change order status to canceled """
+        if not transaction_id or not isinstance(transaction_id, str):
+            raise ValueError("Invalid transaction ID.")
         
+        try:
+            order = self.db.query(Order).filter(Order.transaction_id == transaction_id).first()
+            if not order:
+                raise ValueError(f"No order found with transaction ID: {transaction_id}")
+            
+            order.update_status("Canceled")
+            self.db.commit()
+        
+        except SQLAlchemyError as e:
+            self.db.rollback()  
+            raise SQLAlchemyError(f"Database error while rolling back order: {str(e)}")
+        
+        except Exception as e:
+            self.db.rollback()  
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+
     def test_publish_rabbit_mq(self):
         """
         Test RabbitMQ connection and publish a message.
