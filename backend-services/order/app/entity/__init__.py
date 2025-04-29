@@ -11,6 +11,6 @@ ALLOWED_STATUSES = (
     "Shipped",
     "Out for Delivery",
     "Delivered",
-    "Refund"
+    "Refund",
     "Canceled",
 )

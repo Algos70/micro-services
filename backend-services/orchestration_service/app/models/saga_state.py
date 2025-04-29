@@ -30,7 +30,6 @@ class OrderSagaState:
         Represents the state of an Order in a Saga.
 
         :param transaction_id: The unique transaction ID for the Saga.
-        :param order_id: The ID of the order.
         :param user_email: The email of the user who placed the order.
         :param vendor_email: The email of the vendor fulfilling the order.
         :param delivery_address: The delivery address for the order.

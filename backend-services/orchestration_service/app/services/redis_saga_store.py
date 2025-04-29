@@ -11,7 +11,17 @@ class RedisSagaStore:
         key = f"order_saga:{saga.transaction_id}"
         self.client.set(key, json.dumps(saga.dict()), ex=ttl)
 
+    def save_order_id_with_saga(self, order_id: str, transaction_id: str):
+        key = f"order_id:{order_id}"
+        self.client.set(key, transaction_id)
 
+    def get_order_id_with_saga(self, order_id: str) -> str | None:
+        key = f"order_id:{order_id}"
+        transaction_id = self.client.get(key)
+        if not transaction_id:
+            return None
+        return transaction_id
+    
     def get_order_saga(self, transaction_id: str) -> OrderSagaState | None:
         raw = self.client.get(f"order_saga:{transaction_id}")
         if not raw:

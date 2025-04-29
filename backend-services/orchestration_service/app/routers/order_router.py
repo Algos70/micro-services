@@ -5,14 +5,10 @@ from models.order import OrderCreateRequest, OrderResponse
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
-@router.post("/", response_model=OrderResponse)
-def create_order(order_req: OrderCreateRequest):
-    orchestrator = SagaOrchestrator()
-    result = orchestrator.start_order_saga(order_req)
+@router.post("/")
+def health_check():
+    return {"status": "OK"}
     
-    if not result.success:
-        raise HTTPException(status_code=400, detail=result.message)
-    return result.data
 
 @router.post("/create_order")
 def create_order(
@@ -29,4 +25,20 @@ def create_order(
         raise HTTPException(status_code=400, detail="Invalid payment method")
 
     order_id = orchestrator.start_order_saga(order_req, token=auth_header)  
-    return {"message": "Order creation started"}
+    return {
+        "status": "success",
+        "message": "Order creation started",
+        "data": None}
+
+@router.post("/cancel_order")
+def cancel_order(
+    order_id: str,
+    request: Request,
+    orchestrator: SagaOrchestrator = Depends(get_saga_orchestrator),
+):
+    auth_header = request.headers.get("Authorization")
+    # if not auth_header:
+    #     raise HTTPException(status_code=401, detail="Authorization header missing")
+    
+    orchestrator.cancel_order_saga(order_id, token=auth_header)
+    return {"message": "Order cancellation started"}

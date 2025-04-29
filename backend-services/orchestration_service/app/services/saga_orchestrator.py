@@ -51,6 +51,30 @@ class SagaOrchestrator:
         )
         return True
 
+    def cancel_order_saga(self, order_id: str, token: str):
+        # verified = self.auth_client.authenticate_customer(jwt_token=token)
+        # if not verified:
+        #    raise Exception("Authentication failed")
+        
+        transaction_id = self.saga_store.get_order_id_with_saga(order_id)
+        order_saga_state = self.saga_store.get_order_saga(transaction_id)
+        if not order_saga_state:
+            print(f"Order ID {order_id} not found in saga store.")
+            return
+        transaction_id = order_saga_state.transaction_id
+        # Trigger rollback stock if needed
+        self.publisher.publish_rollback_stock_command(
+            transaction_id=transaction_id
+        )
+        self.publisher.publish_rollback_payment_command(
+            transaction_id=transaction_id,
+            payment_id=order_saga_state.payment_id
+        )
+        self.publisher.publish_rollback_order_command(
+            transaction_id=transaction_id
+        )
+
+        return True
 
 
     def handle_stock_reduced_event(self, message: dict):
@@ -117,6 +141,9 @@ class SagaOrchestrator:
         data : dict = message["data"]
         order_id : str = data["order_id"]
         status : str = message["status"]
+        self.saga_store.save_order_id_with_saga(
+            order_id=order_id, 
+            transaction_id=transaction_id)
         order_saga_state = self.saga_store.get_order_saga(transaction_id)
         payment_saga_state = self.saga_store.get_payment_saga(transaction_id)
         if not order_saga_state or not payment_saga_state:
