@@ -2,9 +2,9 @@ name: Run Go Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -21,6 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: go mod download
+        working-directory: backend-services/inventory_go
 
       - name: Run tests
         run: go test ./... -v
