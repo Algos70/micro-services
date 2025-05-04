@@ -21,25 +21,25 @@ func NewTransactionRepository(db *mongo.Database, collectionName string) *Transa
 	}
 }
 
-func (r *TransactionRepositoryImpl) InsertTransaction(transaction transaction.Transaction) error {
+func (r *TransactionRepositoryImpl) InsertTransaction(transaction *transaction.Transaction) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	document := mappers.MapTransactionToModel(&transaction)
+	document := mappers.MapTransactionToModel(transaction)
 	id := bson.NewObjectID()
 	document.Id = id
 	_, err := r.collection.InsertOne(ctx, document)
 	return err
 }
 
-func (r *TransactionRepositoryImpl) GetByTransactionId(transactionId string) (models.TransactionDocument, error) {
+func (r *TransactionRepositoryImpl) GetByTransactionId(transactionId string) (*models.TransactionDocument, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	filter := bson.M{"transaction_id": transactionId}
 	var document models.TransactionDocument
 	err := r.collection.FindOne(ctx, filter).Decode(&document)
-	return document, err
+	return &document, err
 }
 
 func (r *TransactionRepositoryImpl) SetRolledBack(transactionId string) error {
