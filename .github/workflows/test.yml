@@ -57,11 +57,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Start payment services (uses Docker Compose V2)
       - name: Start payment services
         working-directory: backend-services/payment
         run: |
-          docker-compose up -d
-          # give the DB & RabbitMQ a moment to come online
+          docker compose up -d
+          # Give DB & RabbitMQ a few seconds to become ready
           sleep 15
 
       - name: Run Python integration tests
@@ -71,5 +72,5 @@ jobs:
       - name: Tear down payment services
         if: always()
         working-directory: backend-services/payment
-        run: docker-compose down
+        run: docker compose down
       # ──────────────────────────────────────────────────────────────────────────────
