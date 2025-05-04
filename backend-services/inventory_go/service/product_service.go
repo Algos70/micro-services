@@ -164,7 +164,7 @@ func (service *ProductServiceImpl) ReduceStock(id string, quantity int, transact
 	_product := mappers.ProductDocumentToDomain(document)
 	_product.UpdateStock(stock)
 
-	err = service.transactionRepository.InsertTransaction(transaction.Transaction{TransactionId: transactionId, Stock: quantity, ProductId: id})
+	err = service.transactionRepository.InsertTransaction(&transaction.Transaction{TransactionId: transactionId, Stock: quantity, ProductId: id})
 	if err != nil {
 		return err
 	}
