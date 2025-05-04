@@ -13,7 +13,6 @@ import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 import {AlertCircle} from "lucide-react";
 import {Check} from "lucide-react"
 import {useEffect, useState} from "react";
-import {signIn} from "./requests/auth.ts";
 
 
 const signUpFormSchema = z.object({
@@ -37,6 +36,8 @@ export function SignInForm({type}: SignInFormProps) {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [signUpSuccess, setSignUpSuccess] = useState(false);
     const [signInSuccess, setSignInSuccess] = useState(false);
+    const [confirmEmail, setConfirmEmail] = useState('');
+    const [email, setEmail] = useState('');
     const navigate = useNavigate();
     const formSchema = type === "sign-in" ? signInFormSchema : signUpFormSchema;
     const form = useForm<z.infer<typeof formSchema>>({
@@ -55,6 +56,7 @@ export function SignInForm({type}: SignInFormProps) {
             if (response?.status === 200) {
                 console.log(response.data);
                 setSignUpSuccess(true);
+                setEmail(values.email);
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {
@@ -63,8 +65,36 @@ export function SignInForm({type}: SignInFormProps) {
             } else {
                 setErrorMessage("An unexpected error occurred.")
             }
+            
         }
     }
+
+    async function onSubmitConfirmEmail(email: string, token: string) {
+        const axios = await getAuthAxiosInstance();
+    
+        try {
+            const response = await axios?.post('/confirm-email', {
+                email,
+                token,
+            });
+    
+            if (response?.status === 200) {
+                console.log('Email confirmed:', response.data);
+                setTimeout(() => navigate("/dashboard"), 1000);
+            }
+        } catch (error: unknown) {
+            if (error instanceof AxiosError && error.response) {
+                const problemDetails: { detail: string } = error.response.data;
+                setErrorMessage(problemDetails.detail);
+            } else {
+                setErrorMessage("An unexpected error occurred while confirming email.");
+            }
+        }
+    }
+
+    const handleConfirmClick = () => {
+        onSubmitConfirmEmail(email, confirmEmail);
+      };
 
     async function onSubmitSignIn(values: z.infer<typeof formSchema>) {
         const axios = await getAuthAxiosInstance();
@@ -123,10 +153,11 @@ export function SignInForm({type}: SignInFormProps) {
             <div /* Content */ className="w-1/2 flex justify-center items-center bg-primary-900 text-white">
                 <div className="relative max-w-md w-full bg-white text-gray-900 shadow-lg rounded-lg p-8">
                     <div
-                        className={`absolute inset-0 text-center flex flex-col items-center justify-center gap-2 bg-violet-900 text-gray-50 dark:bg-violet-900 dark:text-gray-50 duration-500 transition-opacity  ${signUpSuccess ? "visible opacity-100" : "invisible opacity-0"}`}>
-                        <h1 className='font-bold'>We sent you a confirmation email.</h1>
-                        <p>Please check your inbox.</p>
-                        <p>Back to <a href={"/"}
+                        className={`absolute inset-0 text-center flex flex-col items-center gap-2 bg-violet-900 text-gray-50 dark:bg-violet-900 dark:text-gray-50 duration-500 transition-opacity  ${signUpSuccess ? "visible opacity-100" : "invisible opacity-0"}`}>
+                        <h1 className='font-bold mt-5'>We sent you a confirmation email.</h1>
+                        <Input className="mt-2 w-100 h-12 text-base px-4 placeholder:text-white" type="email" placeholder="Email" onChange={(e) => setConfirmEmail(e.target.value)} />
+                        <Button  onClick={handleConfirmClick} className="mt-2 shadow-sm active:shadow-lg transition duration-100">Confirm</Button>
+                        <p className="mt-2">Back to <a href={"/"}
                                       className="underline underline-offset-2 cursor-pointer text-violet-50">Homepage</a>
                         </p>
                     </div>

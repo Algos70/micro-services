@@ -6,6 +6,7 @@ import App from "@/App.tsx";
 import SignInPage from "@/pages/sign-in.tsx";
 import SignUpPage from "@/pages/sign-up.tsx";
 import LandingPage from './pages/landing';
+import ConsumerPage from './pages/consumer';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/landing" element={<LandingPage/>}/>
                 <Route path="/sign-up" element={<SignUpPage/>}/>
                 <Route path="/sign-in" element={<SignInPage/>}/>
+                <Route path="/dashboard" element={<ConsumerPage/>}/>
             </Routes>
         </BrowserRouter>
     </StrictMode>,
