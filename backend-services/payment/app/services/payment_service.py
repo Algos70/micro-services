@@ -51,7 +51,7 @@ class PaymentService:
             raise ValueError("Invalid email address.")
         
         try:
-            payments = self.db.query(Payment).filter(Payment.user_email == email).options(joinedload(Payment.items)).all()
+            payments = self.db.query(Payment).filter(Payment.user_email == email).all()
             
             if not payments:
                 raise ValueError(f"No payments found for user with email: {email}")
@@ -83,7 +83,7 @@ class PaymentService:
             raise ValueError("Invalid payment ID.")
         
         try:
-            payment = self.db.query(Payment).filter(Payment.id == payment_id).options(joinedload(Payment.items)).first()
+            payment = self.db.query(Payment).filter(Payment.id == payment_id).first()
             
             if not payment:
                 raise ValueError(f"No payment found with ID: {payment_id}")
