@@ -13,6 +13,7 @@ import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 import {AlertCircle} from "lucide-react";
 import {Check} from "lucide-react"
 import {useEffect, useState} from "react";
+import {signIn} from "./requests/auth.ts";
 
 
 const signUpFormSchema = z.object({
