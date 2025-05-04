@@ -23,4 +23,5 @@ jobs:
         run: go mod download
 
       - name: Run tests
-        run: go test ./backend-services/inventory_go/... -v
+        run: go test ./... -v
+        working-directory: backend-services/inventory_go
