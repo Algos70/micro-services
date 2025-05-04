@@ -61,12 +61,12 @@ jobs:
       - name: Start payment services
         working-directory: backend-services/payment
         run: |
-        docker compose \
-          -f docker-compose.yml \
-          -f docker-compose.ci.yml \
-          up -d
-        sleep 15
-
+          docker compose \
+            -f ./docker-compose.yml \
+            -f ./docker-compose.ci.yml \
+            up -d
+          sleep 15
+          
       - name: Run Python integration tests
         working-directory: backend-services/payment
         run: pytest tests/integration.py -q
