@@ -1,12 +1,11 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import CategoryMenu from "./category-menu";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
 import { AxiosError } from "axios";
 import ProductGrid from './product-grid.tsx';
-
 
 export function ConsumerUi() {
 
@@ -24,16 +23,45 @@ export function ConsumerUi() {
         Image: string;
         VendorId: string;
     }[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearched(e.target.value); // Update searched when input changes
+        setSearched(e.target.value); 
     };
 
     const handleSearchButtonClick = () => {
-        console.log("Search clicked, searched value is:", searched); // Do something with searched
+        if (searched.trim() !== "") {
+            searchProductsByName(searched.trim());
+        }
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            handleSearchButtonClick();
+        }
+    };
 
+    const searchProductsByName = async (name: string) => {
+        const axios = await getConsumerAxiosInstance();
+        try {
+            const response = await axios?.get(`/product/many/${name}`, {
+                params: { name: name }
+            });
+            if (response?.status === 200) {
+                setProducts(response.data.data);  // Update the product list with search results
+            }
+        } catch (error: unknown) {
+            if (error instanceof AxiosError && error.response) {
+                const problemDetails: { detail: string } = error.response.data;
+                console.error("Product search error:", problemDetails.detail);
+            } else {
+                console.error("An unexpected error occurred while searching products.");
+            }
+        }
+    };
+    
+
+    // Fetch Categories
     async function getCategories(): Promise<{ Id: string; Name: string; ParentId: string }[] | null> {
         const axios = await getConsumerAxiosInstance();
         try {
@@ -53,6 +81,22 @@ export function ConsumerUi() {
         }
     }
 
+    // Fetch products based on category
+    const fetchProductsByCategory = async (categoryId: string) => {
+        const axios = await getConsumerAxiosInstance();
+        try {
+            const response = await axios?.get(`/product/category/${categoryId}`);
+            if (response?.status === 200) {
+                setProducts(response.data.data);  // Set the products fetched for the selected category
+            }
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error("Product fetch error:", error.message);
+            }
+        }
+    };
+
+    // Fetch all products (if no category is selected)
     async function getProducts(): Promise<{
         Id: string;
         Name: string;
@@ -62,7 +106,7 @@ export function ConsumerUi() {
         CategoryId: string;
         Image: string;
         VendorId: string;
-    }[] | null> { // Updated function to return the correct product structure
+    }[] | null> {
         const axios = await getConsumerAxiosInstance();
         try {
             const response = await axios?.get('/product');
@@ -81,6 +125,7 @@ export function ConsumerUi() {
         }
     }
 
+    // Fetch categories on component mount
     useEffect(() => {
         const fetchCategories = async () => {
             const data = await getCategories();
@@ -90,48 +135,61 @@ export function ConsumerUi() {
         fetchCategories();
     }, []);
 
+    // Fetch products when category is selected or when no category is selected (to fetch all products)
     useEffect(() => {
-        const fetchProducts = async () => {
-            const data = await getProducts();
-            if (data) setProducts(data); // Set products correctly
-            console.log(data); // Log to check the fetched data
-        };
-        fetchProducts();
-    }, []);
+        if (selectedCategory) {
+            fetchProductsByCategory(selectedCategory);
+        } else {
+            const fetchAllProducts = async () => {
+                const data = await getProducts();
+                if (data) setProducts(data); // Set products correctly
+                console.log(data); // Log to check the fetched data
+            };
+            fetchAllProducts();
+        }
+    }, [selectedCategory]);
 
+    const handleCategorySelect = (categoryId: string) => {
+        setSelectedCategory(categoryId);  // Update the selected category
+    };
 
-
-
-
-    console.log(categories)
-    console.log(products)
-
+    console.log(categories);
+    console.log(products);
+    console.log(selectedCategory);
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">
             <div /* Content */ className="h-30 w-1/1 flex ">
                 <div /* logo-div */ className="w-1/3 items-center flex">
-                    <img
-                        src="src\assets\landing-page\shop-svgrepo-com.svg"
-                        alt="Description of image"
-                        className="w-10 h-10 ml-60"
-                    />
-                    <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
+                    <button
+                        onClick={() => window.location.reload()} // Reload the page on click
+                        className="flex items-center"
+                    >
+                        <img
+                            src="src\assets\landing-page\shop-svgrepo-com.svg"
+                            alt="Description of image"
+                            className="w-10 h-10 ml-60"
+                        />
+                        <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
+                    </button>
                 </div>
                 <div /* search-bar */ className="w-1/3 items-center flex">
                     <Input
-                        type="email"
+                        type="text"
                         placeholder="Search"
                         value={searched}
                         onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                         className="w-150 h-12 placeholder:text-base placeholder:font-200 border-2 border-gray-300 rounded-3xl"
                     />
-                    <Button className=" bg-translucent absolute flex transform mt-10 ml-137 -translate-y-1/2 h-10 px-1 text-sm rounded-3xl "><img
-                        src="src\assets\search-alt-2-svgrepo-com.svg"
-                        alt="Description of image"
-                        className="w-10 h-10"
-                        onClick={handleSearchButtonClick}
-                    /></Button>
+                    <Button className=" bg-translucent absolute flex transform mt-10 ml-137 -translate-y-1/2 h-10 px-1 text-sm rounded-3xl ">
+                        <img
+                            src="src\assets\search-alt-2-svgrepo-com.svg"
+                            alt="Description of image"
+                            className="w-10 h-10"
+                            onClick={handleSearchButtonClick}
+                        />
+                    </Button>
                 </div>
                 <div /* Button-div */ className="w-1/3 items-center flex">
                     <Button className="ml-70 w-23 h-23 flex bg-translucent hover:bg-transparent" >
@@ -145,10 +203,14 @@ export function ConsumerUi() {
             </div>
             <div className="h-200 w-1/1 flex">
                 <div /* Category-menu div */ className="flex h-1/1 w-55 ml-60">
-                    <CategoryMenu categories={categories} />
+                    <CategoryMenu categories={categories} onCategorySelect={handleCategorySelect} />
                 </div>
                 <div /* Products-menu div */ className="flex h-3/4 w-1.05/2">
-                <ProductGrid products={products} maxProducts={maxProducts} />
+                    {products.length > 0 ? (
+                        <ProductGrid products={products} maxProducts={maxProducts} />
+                    ) : (
+                        <p>No products found for the selected category.</p>
+                    )}
                 </div>
             </div>
         </div>
