@@ -11,8 +11,17 @@ export function ConsumerUi() {
 
     const navigate = useNavigate();
     const [searched, setSearched] = useState("");
-    const [categories, setCategories] = useState<string[]>([]);
-    const [products, setProducts] = useState<string[]>([]);
+    const [categories, setCategories] = useState<{ Id: string; Name: string; ParentId: string }[]>([]);
+    const [products, setProducts] = useState<{
+        Id: string;
+        Name: string;
+        Description: string;
+        Price: number;
+        Stock: number;
+        CategoryId: string;
+        Image: string;
+        VendorId: string;
+    }[]>([]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearched(e.target.value); // Update searched when input changes
@@ -23,12 +32,12 @@ export function ConsumerUi() {
     };
 
     
-    async function getCategories(): Promise<string[] | null> {
+    async function getCategories(): Promise<{ Id: string; Name: string; ParentId: string }[] | null> {
         const axios = await getConsumerAxiosInstance();
         try {
             const response = await axios?.get('/category');
             if (response?.status === 200) {
-                return response.data; 
+                return response.data.data; // Assuming response.data.data is an array of category objects
             }
             return null;
         } catch (error: unknown) {
@@ -41,18 +50,28 @@ export function ConsumerUi() {
             return null;
         }
     }
-    async function getProducts(): Promise<string[] | null> {
+
+    async function getProducts(): Promise<{
+        Id: string;
+        Name: string;
+        Description: string;
+        Price: number;
+        Stock: number;
+        CategoryId: string;
+        Image: string;
+        VendorId: string;
+    }[] | null> { // Updated function to return the correct product structure
         const axios = await getConsumerAxiosInstance();
         try {
             const response = await axios?.get('/product');
             if (response?.status === 200) {
-                return response.data; 
+                return response.data.data; // Assuming response.data.data is an array of product objects
             }
             return null;
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {
                 const problemDetails: { detail: string } = error.response.data;
-                console.error("Category fetch error:", problemDetails.detail);
+                console.error("Product fetch error:", problemDetails.detail);
             } else {
                 console.error("An unexpected error occurred while fetching products.");
             }
@@ -63,33 +82,27 @@ export function ConsumerUi() {
     useEffect(() => {
         const fetchCategories = async () => {
             const data = await getCategories();
-            if (data) setCategories(data);
+            if (data) setCategories(data); // Set categories correctly
+            console.log(data); // Log to check the fetched data
         };
-
         fetchCategories();
-        console.log(categories)
     }, []);
 
     useEffect(() => {
         const fetchProducts = async () => {
             const data = await getProducts();
-            if (data) setProducts(data);
+            if (data) setProducts(data); // Set products correctly
+            console.log(data); // Log to check the fetched data
         };
-
         fetchProducts();
-        console.log(products)
     }, []);
-    
-    
-
-
-    console.log(searched)
 
 
 
 
 
-
+    console.log(categories)
+    console.log(products)
 
 
     return (
