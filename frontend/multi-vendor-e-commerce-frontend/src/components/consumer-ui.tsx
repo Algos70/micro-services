@@ -21,6 +21,7 @@ export function ConsumerUi() {
     const handleSearchButtonClick = () => {
         console.log("Search clicked, searched value is:", searched); // Do something with searched
     };
+
     /*
     async function getCategories(): Promise<string[] | null> {
         const axios = await getConsumerAxiosInstance();
@@ -78,6 +79,7 @@ export function ConsumerUi() {
         fetchProducts();
         console.log(products)
     }, []);
+    
     */
 
 
