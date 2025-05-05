@@ -22,7 +22,7 @@ export function ConsumerUi() {
         console.log("Search clicked, searched value is:", searched); // Do something with searched
     };
 
-    /*
+    
     async function getCategories(): Promise<string[] | null> {
         const axios = await getConsumerAxiosInstance();
         try {
@@ -80,7 +80,7 @@ export function ConsumerUi() {
         console.log(products)
     }, []);
     
-    */
+    
 
 
     console.log(searched)

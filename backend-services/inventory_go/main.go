@@ -12,6 +12,7 @@ import (
 	"inventory_go/service"
 	"log"
 	"os"
+	"net/http"
 )
 
 func main() {
@@ -97,6 +98,9 @@ func main() {
 	router.Use(gin.Recovery())
 	router.Use(gin.Logger())
 
+	// Apply the CORS middleware globally
+	router.Use(CORSMiddleware())
+
 	// Expose endpoints
 	categoryController := api.NewCategoryController(router, categoryService)
 	categoryController.ExposeEndpoints()
@@ -110,5 +114,27 @@ func main() {
 	err = router.Run(":9292")
 	if err != nil {
 		log.Fatal("Server failed to start:", err)
+	}
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Allow all origins
+		c.Header("Access-Control-Allow-Origin", "*")
+
+		// Allow all HTTP methods
+		c.Header("Access-Control-Allow-Methods", "*")
+
+		// Allow all headers
+		c.Header("Access-Control-Allow-Headers", "*") 
+
+		// Handle preflight requests (OPTIONS method)
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusOK)
+			return
+		}
+
+		// Continue with the request
+		c.Next()
 	}
 }
