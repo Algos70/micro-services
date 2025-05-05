@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import CategoryMenu from "./category-menu";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
-import {AxiosError} from "axios";
+import { AxiosError } from "axios";
+import ProductGrid from './product-grid.tsx';
 
 
 export function ConsumerUi() {
 
+    const maxProducts = 15;
     const navigate = useNavigate();
     const [searched, setSearched] = useState("");
     const [categories, setCategories] = useState<{ Id: string; Name: string; ParentId: string }[]>([]);
@@ -31,7 +33,7 @@ export function ConsumerUi() {
         console.log("Search clicked, searched value is:", searched); // Do something with searched
     };
 
-    
+
     async function getCategories(): Promise<{ Id: string; Name: string; ParentId: string }[] | null> {
         const axios = await getConsumerAxiosInstance();
         try {
@@ -107,7 +109,7 @@ export function ConsumerUi() {
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">
-            <div /* Content */ className="h-20 w-1/1 flex ">
+            <div /* Content */ className="h-30 w-1/1 flex ">
                 <div /* logo-div */ className="w-1/3 items-center flex">
                     <img
                         src="src\assets\landing-page\shop-svgrepo-com.svg"
@@ -142,8 +144,11 @@ export function ConsumerUi() {
                 </div>
             </div>
             <div className="h-200 w-1/1 flex">
-                <div /* Category-menu div */ className="flex h-1/1 w-1/3 ml-60">
+                <div /* Category-menu div */ className="flex h-1/1 w-55 ml-60">
                     <CategoryMenu categories={categories} />
+                </div>
+                <div /* Products-menu div */ className="flex h-3/4 w-1.05/2">
+                <ProductGrid products={products} maxProducts={maxProducts} />
                 </div>
             </div>
         </div>
