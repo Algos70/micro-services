@@ -1,18 +1,14 @@
-import {SignInForm} from "@/components/sign-in-form.tsx";
+import { ConsumerUi } from "@/components/consumer-ui";
 import {ModeToggle} from "@/components/mode-toggle.tsx";
 import {ThemeProvider} from "@/components/theme-provider.tsx";
 
-
-
-
-
-
-export default function SignUpPage() {
+export default function LandingPage() {
     return (
 
+        
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <ModeToggle/>
-            <SignInForm type={"sign-up"}></SignInForm>
+            <ConsumerUi></ConsumerUi>
         </ThemeProvider>
     );
 }
