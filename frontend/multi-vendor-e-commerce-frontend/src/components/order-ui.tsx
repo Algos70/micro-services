@@ -1,50 +1,115 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../hooks/CartContext.tsx';
+import { useLocation } from 'react-router';
+import { useEffect, useState } from 'react';
+import { getProductById } from '@/requests/getProductById.ts';
+import Spinner from './spinner'; // Optional: loading spinner
 
+interface Product {
+  Id: string;
+  Name: string;
+  Description: string;
+  Price: number;
+  Stock: number;
+  VendorId: string;
+  Image: string;
+  CategoryId: string;
+  quantity?: number;  // Add the optional quantity property
+}
 
 export function OrderUi() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userEmail = location.state.userEmail;
+  const userToken = location.state.userToken;
+  const { cart } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-    const navigate = useNavigate();
+  const handleReturn = () => {
+    navigate('/dashboard', {
+      state: { userEmail, userToken },
+    });
+  };
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const productCounts: { [id: string]: number } = {}; // Object to track item counts
+      const productMap: { [id: string]: Product } = {}; // Object to store unique products
 
-    return (
-        <div /* Container */ className="min-h-screen flex-col ">
-            <div /* Content */ className="h-20 w-1/1 flex ">
-                <div /* logo-div */ className="w-1/2 content-center items-center flex">
-                    <img
-                        src="src\assets\landing-page\shop-svgrepo-com.svg"
-                        alt="Description of image"
-                        className="w-10 h-10 ml-60"
-                    />
-                    <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
-                </div>
-                <div /* Button-div */ className="w-1/2 items-center content-center flex">
-                    <Button className="px-9 py-4 w-30 h-11 text-lg ml-143 rounded-3xl" >Sign In</Button>
-                </div>
-            </div>
-            <div /* Information */ className=" flex w-1/1 h-1/2">
-                <div /* sign-up-div */ className="w-1/2 flex-col pt-25">
-                    <p className="ml-60 text-6xl font-100 max-w-xl">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    <p className="ml-60 mt-5 text-xl font-50 max-w-md">Ullamcorper a lacus vestibulum sed. Scelerisque eleifend donec.</p>
-                    <div className="ml-60 mt-5 flex items-center space-x-2 relative">
-                        <Input
-                            type="email"
-                            placeholder="Enter your email address"
-                            className="w-150 h-12 placeholder:text-base placeholder:font-200 border-2 border-gray-300 rounded-3xl"
-                        />
-                        <Button className="absolute mr-30 top-1/2 right-1 transform -translate-y-1/2 h-10 px-4 text-sm rounded-3xl">Sign Up</Button>
-                    </div>
-                    <p className="ml-60 mt-5 text-lg font-50 max-w-md">Quis varius quam quisque id diam. Aliquam sem et tortor consequat id porta nibh venenatis cras.</p>
-                </div>
-                <div /* Image-div */ className="w-1/2  pt-18">
-                    <img
-                        src="https://cdn.shopify.com/b/shopify-brochure2-assets/60a52584834d6d460eebd0cb77b4ab23.png?originalWidth=1392&originalHeight=1095"
-                        alt="Description of image"
-                        className="w-150 h-120 ml-35"
-                    />
-                </div>
-            </div>
+      // Fetch each product from the API
+      for (const item of cart) {
+        const product = await getProductById(item.id);
+        if (product) {
+          // Track the quantity of each product in the cart
+          productCounts[item.id] = (productCounts[item.id] || 0) + 1;
+
+          // Add product to the map if not already added (avoids duplication)
+          if (!productMap[product.Id]) {
+            productMap[product.Id] = product;
+          }
+        }
+      }
+
+      // Combine the fetched products with their quantities
+      const productsWithQuantity = Object.values(productMap).map(product => ({
+        ...product,
+        quantity: productCounts[product.Id],  // Set quantity on each product
+      }));
+
+      setProducts(productsWithQuantity);
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, [cart]);
+
+  if (loading) return <Spinner />;
+
+  // Calculate total price
+  const total = products.reduce((sum, product) => {
+    return sum + product.Price * (product.quantity || 0); // Ensure we use quantity if it exists
+  }, 0);
+
+  return (
+    <div /* Container */ className="min-h-screen flex-col ">
+      <div /* Content */ className="h-30 w-1/1 flex ">
+        <div /* logo-div */ className="w-1/2 content-center items-center flex">
+          <img
+            onClick={handleReturn}
+            src="src\assets\landing-page\shop-svgrepo-com.svg"
+            alt="Description of image"
+            className="w-10 h-10 ml-60"
+          />
+          <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
         </div>
-    );
+      </div>
+      <div /* Information */ className=" flex w-1/1 h-1/2">
+        <div className="grid grid-cols-5 flex flex-row gap-4 p-4 ml-54">
+          {products.map(product => (
+            <div key={product.Id} className="border rounded-md p-4 shadow-md">
+              <img src={product.Image} alt={product.Name} className="w-32 h-32 object-cover mb-2 rounded" />
+              <h2 className="text-lg font-semibold">{product.Name}</h2>
+              <p className="text-gray-600">{product.Description}</p>
+              <p className="font-bold">${product.Price}</p>
+              {product.quantity && <p className="text-sm text-gray-500">Quantity: {product.quantity}</p>}
+            </div>
+          ))}
+        </div>
+        <div className="w-full max-w-md mx-auto mt-6 border-t pt-4">
+          <div className="flex justify-between text-lg font-semibold mb-4">
+            <span>Total:</span>
+            <span>${total.toFixed(2)}</span>
+          </div>
+
+          <button
+            onClick={() => console.log('Order placed!')} // Replace with real order handler
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          >
+            Place Order
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

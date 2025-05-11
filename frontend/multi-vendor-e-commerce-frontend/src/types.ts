@@ -3,6 +3,7 @@ export interface SignInFormProps {
 }
 
 export interface Config {
+    ORDER_URL: "http://localhost:8080"
     AUTH_URL: 'localhost:8086';
     CONSUMER_URL: 'localhost:9292'
 }
