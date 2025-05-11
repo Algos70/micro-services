@@ -2,10 +2,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import CategoryMenu from "./category-menu";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
 import { AxiosError } from "axios";
 import ProductGrid from './product-grid.tsx';
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { useCart } from '../hooks/CartContext.tsx';
+
+
+
 
 export function ConsumerUi() {
 
@@ -25,8 +36,37 @@ export function ConsumerUi() {
     }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+    const { cart } = useCart();
+
+    const location = useLocation();
+    const userEmail = location.state.userEmail;
+    const userToken = location.state.userToken;
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearched(e.target.value); 
+        setSearched(e.target.value);
+    };
+
+
+    const handleProfileClick = () => {
+        navigate('/profile', {
+            state: { userEmail, userToken },
+        });
+    };
+
+    const handleReturn = () => {
+        navigate('/');
+    };
+
+    const handleOrderClick = () => {
+        navigate('/order', {
+            state: { userEmail, userToken },
+        });
+    };
+
+    const handleOrderInfo = () => {
+        navigate('/order-info', {
+            state: { userEmail, userToken },
+        });
     };
 
     const handleSearchButtonClick = () => {
@@ -59,7 +99,6 @@ export function ConsumerUi() {
             }
         }
     };
-    
 
     // Fetch Categories
     async function getCategories(): Promise<{ Id: string; Name: string; ParentId: string }[] | null> {
@@ -153,13 +192,9 @@ export function ConsumerUi() {
         setSelectedCategory(categoryId);  // Update the selected category
     };
 
-    console.log(categories);
-    console.log(products);
-    console.log(selectedCategory);
-
     return (
         <div /* Container */ className="min-h-screen flex-col ">
-            <div /* Content */ className="h-30 w-1/1 flex ">
+            <div /* Content */ className="h-33 w-1/1 flex ">
                 <div /* logo-div */ className="w-1/3 items-center flex">
                     <button
                         onClick={() => window.location.reload()} // Reload the page on click
@@ -192,13 +227,32 @@ export function ConsumerUi() {
                     </Button>
                 </div>
                 <div /* Button-div */ className="w-1/3 items-center flex">
-                    <Button className="ml-70 w-23 h-23 flex bg-translucent hover:bg-transparent" >
+                    <Button onClick={handleOrderClick} className=" ml-60 relative h-10 p-2 shadow-none bg-transparent hover:bg-gray-100">
                         <img
-                            src="src\assets\bag-shopping-svgrepo-com.svg"
-                            alt="Description of image"
-                            className=""
+                            src="src/assets/bag-shopping-svgrepo-com.svg"
+                            alt="Cart"
+                            className="w-8 h-8"
                         />
+                        {cart.length > 0 && (
+                            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2">
+                                {cart.length}
+                            </span>
+                        )}
                     </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <img
+                                src="src\assets\user.svg"
+                                alt="Clickable"
+                                className="w-10 ml-10 h-10 cursor-pointer rounded-lg hover:shadow-lg transition-shadow duration-200"
+                            />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={handleProfileClick}>Profile</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleOrderInfo}>Orders</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleReturn}>Signout</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
             <div className="h-200 w-1/1 flex">
