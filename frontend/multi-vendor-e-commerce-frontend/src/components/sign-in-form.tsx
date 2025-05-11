@@ -80,7 +80,7 @@ export function SignInForm({type}: SignInFormProps) {
     
             if (response?.status === 200) {
                 console.log('Email confirmed:', response.data);
-                setTimeout(() => navigate("/dashboard"), 1000);
+                setTimeout(() => navigate("/dashboard", {state: email}), 1000);
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {
@@ -106,7 +106,7 @@ export function SignInForm({type}: SignInFormProps) {
             if (response?.status === 200) {
                 console.log(response.data);
                 setSignInSuccess(true);
-                setTimeout(() => navigate("/dashboard"), 1000);
+                setTimeout(() => navigate("/dashboard", {state: values.email}), 1000);
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {
@@ -155,7 +155,7 @@ export function SignInForm({type}: SignInFormProps) {
                     <div
                         className={`absolute inset-0 text-center flex flex-col items-center gap-2 bg-violet-900 text-gray-50 dark:bg-violet-900 dark:text-gray-50 duration-500 transition-opacity  ${signUpSuccess ? "visible opacity-100" : "invisible opacity-0"}`}>
                         <h1 className='font-bold mt-5'>We sent you a confirmation email.</h1>
-                        <Input className="mt-2 w-100 h-12 text-base px-4 placeholder:text-white" type="email" placeholder="Email" onChange={(e) => setConfirmEmail(e.target.value)} />
+                        <Input className="mt-2 w-100 h-12 text-base px-4 placeholder:text-white" type="email" placeholder="Token" onChange={(e) => setConfirmEmail(e.target.value)} />
                         <Button  onClick={handleConfirmClick} className="mt-2 shadow-sm active:shadow-lg transition duration-100">Confirm</Button>
                         <p className="mt-2">Back to <a href={"/"}
                                       className="underline underline-offset-2 cursor-pointer text-violet-50">Homepage</a>

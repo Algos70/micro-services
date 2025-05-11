@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import CategoryMenu from "./category-menu";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
 import { AxiosError } from "axios";
 import ProductGrid from './product-grid.tsx';
+import { string } from "zod";
 
 export function ConsumerUi() {
 
@@ -25,8 +27,18 @@ export function ConsumerUi() {
     }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+    const location = useLocation();
+    const userEmail = location.state;
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearched(e.target.value); 
+        setSearched(e.target.value);
+    };
+
+    const handleUserClick = () => {
+        console.log(userEmail)
+        navigate('/', {
+            state: { userEmail },
+        });
     };
 
     const handleSearchButtonClick = () => {
@@ -59,7 +71,7 @@ export function ConsumerUi() {
             }
         }
     };
-    
+
 
     // Fetch Categories
     async function getCategories(): Promise<{ Id: string; Name: string; ParentId: string }[] | null> {
@@ -199,6 +211,12 @@ export function ConsumerUi() {
                             className=""
                         />
                     </Button>
+                    <img
+                        src="src\assets\user.svg"
+                        alt="Clickable"
+                        onClick={handleUserClick}
+                        className="w-10 h-10 cursor-pointer rounded-lg hover:shadow-lg transition-shadow duration-200"
+                    />
                 </div>
             </div>
             <div className="h-200 w-1/1 flex">
