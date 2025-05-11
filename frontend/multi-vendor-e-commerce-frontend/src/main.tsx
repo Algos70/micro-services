@@ -19,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/sign-in" element={<SignInPage/>}/>
                 <Route path="/dashboard" element={<ConsumerPage/>}/>
                 <Route path="/profile" element={<ProfilePage/>}/>
+                <Route path="/order" element={<ProfilePage/>}/>
             </Routes>
         </BrowserRouter>
     </StrictMode>,

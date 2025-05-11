@@ -13,6 +13,9 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { useCart } from '../hooks/useCart';
+
+
 
 
 export function ConsumerUi() {
@@ -33,6 +36,9 @@ export function ConsumerUi() {
     }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+    const { cart } = useCart();
+    console.log('Cart from hook:', cart); // Logs every time cart updates
+
     const location = useLocation();
     console.log(location.state);
     const userEmail = location.state.userEmail;
@@ -42,11 +48,25 @@ export function ConsumerUi() {
         setSearched(e.target.value);
     };
 
+
     const handleProfileClick = () => {
         navigate('/profile', {
-            state: { userEmail , userToken },
+            state: { userEmail, userToken },
         });
     };
+
+    const handleReturn = () => {
+        navigate('/');
+    };
+
+    const handleOrderClick = () => {
+        navigate('/order', {
+            state: { userEmail, userToken },
+        });
+    };
+
+
+
 
     const handleSearchButtonClick = () => {
         if (searched.trim() !== "") {
@@ -173,7 +193,6 @@ export function ConsumerUi() {
 
     console.log(categories);
     console.log(products);
-    console.log(selectedCategory);
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">
@@ -228,7 +247,7 @@ export function ConsumerUi() {
                         <DropdownMenuContent>
                             <DropdownMenuItem onClick={handleProfileClick}>Profile</DropdownMenuItem>
                             <DropdownMenuItem>Orders</DropdownMenuItem>
-                            <DropdownMenuItem>Signout</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleReturn}>Signout</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
