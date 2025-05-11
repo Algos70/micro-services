@@ -37,10 +37,8 @@ export function ConsumerUi() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const { cart } = useCart();
-    console.log('Cart from hook:', cart); // Logs every time cart updates
 
     const location = useLocation();
-    console.log(location.state);
     const userEmail = location.state.userEmail;
     const userToken = location.state.userToken;
 
@@ -187,9 +185,6 @@ export function ConsumerUi() {
     const handleCategorySelect = (categoryId: string) => {
         setSelectedCategory(categoryId);  // Update the selected category
     };
-
-    console.log(categories);
-    console.log(products);
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">

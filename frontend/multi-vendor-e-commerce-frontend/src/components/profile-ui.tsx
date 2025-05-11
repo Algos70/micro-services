@@ -57,7 +57,7 @@ export function ProfileUi() {
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">
-            <div /* Content */ className="h-20 w-1/1 flex ">
+            <div /* Content */ className="h-30 w-1/1 flex ">
                 <div /* logo-div */ onClick={handleReturn} className="w-1/2 content-center items-center flex">
                     <img
                         src="src\assets\landing-page\shop-svgrepo-com.svg"

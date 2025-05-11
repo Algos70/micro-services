@@ -30,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <div className="flex flex-col border rounded-md shadow-md p-1 w-50 h-55  dark:border-3 ">
+    <div className="flex flex-col border rounded-md shadow-md p-1 w-50 h-62  dark:border-3 ">
       <img
         src={product.Image}
         alt={product.Name}
