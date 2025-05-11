@@ -1,7 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
-import { AxiosError } from 'axios';
-import getOrderAxiosInstance from "@/requests/orderAxiosInstance";
 import { useEffect, useState } from "react";
 import { getUserOrders } from '@/requests/getOrder';
 
