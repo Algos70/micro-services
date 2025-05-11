@@ -7,7 +7,13 @@ import CategoryMenu from "./category-menu";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
 import { AxiosError } from "axios";
 import ProductGrid from './product-grid.tsx';
-import { string } from "zod";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+
 
 export function ConsumerUi() {
 
@@ -28,16 +34,17 @@ export function ConsumerUi() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const location = useLocation();
-    const userEmail = location.state;
+    console.log(location.state);
+    const userEmail = location.state.userEmail;
+    const userToken = location.state.userToken;
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearched(e.target.value);
     };
 
-    const handleUserClick = () => {
-        console.log(userEmail)
-        navigate('/', {
-            state: { userEmail },
+    const handleProfileClick = () => {
+        navigate('/profile', {
+            state: { userEmail , userToken },
         });
     };
 
@@ -71,7 +78,6 @@ export function ConsumerUi() {
             }
         }
     };
-
 
     // Fetch Categories
     async function getCategories(): Promise<{ Id: string; Name: string; ParentId: string }[] | null> {
@@ -211,12 +217,20 @@ export function ConsumerUi() {
                             className=""
                         />
                     </Button>
-                    <img
-                        src="src\assets\user.svg"
-                        alt="Clickable"
-                        onClick={handleUserClick}
-                        className="w-10 h-10 cursor-pointer rounded-lg hover:shadow-lg transition-shadow duration-200"
-                    />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <img
+                                src="src\assets\user.svg"
+                                alt="Clickable"
+                                className="w-10 h-10 cursor-pointer rounded-lg hover:shadow-lg transition-shadow duration-200"
+                            />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={handleProfileClick}>Profile</DropdownMenuItem>
+                            <DropdownMenuItem>Orders</DropdownMenuItem>
+                            <DropdownMenuItem>Signout</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
             <div className="h-200 w-1/1 flex">
