@@ -63,6 +63,12 @@ export function ConsumerUi() {
         });
     };
 
+    const handleOrderInfo = () => {
+        navigate('/order-info', {
+            state: { userEmail, userToken },
+        });
+    };
+
     const handleSearchButtonClick = () => {
         if (searched.trim() !== "") {
             searchProductsByName(searched.trim());
@@ -243,7 +249,7 @@ export function ConsumerUi() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             <DropdownMenuItem onClick={handleProfileClick}>Profile</DropdownMenuItem>
-                            <DropdownMenuItem>Orders</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleOrderInfo}>Orders</DropdownMenuItem>
                             <DropdownMenuItem onClick={handleReturn}>Signout</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

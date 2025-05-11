@@ -31,36 +31,36 @@ export function OrderUi() {
     const [user, setUser] = useState<any>(null);
 
     async function findUserByEmail(email: string): Promise<any | null> {
-            const axios = await getAuthAxiosInstance();
-    
-            try {
-                const response = await axios?.get(`/user/${encodeURIComponent(email)}`);
-                if (response?.status === 200) {
-                    console.log('User found:', response.data);
-                    return response.data;
-                }
-            } catch (error: unknown) {
-                if (error instanceof AxiosError && error.response) {
-                    const problemDetails: { detail: string } = error.response.data;
-                    console.error('User lookup error:', problemDetails.detail);
-                } else {
-                    console.error('An unexpected error occurred during user lookup.');
-                }
+        const axios = await getAuthAxiosInstance();
+
+        try {
+            const response = await axios?.get(`/user/${encodeURIComponent(email)}`);
+            if (response?.status === 200) {
+                console.log('User found:', response.data);
+                return response.data;
             }
-    
-            return null;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError && error.response) {
+                const problemDetails: { detail: string } = error.response.data;
+                console.error('User lookup error:', problemDetails.detail);
+            } else {
+                console.error('An unexpected error occurred during user lookup.');
+            }
         }
-    
-        useEffect(() => {
-            const fetchUser = async () => {
-                if (userEmail) {
-                    const userData = await findUserByEmail(userEmail);
-                    setUser(userData);
-                }
-            };
-    
-            fetchUser();
-        }, []);
+
+        return null;
+    }
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            if (userEmail) {
+                const userData = await findUserByEmail(userEmail);
+                setUser(userData);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const handleReturn = () => {
         navigate('/dashboard', {
@@ -69,33 +69,33 @@ export function OrderUi() {
     };
 
     const handleOrderStart = async () => {
-  try {
-    if (!userEmail) {
-      console.error('User email is missing');
-      return;
-    }
+        try {
+            if (!userEmail) {
+                console.error('User email is missing');
+                return;
+            }
 
-    const orderPayload = {
-      user_email: userEmail,
-      vendor_email: 'vendor@outlook.com', 
-      delivery_address: user.address,       
-      description: 'Order placed through Shoply',
-      status: 'Pending',
-      payment_method: 'Credit Card',             
-      items: products.map(product => ({
-        product_id: product.Id,
-        quantity: product.quantity || 1,
-        unit_price: product.Price,
-      })),
+            const orderPayload = {
+                user_email: userEmail,
+                vendor_email: 'vendor@outlook.com',
+                delivery_address: user.address,
+                description: 'Order placed through Shoply',
+                status: 'Pending',
+                payment_method: 'Credit Card',
+                items: products.map(product => ({
+                    product_id: product.Id,
+                    quantity: product.quantity || 1,
+                    unit_price: product.Price,
+                })),
+            };
+            console.log(orderPayload)
+            const result = await startOrder(orderPayload);
+            console.log("Order is succesfull.")
+            clearCart();
+        } catch (error) {
+            console.log("An error occured: " + error)
+        }
     };
-    console.log(orderPayload)
-    const result = await startOrder(orderPayload);
-    console.log('Order successful:', result);
-    // Optionally navigate or clear cart here
-  } catch (error) {
-    console.error('Failed to start order:', error);
-  }
-};
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -185,7 +185,7 @@ export function OrderUi() {
                             onClick={() => clearCart()}
                             className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
                         >
-                            Remove All 
+                            Remove All
                         </button>
                     </div>
 

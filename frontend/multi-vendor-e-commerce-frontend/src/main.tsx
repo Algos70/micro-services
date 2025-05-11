@@ -9,9 +9,11 @@ import LandingPage from './pages/landing';
 import ConsumerPage from './pages/consumer';
 import ProfilePage from './pages/profile';
 import OrderPage from './pages/order';
+import OrderInfoPage from './pages/order-info';
 
 // Import the CartProvider
 import { CartProvider } from './hooks/CartContext'; // adjust path if needed
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -25,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/dashboard" element={<ConsumerPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/order" element={<OrderPage />} />
+          <Route path="/order-info" element={<OrderInfoPage />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>
