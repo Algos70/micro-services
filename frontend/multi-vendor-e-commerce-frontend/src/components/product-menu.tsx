@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCart } from '../hooks/useCart'; // adjust path if needed
+import { useCart } from '../hooks/CartContext'; // adjust path if needed
 import { CartItem } from '../types'; // adjust path if needed
 
 // Define the structure of the product object
