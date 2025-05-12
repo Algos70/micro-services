@@ -29,7 +29,7 @@ class LogStats(BaseModel):
     recent_errors_24h: int
     module_counts: dict
 
-@router.get("/", response_model=List[LogEntry])
+@router.get("/", response_model=List[LogEntry], dependencies=[Depends(admin_auth_dependency)])
 def get_logs(
     level: Optional[str] = Query(None, description="Filter logs by level (INFO, WARNING, ERROR)"),
     start_date: Optional[str] = Query(None, description="Filter logs from this date (ISO format)"),

@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
 from dtos.payment_schema import PaymentCreate, PaymentResponse
 from services.payment_service import get_payment_service, PaymentService
-from api.dependencies import admin_auth_dependency, customer_auth_dependency, vendor_auth_dependency
+from api.dependencies import admin_auth_dependency, any_user_auth_dependency
 from logger import logger
 
 router = APIRouter(
@@ -11,10 +11,10 @@ router = APIRouter(
     tags=["payments"]
 )
 
-@router.get("/", response_model=list[PaymentResponse])
+@router.get("/", response_model=list[PaymentResponse], dependencies=[Depends(admin_auth_dependency)])
 def list_payments(payment_service: PaymentService = Depends(get_payment_service)):
     """
-    Retrieve all payments.
+    Retrieve all payments. Only accessible by admin users.
     """
     try:
         logger.info("Fetching all payments")
@@ -28,7 +28,7 @@ def list_payments(payment_service: PaymentService = Depends(get_payment_service)
             detail=f"An error occurred while fetching payments: {str(e)}"
         )
 
-@router.get("/{payment_id}", response_model=PaymentResponse)
+@router.get("/{payment_id}", response_model=PaymentResponse, dependencies=[Depends(any_user_auth_dependency)])
 def get_payment(payment_id: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Retrieve a payment by its ID.
@@ -48,7 +48,7 @@ def get_payment(payment_id: str, payment_service: PaymentService = Depends(get_p
             detail=f"An error occurred while fetching the payment: {str(e)}"
         )
 
-@router.get("/user/{email}", response_model=list[PaymentResponse])
+@router.get("/user/{email}", response_model=list[PaymentResponse], dependencies=[Depends(any_user_auth_dependency)])
 def get_payments_by_user(email: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Retrieve all payments for the specified user.
@@ -68,7 +68,7 @@ def get_payments_by_user(email: str, payment_service: PaymentService = Depends(g
             detail=f"An error occurred while fetching user payments: {str(e)}"
         )
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=PaymentResponse)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=PaymentResponse, dependencies=[Depends(admin_auth_dependency)])
 def create_payment_endpoint(payment: PaymentCreate, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Create a new payment.
@@ -91,7 +91,7 @@ def create_payment_endpoint(payment: PaymentCreate, payment_service: PaymentServ
             detail=f"An error occurred while creating the payment: {str(e)}"
         )
 
-@router.put("/{payment_id}/status/{new_status}", response_model=PaymentResponse)
+@router.put("/{payment_id}/status/{new_status}", response_model=PaymentResponse, dependencies=[Depends(admin_auth_dependency)])
 def update_payment_status_endpoint(payment_id: str, new_status: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Update the status of a payment.
@@ -111,7 +111,7 @@ def update_payment_status_endpoint(payment_id: str, new_status: str, payment_ser
             detail=f"An error occurred while updating the payment status: {str(e)}"
         )
 
-@router.delete("/{payment_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{payment_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(admin_auth_dependency)])
 def delete_payment_endpoint(payment_id: str, payment_service: PaymentService = Depends(get_payment_service)):
     """
     Delete a payment by its ID.
