@@ -1,6 +1,7 @@
 import threading
 from core import config
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from db.dependencies import get_db
 from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
@@ -28,6 +29,16 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 app.include_router(payments.router)
 app.include_router(logs.router)
 @app.get("/")
