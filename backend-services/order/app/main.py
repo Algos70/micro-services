@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
 from db.base import engine, Base
 from entity import order, order_item
-from api.endpoints import orders
+from api.endpoints import orders, logs
 from services.rabbitmq_consumer import get_consumer_service
 # Add these imports for logging
 from logger import logger
@@ -41,6 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(orders.router)
+app.include_router(logs.router)
 
 @app.get("/")
 async def root(db: Session = Depends(get_db)):
