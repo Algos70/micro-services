@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from routers import order_router
 from services.event_consumer import get_consumer_service
 import config
+from logger import logger
 
 
 @asynccontextmanager
@@ -44,4 +45,5 @@ def read_root():
     """
     A simple health-check endpoint.
     """
+    logger.log("Root endpoint accessed.")
     return {"message": "Orchestration Service is running."}
