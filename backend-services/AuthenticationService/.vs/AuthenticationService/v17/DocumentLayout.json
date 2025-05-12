@@ -28,7 +28,7 @@
               "RelativeDocumentMoniker": "AuthenticationService\\Program.cs",
               "ToolTip": "C:\\Users\\Admin\\Desktop\\micro\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\Program.cs",
               "RelativeToolTip": "AuthenticationService\\Program.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAAADIAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAABEAAAAAAAAAAAAAACwAAABEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-12T01:13:51.296Z",
               "EditorCaption": ""
@@ -43,8 +43,7 @@
               "RelativeToolTip": "AuthenticationService\\Controllers\\AuthenticationController.cs",
               "ViewState": "AgIAAKcAAAAAAAAAAAAQwLAAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-12T01:08:39.426Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-12T01:08:39.426Z"
             }
           ]
         }
