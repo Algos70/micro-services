@@ -1,5 +1,6 @@
 import threading
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from core import config
 from db.dependencies import get_db
 from sqlalchemy.orm import Session
@@ -29,6 +30,16 @@ async def lifespan(app: FastAPI):
         logger.info("Consumer stopped.")
 
 app = FastAPI(lifespan=lifespan)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 app.include_router(orders.router)
 
 @app.get("/")
