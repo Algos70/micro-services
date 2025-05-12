@@ -8,6 +8,7 @@ class AuthenticationService:
     """Authentication service."""
     def __init__(self):
         self.base_url = f"{config.AUTHERIZATION_SERVER_HOST}:{config.AUTHORIZATION_SERVER_PORT}"
+        print(f"Base URL: {self.base_url}")
         self.headers = {"accept": "*/*", "Content-Type": "application/json"}
         self.timeout = 5  
 
