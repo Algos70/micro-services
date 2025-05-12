@@ -42,8 +42,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.Authority = "https://dev-kf1qu7hinhsjitd4.eu.auth0.com";
-    options.Audience = "http://localhost:5173";
+    options.Authority = "https://dev-kf1qu7hinhsjitd4.eu.auth0.com/";
+    options.Audience = "my-secure-api";
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
