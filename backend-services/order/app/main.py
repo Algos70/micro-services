@@ -8,25 +8,25 @@ from db.base import engine, Base
 from entity import order, order_item
 from api.endpoints import orders
 from services.rabbitmq_consumer import get_consumer_service
-
+# Add these imports for logging
+from logger import logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: create and start the consumer thread
     Base.metadata.create_all(bind=engine)
-    print("Database connected")
+    logger.info("Database connected")
     consumer = get_consumer_service(queue=config.RABBITMQ_ORDERS_QUEUE)
     thread = threading.Thread(target=consumer.start_consuming, daemon=True)
     thread.start()
-    print("Consumer thread started.")
+    logger.info("Consumer thread started.")
     try:
         yield
     finally:
         # Shutdown: Signal the consumer to stop and wait for the thread to exit
         consumer.stop_consuming()
         thread.join(timeout=5)
-        print("Consumer stopped.")
-
+        logger.info("Consumer stopped.")
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(orders.router)
