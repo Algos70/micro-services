@@ -14,9 +14,9 @@ router = APIRouter(
     tags=["orders"]
 )
 
-@router.get("/", response_model=list[OrderResponse])
+@router.get("/", response_model=list[OrderResponse], dependencies=[Depends(admin_auth_dependency)])
 def list_orders(
-    order_service: OrderService = Depends(get_order_service)
+    order_service: OrderService = Depends(get_order_service),
     ):
     """
     Retrieve all orders.
@@ -32,7 +32,7 @@ def list_orders(
             detail=f"An error occurred while fetching orders: {str(e)}"
         )
 
-@router.get("/{order_id}", response_model=OrderResponse)
+@router.get("/{order_id}", response_model=OrderResponse, dependencies=[Depends(customer_auth_dependency)])
 def get_order(
     order_id: str,
     order_service: OrderService = Depends(get_order_service),
@@ -54,7 +54,7 @@ def get_order(
             detail=f"An error occurred while fetching the order: {str(e)}"
         )
 
-@router.get("/user/{email}", response_model=list[OrderResponse])
+@router.get("/user/{email}", response_model=list[OrderResponse], dependencies=[Depends(customer_auth_dependency)])
 def get_orders_by_user(
     email: str, 
     order_service: OrderService = Depends(get_order_service),
@@ -76,7 +76,29 @@ def get_orders_by_user(
             detail=f"An error occurred while fetching user orders: {str(e)}"
         )
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.get("/vendor/{vendor_id}", response_model=list[OrderResponse], dependencies=[Depends(vendor_auth_dependency)])
+def get_orders_by_vendor(
+    vendor_id: str,
+    order_service: OrderService = Depends(get_order_service),
+    ):
+    """
+    Retrieve all orders for the specified vendor.
+    """
+    try:
+        logger.info(f"Fetching orders for vendor: {vendor_id}")
+        orders = order_service.get_vendor_orders(vendor_id)
+        return orders
+    except ValueError as e:
+        logger.warning(f"Orders not found for vendor: {vendor_id} - {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error fetching orders for vendor {vendor_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while fetching vendor orders: {str(e)}"
+        )
+
+@router.post("/", status_code=status.HTTP_201_CREATED, dependencies=[Depends(customer_auth_dependency)])
 def create_order_endpoint(
     order: OrderCreate, 
     order_service: OrderService = Depends(get_order_service),
@@ -96,7 +118,7 @@ def create_order_endpoint(
             detail=f"An error occurred while creating the order: {str(e)}"
         )
 
-@router.put("/{order_id}/status/{new_status}", response_model=OrderResponse)
+@router.put("/{order_id}/status/{new_status}", response_model=OrderResponse, dependencies=[Depends(customer_auth_dependency)])
 def update_status(
     order_id: str,
     new_status: str,
@@ -125,7 +147,7 @@ def update_status(
             detail=f"An error occurred while updating the order status: {str(e)}"
         )
 
-@router.put("/{order_id}/payment/{payment_id}", response_model=OrderResponse)
+@router.put("/{order_id}/payment/{payment_id}", response_model=OrderResponse, dependencies=[Depends(customer_auth_dependency)])
 def update_payment(
     order_id: str, 
     payment_id: str, 
@@ -148,7 +170,7 @@ def update_payment(
             detail=f"An error occurred while updating the payment ID: {str(e)}"
         )
 
-@router.put("/{order_id}/delivery", response_model=OrderResponse)
+@router.put("/{order_id}/delivery", response_model=OrderResponse, dependencies=[Depends(customer_auth_dependency)])
 def update_delivery_date(
     order_id: str, 
     order_service: OrderService = Depends(get_order_service),
@@ -170,7 +192,7 @@ def update_delivery_date(
             detail=f"An error occurred while updating the delivery date: {str(e)}"
         )
 
-@router.delete("/{order_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{order_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(customer_auth_dependency)])
 def delete_order_endpoint(
     order_id: str, 
     order_service: OrderService = Depends(get_order_service),

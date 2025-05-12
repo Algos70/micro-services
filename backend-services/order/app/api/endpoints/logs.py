@@ -7,6 +7,7 @@ from typing import Optional, List
 from logger import logger
 import sqlite3
 from pydantic import BaseModel
+from api.dependencies import admin_auth_dependency
 
 router = APIRouter(
     prefix="/logs",
@@ -28,7 +29,7 @@ class LogStats(BaseModel):
     recent_errors_24h: int
     module_counts: dict
 
-@router.get("/", response_model=List[LogEntry])
+@router.get("/", response_model=List[LogEntry], dependencies=[Depends(admin_auth_dependency)])
 def get_logs(
     level: Optional[str] = Query(None, description="Filter logs by level (INFO, WARNING, ERROR)"),
     start_date: Optional[str] = Query(None, description="Filter logs from this date (ISO format)"),
@@ -117,7 +118,7 @@ def get_logs(
             detail=f"An error occurred while retrieving logs: {str(e)}"
         )
 
-@router.get("/levels", response_model=List[str])
+@router.get("/levels", response_model=List[str], dependencies=[Depends(admin_auth_dependency)])
 def get_log_levels():
     """
     Retrieve all log levels that have been used in the logs.
@@ -138,7 +139,7 @@ def get_log_levels():
             detail=f"An error occurred while retrieving log levels: {str(e)}"
         )
 
-@router.get("/modules", response_model=List[str])
+@router.get("/modules", response_model=List[str], dependencies=[Depends(admin_auth_dependency)])
 def get_modules():
     """
     Retrieve all modules that have generated logs.
@@ -159,7 +160,7 @@ def get_modules():
             detail=f"An error occurred while retrieving modules: {str(e)}"
         )
 
-@router.get("/stats", response_model=LogStats)
+@router.get("/stats", response_model=LogStats, dependencies=[Depends(admin_auth_dependency)])
 def get_log_stats():
     """
     Get statistics about the logs (count by level, recent errors, module counts, etc.).

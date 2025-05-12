@@ -410,7 +410,37 @@ class OrderService:
             logger.error(f"An unexpected error occurred: {str(e)}")
             raise Exception(f"An unexpected error occurred: {str(e)}")
 
-    
+    def get_vendor_orders(self, vendor_email: str) -> list[Order]:
+        """
+        Retrieve all orders for the specified vendor.
+
+        Args:
+            vendor_email (str): The email of the vendor whose orders are to be retrieved.
+
+        Returns:
+            List[Order]: A list of orders for the specified vendor.
+
+        Raises:
+            SQLAlchemyError: If there is a database error.
+            ValueError: If the email is invalid or no orders are found.
+        """
+        
+        try:
+            orders = self.db.query(Order).filter(Order.vendor_email == vendor_email).options(joinedload(Order.items)).all()
+            
+            if not orders:
+                return []
+            
+            return orders
+        
+        except SQLAlchemyError as e:
+            logger.error(f"Database error while retrieving orders for vendor {vendor_email}: {str(e)}")
+            raise SQLAlchemyError(f"Database error while retrieving orders for vendor {vendor_email}: {str(e)}")
+        
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {str(e)}")
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+
 def get_order_service() -> OrderService:
     """
     Create an instance of the OrderService class."
