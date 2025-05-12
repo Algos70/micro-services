@@ -19,7 +19,7 @@ def list_orders(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Retrieve all orders.
+    Retrieve all orders. admin only.
     """
     try:
         logger.info("Listing all orders")
@@ -38,7 +38,7 @@ def get_order(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Retrieve an order by its ID.
+    Retrieve an order by its ID. admin and customer only.
     """
     try:
         logger.info(f"Fetching order with ID: {order_id}")
@@ -60,7 +60,7 @@ def get_orders_by_user(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Retrieve all orders for the specified user.
+    Retrieve all orders for the specified user. admin and customer only.
     """
     try:
         logger.info(f"Fetching orders for user: {email}")
@@ -82,7 +82,7 @@ def get_orders_by_vendor(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Retrieve all orders for the specified vendor.
+    Retrieve all orders for the specified vendor. admin and vendor only.
     """
     try:
         logger.info(f"Fetching orders for vendor: {vendor_id}")
@@ -104,7 +104,7 @@ def create_order_endpoint(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Create a new order.
+    Create a new order. customer and admin only.
     """
     try:
         logger.info(f"Creating order for user: {order.email}")
@@ -118,14 +118,14 @@ def create_order_endpoint(
             detail=f"An error occurred while creating the order: {str(e)}"
         )
 
-@router.put("/{order_id}/status/{new_status}", response_model=OrderResponse, dependencies=[Depends(customer_auth_dependency)])
+@router.put("/{order_id}/status/{new_status}", response_model=OrderResponse, dependencies=[Depends(vendor_auth_dependency)])
 def update_status(
     order_id: str,
     new_status: str,
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Update the status of an order.
+    Update the status of an order. vendor and admin only.
     """
     if new_status not in ALLOWED_STATUSES:
         logger.warning(f"Invalid status update attempted: {new_status}")
@@ -154,7 +154,7 @@ def update_payment(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Update the payment ID for an order.
+    Update the payment ID for an order. customer and admin only.
     """
     try:
         logger.info(f"Updating payment for order {order_id} to payment ID {payment_id}")
@@ -176,7 +176,7 @@ def update_delivery_date(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Update the delivery date for an order.
+    Update the delivery date for an order. customer and admin only.
     """
     try:
         logger.info(f"Updating delivery date for order {order_id}")
@@ -198,7 +198,7 @@ def delete_order_endpoint(
     order_service: OrderService = Depends(get_order_service),
     ):
     """
-    Delete an order by its ID.
+    Delete an order by its ID. customer and admin only.
     """
     try:
         logger.info(f"Deleting order {order_id}")
