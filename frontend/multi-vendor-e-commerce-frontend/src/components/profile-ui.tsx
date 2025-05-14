@@ -1,91 +1,63 @@
 import { useNavigate } from 'react-router-dom';
-import { useLocation } from "react-router-dom";
-import { AxiosError } from 'axios';
-import getAuthAxiosInstance from "@/requests/authAxiosInstance";
-import { useEffect, useState } from "react";
-
-
+import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@/components/ui/button";
 
 export function ProfileUi() {
-
-    const location = useLocation();
     const navigate = useNavigate();
-    const userInfo = location.state;
-    const [user, setUser] = useState<any>(null);
-
-    const userEmail = userInfo.userEmail;
-    const userToken = userInfo.userToken;
-
-    async function findUserByEmail(email: string): Promise<any | null> {
-        const axios = await getAuthAxiosInstance();
-
-        try {
-            const response = await axios?.get(`/user/${encodeURIComponent(email)}`);
-            if (response?.status === 200) {
-                console.log('User found:', response.data);
-                return response.data;
-            }
-        } catch (error: unknown) {
-            if (error instanceof AxiosError && error.response) {
-                const problemDetails: { detail: string } = error.response.data;
-                console.error('User lookup error:', problemDetails.detail);
-            } else {
-                console.error('An unexpected error occurred during user lookup.');
-            }
-        }
-
-        return null;
-    }
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            if (userInfo.userEmail) {
-                const userData = await findUserByEmail(userInfo.userEmail);
-                setUser(userData);
-            }
-        };
-
-        fetchUser();
-    }, []);
+    const { user } = useAuth0(); // Get user data from Auth0
 
     const handleReturn = () => {
-        navigate('/dashboard', {
-            state: { userEmail, userToken },
-        });
+        navigate('/dashboard');
     };
 
-
     return (
-        <div /* Container */ className="min-h-screen flex-col ">
-            <div /* Content */ className="h-30 w-1/1 flex ">
-                <div /* logo-div */ onClick={handleReturn} className="w-1/2 content-center items-center flex">
+        <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 bg-gray-800 shadow-md">
+                <div onClick={handleReturn} className="flex items-center cursor-pointer">
                     <img
-                        src="src\assets\landing-page\shop-svgrepo-com.svg"
-                        alt="Description of image"
-                        className="w-10 h-10 ml-60"
+                        src="src/assets/landing-page/shop-svgrepo-com.svg"
+                        alt="Shoply Logo"
+                        className="w-10 h-10"
                     />
-                    <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
+                    <p className="text-2xl ml-2 italic font-bold text-white">Shoply</p>
                 </div>
             </div>
-            <div /* Information */ className=" flex w-1/1 h-1/2">
-                {user && (
-                    <div className="ml-60 mt-20 w-100 p-4 border rounded-lg shadow-md bg-white space-y-4">
-                        <div>
-                            <h2 className="text-sm font-semibold text-gray-500">Address</h2>
-                            <p className="text-base text-gray-800">{user.address}</p>
-                        </div>
 
-                        <div>
-                            <h2 className="text-sm font-semibold text-gray-500">Full Name</h2>
-                            <p className="text-base text-gray-800">{user.fullName}</p>
+            {/* Profile Section */}
+            <div className="flex justify-center items-center flex-grow">
+                {user ? (
+                    <div className="flex flex-col border rounded-md shadow-md p-6 w-full max-w-md bg-gray-800 border-gray-700">
+                        <div className="text-center">
+                            <img
+                                src={user.picture}
+                                alt="Profile"
+                                className="w-24 h-24 object-cover rounded-full mx-auto shadow-md mb-4"
+                            />
+                            <h1 className="text-lg font-semibold text-white">{user.name}</h1>
+                            <p className="text-sm text-gray-400">{user.email}</p>
                         </div>
-
-                        <div>
-                            <h2 className="text-sm font-semibold text-gray-500">Phone Number</h2>
-                            <p className="text-base text-gray-800">{user.phoneNumber}</p>
+                        <div className="mt-6 space-y-4">
+                            <div>
+                                <h2 className="text-sm font-semibold text-gray-400">Nickname</h2>
+                                <p className="text-base text-white">{user.nickname}</p>
+                            </div>
+                            <div>
+                                <h2 className="text-sm font-semibold text-gray-400">Email</h2>
+                                <p className="text-base text-white">{user.email}</p>
+                            </div>
                         </div>
                     </div>
+                ) : (
+                    <p className="text-xl text-white">Loading user data...</p>
                 )}
+            </div>
+
+            {/* Back Button */}
+            <div className="flex justify-center py-4">
+                <Button onClick={handleReturn} className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+                    Back to Dashboard
+                </Button>
             </div>
         </div>
     );

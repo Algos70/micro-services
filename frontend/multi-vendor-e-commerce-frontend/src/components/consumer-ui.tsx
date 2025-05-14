@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 import CategoryMenu from "./category-menu";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
 import { AxiosError } from "axios";
@@ -14,14 +13,14 @@ import {
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { useCart } from '../hooks/CartContext.tsx';
+import { useAuth0 } from "@auth0/auth0-react";
 
 
 
 
 export function ConsumerUi() {
-
+    const { logout } = useAuth0();
     const maxProducts = 15;
-    const navigate = useNavigate();
     const [searched, setSearched] = useState("");
     const [categories, setCategories] = useState<{ Id: string; Name: string; ParentId: string }[]>([]);
     const [products, setProducts] = useState<{
@@ -38,9 +37,7 @@ export function ConsumerUi() {
 
     const { cart } = useCart();
 
-    const location = useLocation();
-    const userEmail = location.state.userEmail;
-    const userToken = location.state.userToken;
+    const navigate = useNavigate();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearched(e.target.value);
@@ -48,25 +45,19 @@ export function ConsumerUi() {
 
 
     const handleProfileClick = () => {
-        navigate('/profile', {
-            state: { userEmail, userToken },
-        });
+        navigate('/profile');
     };
 
     const handleReturn = () => {
-        navigate('/');
+        logout({ logoutParams: { returnTo: window.location.origin } });
     };
 
     const handleOrderClick = () => {
-        navigate('/order', {
-            state: { userEmail, userToken },
-        });
+        navigate('/profile');
     };
 
     const handleOrderInfo = () => {
-        navigate('/order-info', {
-            state: { userEmail, userToken },
-        });
+        navigate('/profile');
     };
 
     const handleSearchButtonClick = () => {

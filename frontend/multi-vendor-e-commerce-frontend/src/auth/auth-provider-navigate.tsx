@@ -1,13 +1,16 @@
-import { Auth0Provider } from "@auth0/auth0-react";
-import { useNavigate } from "react-router-dom";
+import { Auth0Provider } from '@auth0/auth0-react';
+import { useNavigate } from 'react-router-dom';
 
-const Auth0ProviderWithNavigate = ({ children }: any) => {
+const Auth0ProviderWithNavigate = ({ children }: { children: React.ReactNode }) => {
     const navigate = useNavigate();
 
-    const domain = import.meta.env.VITE_AUTH0_DOMAIN;
-const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
+    const domain = import.meta.env.VITE_AUTH0_DOMAIN!;
+    const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID!;
+    const audience = import.meta.env.VITE_AUTH0_AUDIENCE!;
 
-    if (!domain || !clientId) return null;
+    console.log('Auth0 Domain:', import.meta.env.VITE_AUTH0_DOMAIN);
+    console.log('Auth0 Client ID:', import.meta.env.VITE_AUTH0_CLIENT_ID);
+    console.log('Auth0 Audience:', import.meta.env.VITE_AUTH0_AUDIENCE);
 
     return (
         <Auth0Provider
@@ -15,11 +18,10 @@ const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
             clientId={clientId}
             authorizationParams={{
                 redirect_uri: window.location.origin,
-                audience: "my-secure-api",
-                scope: "openid profile email"
+                audience: audience,
             }}
-            onRedirectCallback={(appState) => {
-                navigate(appState?.returnTo || "/");
+            onRedirectCallback={(appState, user) => {
+                navigate(appState?.returnTo || '/dashboard'); // Redirect to /dashboard by default
             }}
         >
             {children}

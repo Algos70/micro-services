@@ -1,5 +1,5 @@
-import axios, {AxiosInstance} from 'axios';
-import {Config} from "@/types.ts";
+import axios, { AxiosInstance } from 'axios';
+import { Config } from "@/types.ts";
 
 
 let instance: AxiosInstance | null = null
@@ -7,11 +7,11 @@ let instance: AxiosInstance | null = null
 export default async function getOrchestrationAxiosInstance() {
     if (!instance) {
         const configResponse = await axios.get('/config.json')
-        const config : Config = configResponse.data;
+        const config: Config = configResponse.data;
         if (!config) {
             return null;
         }
-        const url = config.ORCHESTRATİON_URL;
+        const url = config.ORCHESTRATION_URL;
         instance = axios.create({
             baseURL: url,
             timeout: 5000,
