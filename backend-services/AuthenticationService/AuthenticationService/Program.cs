@@ -1,39 +1,70 @@
 using AuthenticationService.Contexts;
+using AuthenticationService.Extensions;
 using AuthenticationService.ServiceRegistration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load configuration files
+builder.Configuration
+.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+
+// Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:5173") // Allow frontend URL
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-            policy.WithOrigins("https://localhost:5173") // Allow frontend URL
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
 });
 
-
-// Add json files
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
-
-// Add services to the container.
+// Add custom services
 builder.Services.AddServices(builder.Configuration);
 
+// Add controllers and Swagger
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
+    // Define the security scheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' [space] and then your valid JWT token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIs..."
+    });
+
+    // Add global security requirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// Configure Auth0 authentication
+var auth0Domain = builder.Configuration["Auth0:Domain"];
+var auth0Audience = builder.Configuration["Auth0:Audience"];
 
 builder.Services.AddAuthentication(options =>
 {
@@ -42,25 +73,27 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.Authority = "https://dev-kf1qu7hinhsjitd4.eu.auth0.com";
-    options.Audience = "http://localhost:5173";
+    options.Authority = $"https://{auth0Domain}";
+    options.Audience = auth0Audience;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
-        ValidateIssuerSigningKey = true
+        ValidateIssuerSigningKey = true,
+        NameClaimType = "name",
+        RoleClaimType = "roles"
     };
 });
 
 builder.Services.AddAuthorization();
-
+builder.Services.ConfigureSameSiteNoneCookies();
 
 var app = builder.Build();
 
+// Middleware pipeline
 app.UseCors("AllowFrontend");
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -68,21 +101,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();
 
+// Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var db = services.GetRequiredService<UserDbContext>();
-        
-        // First check if the database exists and has any tables
         if (db.Database.GetPendingMigrations().Any())
         {
             Console.WriteLine("Applying pending migrations...");
@@ -100,5 +130,4 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 }
-
 app.Run();

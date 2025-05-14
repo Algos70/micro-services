@@ -1,17 +1,23 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useNavigate } from 'react-router-dom';
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAuth0 } from '@auth0/auth0-react';
+import { useEffect } from "react";
 
 export function LandingUi() {
+    const { loginWithRedirect } = useAuth0();
 
-    const navigate = useNavigate();
-    const handleSignIn = () => {
-        navigate('/sign-in'); // This will route to the sign-in page
-    };
-    const handleSignUp = () => {
-        navigate('/sign-up'); // This will route to the sign-in page
-    };
+    const { isLoading, isAuthenticated } = useAuth0(); // Get user data from Auth0
+
+    // // if already logged in, redirect to dashboard
+    // if (!isLoading && isAuthenticated) {
+    //     window.location.href = '/dashboard';
+    // }
+
+    useEffect(() => {
+        if (!isLoading && isAuthenticated) {
+            window.location.href = '/dashboard';
+        }
+    }, [isAuthenticated, isLoading]);
 
 
     return (
@@ -26,7 +32,12 @@ export function LandingUi() {
                     <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
                 </div>
                 <div /* Button-div */ className="w-1/2 items-center content-center flex">
-                    <Button className="px-9 py-4 w-30 h-11 text-lg ml-143 rounded-3xl" onClick={handleSignIn}>Sign In</Button>
+                    <Button
+                        className="px-9 py-4 w-30 h-11 text-lg ml-143 rounded-3xl"
+                        onClick={() => loginWithRedirect()}
+                    >
+                        Login
+                    </Button>
                 </div>
             </div>
             <div /* Information */ className=" flex w-1/1 h-1/2">
@@ -39,7 +50,12 @@ export function LandingUi() {
                             placeholder="Enter your email address"
                             className="w-150 h-12 placeholder:text-base placeholder:font-200 border-2 border-gray-300 rounded-3xl"
                         />
-                        <Button className="absolute mr-30 top-1/2 right-1 transform -translate-y-1/2 h-10 px-4 text-sm rounded-3xl" onClick={handleSignUp}>Sign Up</Button>
+                        <Button
+                            className="absolute mr-30 top-1/2 right-1 transform -translate-y-1/2 h-10 px-4 text-sm rounded-3xl"
+                            onClick={() => loginWithRedirect()}
+                        >
+                            Sign Up
+                        </Button>
                     </div>
                     <p className="ml-60 mt-5 text-lg font-50 max-w-md">Quis varius quam quisque id diam. Aliquam sem et tortor consequat id porta nibh venenatis cras.</p>
                 </div>
