@@ -47,10 +47,10 @@ public class AccountService(
         var user = new User()
         {
             Email = request.Email,
-            UserName = request.Email,
+            UserName = NormalizeToAscii( request.Name.Replace(" ", "")),
         };
 
-        var result = await userManager.CreateAsync(user, request.Password);
+        var result = await userManager.CreateAsync(user);
         if (!result.Succeeded)
         {
             return RegistrationOutcomes.SystemError;
@@ -66,7 +66,7 @@ public class AccountService(
             var customer = new Customer()
             {
                 UserId = user.Id,
-                FullName = "",
+                FullName = user.UserName,
                 Address = "",
                 PhoneNumber = ""
             };
@@ -86,32 +86,17 @@ public class AccountService(
 
         await dbContext.SaveChangesAsync();
 
-        var confirmationCode = await GenerateEmailConfirmationTokenAsync(user);
-        // For now, I will be sending the token row, but later it will be wrapped inside a frontend url
-        var email = new Email()
-        {
-            Subject = "EMAIL CONFIRMATION",
-            Body = $@"<h1>Welcome to our service!</h1>
-                       <p>This is your email confirmation code [{confirmationCode}], confirm before it expires!</p>
-                       <p>If you didn't request this, please ignore this email.</p>",
-            To = user.Email,
-        };
-
-        try
-        {
-            await emailService.SendEmailAsync(email);
-        }
-        catch (Exception e)
-        {
-            // if an error occurs after user creation, delete the user. customer or vendor should be deleted as well
-            // due to cascade
-            await userManager.DeleteAsync(user);
-            await dbContext.SaveChangesAsync();
-            return RegistrationOutcomes.EmailCantBeSend;
-        }
-
-
         return RegistrationOutcomes.Success;
+    }
+    public static string NormalizeToAscii(string input)
+    {
+        return input
+            .Replace("ç", "c").Replace("Ç", "C")
+            .Replace("ğ", "g").Replace("Ğ", "G")
+            .Replace("ı", "i").Replace("İ", "I")
+            .Replace("ö", "o").Replace("Ö", "O")
+            .Replace("ş", "s").Replace("Ş", "S")
+            .Replace("ü", "u").Replace("Ü", "U");
     }
 
     public async Task<(AuthenticationOutcomes, AuthenticationResponse?)> AuthenticateAsync(
@@ -218,8 +203,8 @@ public class AccountService(
     {
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(jwToken);
-        var roles = token.Claims.Where(c => c.Type == ClaimTypes.Role || c.Type == "role").Select(c => c.Value)
-            .ToList();
+        var roles = token.Claims.Where(c => c.Type == "roless").Select(c => c.Value).ToList();
+
         return roles;
     }
     
@@ -234,11 +219,6 @@ public class AccountService(
 
     public CheckForPolicyOutcomes CheckForPolicy(CheckForPolicyRequest request, Roles requiredRole)
     {
-        var isValid = tokenService.IsTokenValid(request.Token);
-        if (!isValid)
-        {
-            return CheckForPolicyOutcomes.Failure;
-        }
         
         var email = GetUserEmailFromToken(request.Token);
         if (string.IsNullOrEmpty(email))
@@ -247,9 +227,9 @@ public class AccountService(
         }
         
         var user = userManager.FindByEmailAsync(email).Result;
-        if ((user == null || !user.EmailConfirmed) && requiredRole != Roles.Admin)
+        if (user == null )
         {
-            return CheckForPolicyOutcomes.EmailNotConfirmed;
+            return CheckForPolicyOutcomes.Failure;
         }
 
         var roles = GetUserRoles(request.Token);

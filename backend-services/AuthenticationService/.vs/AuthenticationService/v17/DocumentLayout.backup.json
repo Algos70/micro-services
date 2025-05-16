@@ -1,30 +1,30 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\",
+  "WorkspaceRootPath": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services-main\\backend-services\\authenticationservice\\authenticationservice\\services\\accountservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services\\backend-services\\authenticationservice\\authenticationservice\\services\\accountservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\services\\accountservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services-main\\backend-services\\authenticationservice\\authenticationservice\\controllers\\authenticationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services\\backend-services\\authenticationservice\\authenticationservice\\controllers\\authenticationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\controllers\\authenticationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services-main\\backend-services\\authenticationservice\\authenticationservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services\\backend-services\\authenticationservice\\authenticationservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services-main\\backend-services\\authenticationservice\\authenticationservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services\\backend-services\\authenticationservice\\authenticationservice\\dtos\\responses\\getcustomerresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\dtos\\responses\\getcustomerresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services\\backend-services\\authenticationservice\\authenticationservice\\dtos\\requests\\registerrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\dtos\\requests\\registerrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services\\backend-services\\authenticationservice\\authenticationservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services-main\\backend-services\\authenticationservice\\authenticationservice\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|c:\\users\\admin\\desktop\\micro-services-main\\backend-services\\authenticationservice\\authenticationservice\\extensions\\samesiteservicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0F1A50D9-2A78-496A-B1CC-7718F311E46B}|AuthenticationService\\AuthenticationService.csproj|solutionrelative:authenticationservice\\extensions\\samesiteservicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,69 +34,84 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 9,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:132:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:133:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:134:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "RegisterRequest.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\DTOs\\Requests\\RegisterRequest.cs",
+              "RelativeDocumentMoniker": "AuthenticationService\\DTOs\\Requests\\RegisterRequest.cs",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\DTOs\\Requests\\RegisterRequest.cs",
+              "RelativeToolTip": "AuthenticationService\\DTOs\\Requests\\RegisterRequest.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAqwBAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-16T11:04:47.16Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "GetCustomerResponse.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\DTOs\\Responses\\GetCustomerResponse.cs",
+              "RelativeDocumentMoniker": "AuthenticationService\\DTOs\\Responses\\GetCustomerResponse.cs",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\DTOs\\Responses\\GetCustomerResponse.cs",
+              "RelativeToolTip": "AuthenticationService\\DTOs\\Responses\\GetCustomerResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAsAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-16T10:51:22.298Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "AccountService.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Services\\AccountService.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\Services\\AccountService.cs",
               "RelativeDocumentMoniker": "AuthenticationService\\Services\\AccountService.cs",
-              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Services\\AccountService.cs",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\Services\\AccountService.cs",
               "RelativeToolTip": "AuthenticationService\\Services\\AccountService.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAQwDMBAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAACUAAAAAAAAAAAAmwDAAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-14T01:08:36.831Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\appsettings.json",
-              "RelativeDocumentMoniker": "AuthenticationService\\appsettings.json",
-              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\appsettings.json",
-              "RelativeToolTip": "AuthenticationService\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-05-13T20:27:43.239Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "appsettings.Development.json",
-              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\appsettings.Development.json",
-              "RelativeDocumentMoniker": "AuthenticationService\\appsettings.Development.json",
-              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\appsettings.Development.json",
-              "RelativeToolTip": "AuthenticationService\\appsettings.Development.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAADAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-05-13T20:27:34.062Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "SameSiteServiceCollectionExtensions.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Extensions\\SameSiteServiceCollectionExtensions.cs",
-              "RelativeDocumentMoniker": "AuthenticationService\\Extensions\\SameSiteServiceCollectionExtensions.cs",
-              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Extensions\\SameSiteServiceCollectionExtensions.cs",
-              "RelativeToolTip": "AuthenticationService\\Extensions\\SameSiteServiceCollectionExtensions.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-13T20:20:21.109Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 2,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\Program.cs",
               "RelativeDocumentMoniker": "AuthenticationService\\Program.cs",
-              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Program.cs",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\Program.cs",
               "RelativeToolTip": "AuthenticationService\\Program.cs",
-              "ViewState": "AgIAAGMAAAAAAAAAAADwv4QAAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAAUAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-12T01:13:51.296Z",
               "EditorCaption": ""
@@ -105,14 +120,26 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "AuthenticationController.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Controllers\\AuthenticationController.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\Controllers\\AuthenticationController.cs",
               "RelativeDocumentMoniker": "AuthenticationService\\Controllers\\AuthenticationController.cs",
-              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services-main\\backend-services\\AuthenticationService\\AuthenticationService\\Controllers\\AuthenticationController.cs",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\Controllers\\AuthenticationController.cs",
               "RelativeToolTip": "AuthenticationService\\Controllers\\AuthenticationController.cs",
-              "ViewState": "AgIAACwAAAAAAAAAAAAwwEcAAAA8AAAAAAAAAA==",
+              "ViewState": "AgIAABYAAAAAAAAAAAAgwDIAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-12T01:08:39.426Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\appsettings.json",
+              "RelativeDocumentMoniker": "AuthenticationService\\appsettings.json",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\micro-services\\backend-services\\AuthenticationService\\AuthenticationService\\appsettings.json",
+              "RelativeToolTip": "AuthenticationService\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-13T20:27:43.239Z"
             }
           ]
         }

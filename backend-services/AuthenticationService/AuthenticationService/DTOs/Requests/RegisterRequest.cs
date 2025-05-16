@@ -7,10 +7,9 @@ public class RegisterRequest
 {
     [Required] [EmailAddress] public string Email { get; set; }
 
-    [Required]
-    [MinLength(8)]
-    [MaxLength(16)]
-    public string Password { get; set; }
+    //name
+
+    [Required][MaxLength(50)] public string Name { get; set; }
 
     [Required]
     [EnumDataType(typeof(UserType))]
