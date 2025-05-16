@@ -1,10 +1,12 @@
 import { AxiosError } from 'axios';
 import getOrderAxiosInstance from './orderAxiosInstance';  // Import your instance
+import { useAuth0 } from '@auth0/auth0-react';
 
 export const getUserOrders = async (email: string) => {
+    const { getIdTokenClaims } = useAuth0();
     try {
         // Fetching the orders using your existing Axios instance
-        const instance = await getOrderAxiosInstance();
+        const instance = await getOrderAxiosInstance(getIdTokenClaims);
         if (!instance) {
             throw new Error('Failed to initialize the Axios instance');
         }

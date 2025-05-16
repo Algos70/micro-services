@@ -3,10 +3,10 @@ export interface SignInFormProps {
 }
 
 export interface Config {
-    ORDER_URL: "http://localhost:8080"
-    AUTH_URL: 'localhost:44367';
+    ORDER_URL: "http://localhost:8080",
+    AUTH_URL: 'localhost:8086',
     CONSUMER_URL: 'localhost:9292',
-    ORCHESTRATİON_URL: 'localhost:7001'
+    ORCHESTRATION_URL: 'localhost:7001'
 }
 
 export interface CartItem {

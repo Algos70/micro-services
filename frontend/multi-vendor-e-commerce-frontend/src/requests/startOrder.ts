@@ -1,3 +1,4 @@
+import { useAuth0 } from '@auth0/auth0-react';
 import getOrchestrationAxiosInstance from './orchestrationAxiosInstance';
 
 interface OrderItem {
@@ -17,8 +18,9 @@ interface OrderPayload {
 }
 
 export async function startOrder(order: OrderPayload) {
+  const { getIdTokenClaims } = useAuth0();
   try {
-    const axiosInstance = await getOrchestrationAxiosInstance(); // ✅ Await here
+    const axiosInstance = await getOrchestrationAxiosInstance(getIdTokenClaims); // ✅ Await here
     if (!axiosInstance) throw new Error('Failed to get axios instance');
 
     const response = await axiosInstance.post('/order/create_order', order);
