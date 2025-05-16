@@ -1,5 +1,5 @@
 {
-  "AUTH_URL": "https://localhost:44367",
+  "AUTH_URL": "http://localhost:8086",
   "CONSUMER_URL": "http://localhost:9292",
   "ORDER_URL": "http://localhost:8080",
   "ORCHESTRATION_URL": "http://localhost:7001"

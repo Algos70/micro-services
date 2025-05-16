@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+
 
 export function LandingUi() {
     const { loginWithRedirect } = useAuth0();
@@ -18,6 +20,12 @@ export function LandingUi() {
             window.location.href = '/dashboard';
         }
     }, [isAuthenticated, isLoading]);
+
+    const navigate = useNavigate();
+    
+    const handleVendorClick = () => {
+        navigate('/vendor');
+    };
 
 
     return (
@@ -52,7 +60,7 @@ export function LandingUi() {
                         />
                         <Button
                             className="absolute mr-30 top-1/2 right-1 transform -translate-y-1/2 h-10 px-4 text-sm rounded-3xl"
-                            onClick={() => loginWithRedirect()}
+                            onClick={() => handleVendorClick()}
                         >
                             Sign Up
                         </Button>

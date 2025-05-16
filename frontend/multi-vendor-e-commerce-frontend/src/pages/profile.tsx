@@ -2,7 +2,7 @@ import { ProfileUi } from "@/components/profile-ui";
 import {ModeToggle} from "@/components/mode-toggle.tsx";
 import {ThemeProvider} from "@/components/theme-provider.tsx";
 
-export default function LandingPage() {
+export default function ProfilePage() {
     return (
 
         

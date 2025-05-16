@@ -17,13 +17,12 @@ interface OrderPayload {
   payment_method: string;
 }
 
-export async function startOrder(order: OrderPayload) {
-  const { getIdTokenClaims } = useAuth0();
+export async function startOrder(order: OrderPayload, getIdTokenClaims: () => Promise<any>) {
   try {
     const axiosInstance = await getOrchestrationAxiosInstance(getIdTokenClaims); // ✅ Await here
     if (!axiosInstance) throw new Error('Failed to get axios instance');
 
-    const response = await axiosInstance.post('/order/create_order', order);
+    const response = await axiosInstance.post('/orders/create_order', order);
     return response.data;
   } catch (error) {
     console.error('Order creation failed:', error);

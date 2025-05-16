@@ -12,6 +12,7 @@ export const getUserOrders = async (email: string) => {
         }
 
         const response = await instance.get(`/orders/user/${email}`);
+        console.log(response.data)
         return response.data; // Assuming response contains the orders
     } catch (error: unknown) {  // Explicitly set the error type to 'unknown'
         if (error instanceof AxiosError) {

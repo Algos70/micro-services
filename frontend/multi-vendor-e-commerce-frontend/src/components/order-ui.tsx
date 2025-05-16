@@ -7,6 +7,7 @@ import Spinner from './spinner'; // Optional: loading spinner
 import { startOrder } from '@/requests/startOrder.ts';
 import getAuthAxiosInstance from '@/requests/authAxiosInstance.ts';
 import { AxiosError } from 'axios';
+import { useAuth0 } from '@auth0/auth0-react';
 
 interface Product {
     Id: string;
@@ -21,20 +22,18 @@ interface Product {
 }
 
 export function OrderUi() {
+    const { user , getAccessTokenSilently , getIdTokenClaims } = useAuth0();
     const navigate = useNavigate();
-    const location = useLocation();
-    const userEmail = location.state.userEmail;
-    const userToken = location.state.userToken;
     const { cart, removeItem, clearCart } = useCart();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [user, setUser] = useState<any>(null);
+    const [userInfo, setUserInfo] = useState<any>(null);
 
     async function findUserByEmail(email: string): Promise<any | null> {
-        const axios = await getAuthAxiosInstance();
+        const axios = await getAuthAxiosInstance(getAccessTokenSilently, getIdTokenClaims);
 
         try {
-            const response = await axios?.get(`/user/${encodeURIComponent(email)}`);
+            const response = await axios?.get(`/Authentication/user/${user?.email}`);
             if (response?.status === 200) {
                 console.log('User found:', response.data);
                 return response.data;
@@ -53,9 +52,9 @@ export function OrderUi() {
 
     useEffect(() => {
         const fetchUser = async () => {
-            if (userEmail) {
-                const userData = await findUserByEmail(userEmail);
-                setUser(userData);
+            if (user?.email) {
+                const userData = await findUserByEmail(user.email);
+                setUserInfo(userData);
             }
         };
 
@@ -63,22 +62,20 @@ export function OrderUi() {
     }, []);
 
     const handleReturn = () => {
-        navigate('/dashboard', {
-            state: { userEmail, userToken },
-        });
+        navigate('/dashboard');
     };
 
     const handleOrderStart = async () => {
         try {
-            if (!userEmail) {
+            if (!user?.email) {
                 console.error('User email is missing');
                 return;
             }
 
             const orderPayload = {
-                user_email: userEmail,
+                user_email: user.email,
                 vendor_email: 'vendor@outlook.com',
-                delivery_address: user.address,
+                delivery_address: userInfo.address,
                 description: 'Order placed through Shoply',
                 status: 'Pending',
                 payment_method: 'Credit Card',
@@ -89,7 +86,7 @@ export function OrderUi() {
                 })),
             };
             console.log(orderPayload)
-            const result = await startOrder(orderPayload);
+            await startOrder(orderPayload , getIdTokenClaims);
             console.log("Order is succesfull.")
             clearCart();
         } catch (error) {

@@ -72,11 +72,11 @@ useEffect(() => {
     };
 
     const handleOrderClick = () => {
-        navigate('/profile');
+        navigate('/order');
     };
 
     const handleOrderInfo = () => {
-        navigate('/profile');
+        navigate('/order-info');
     };
    
 

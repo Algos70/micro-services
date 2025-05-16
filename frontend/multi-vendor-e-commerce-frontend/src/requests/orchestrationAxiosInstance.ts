@@ -3,8 +3,8 @@ import { Config } from "@/types.ts";
 
 let instance: AxiosInstance | null = null;
 
-export default async function getOrchestrationAxiosInstance(
-    getIdTokenClaims: () => Promise<{ __raw: string } | undefined>
+export default async function getOrchestrationAxiosInstance( getAccessTokenSilently: () => Promise<string>,
+  
 ): Promise<AxiosInstance | null> {
     if (!instance) {
         const configResponse = await axios.get('/config.json');
@@ -20,8 +20,8 @@ export default async function getOrchestrationAxiosInstance(
         // Attach token and idtoken claims to every request
         instance.interceptors.request.use(async (req) => {
             try {
-                const claims = await getIdTokenClaims();
-                req.headers.Authorization = claims?.__raw;
+                const token = await getAccessTokenSilently();
+                req.headers.Authorization =  token;
             } catch (err) {
                 console.error('Error fetching token or idtoken claims:', err);
             }

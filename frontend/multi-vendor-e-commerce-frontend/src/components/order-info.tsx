@@ -1,32 +1,25 @@
 import { useNavigate } from 'react-router-dom';
-import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUserOrders } from '@/requests/getOrder';
+import { useAuth0 } from '@auth0/auth0-react';
 
 
 
 export function OrderInfo() {
-
-    const location = useLocation();
+    const { user } = useAuth0();
     const navigate = useNavigate();
-    const userInfo = location.state;
-    const userEmail = userInfo.userEmail;
-    const userToken = userInfo.userToken;
-
     const [orders, setOrders] = useState<any[]>([]); // State to store fetched orders
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null); // State for handling errors
 
     const handleReturn = () => {
-        navigate('/dashboard', {
-            state: { userEmail, userToken },
-        });
+        navigate('/dashboard');
     };
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const fetchedOrders = await getUserOrders(userEmail);
+                const fetchedOrders = await getUserOrders(user?.email);
                 setOrders(fetchedOrders); // Assuming the API returns an array of orders
             } catch (err) {
                 setError('Failed to fetch orders. Please try again later.');
@@ -36,7 +29,7 @@ export function OrderInfo() {
         };
 
         fetchOrders();
-    }, [userEmail]);
+    }, [user?.email]);
 
     if (loading) {
         return <div>Loading...</div>; // Optionally show a loading spinner
