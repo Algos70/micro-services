@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using AuthenticationService.Contexts;
@@ -17,11 +19,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Extensions;
+using System.Net;
+using System.Text.Json;
 
 
 namespace AuthenticationService.Services;
 
 public class AccountService(
+    IOptions<Auth0Settings> auth0Options,
     UserManager<User> userManager,
     SignInManager<User> signInManager,
     ITokenService tokenService,
@@ -31,11 +36,14 @@ public class AccountService(
     ICustomerRepository customerRepository,
     IVendorRepository vendorRepository,
     IMapper mapper,
-    ILogger<AccountService> logger)
+    ILogger<AccountService> logger,
+    IHttpClientFactory httpClientFactory)
     : IAccountService
 {
+    
     private readonly AppRootSettings _appRootSettings = appRootOptions.Value;
-
+    private readonly Auth0Settings _auth0Settings = auth0Options.Value;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     public async Task<RegistrationOutcomes> RegisterAsync(RegisterRequest request)
     {
         var userWithSameEmail = await userManager.FindByEmailAsync(request.Email);
@@ -217,47 +225,76 @@ public class AccountService(
         return emailClaim?.Value;
     }
 
-    public CheckForPolicyOutcomes CheckForPolicy(CheckForPolicyRequest request, Roles requiredRole)
+    public async Task<CheckForPolicyOutcomes> CheckForPolicy(CheckForPolicyRequest request, Roles requiredRole)
     {
         
-        var email = GetUserEmailFromToken(request.Token);
-        if (string.IsNullOrEmpty(email))
-        {
-            return CheckForPolicyOutcomes.EmailNotConfirmed;
-        }
-        
-        var user = userManager.FindByEmailAsync(email).Result;
-        if (user == null )
-        {
-            return CheckForPolicyOutcomes.Failure;
-        }
-
         var roles = GetUserRoles(request.Token);
+        bool isRoleValid = false;
+
         foreach (var role in roles)
         {
             if (role == requiredRole.ToString())
             {
-                return CheckForPolicyOutcomes.Success;
+                isRoleValid = true;
+                break;
             }
         }
+        if (!isRoleValid)
+        {
+            return CheckForPolicyOutcomes.Failure;
+        }
 
-        return CheckForPolicyOutcomes.Failure;
+        var client = _httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.Token);
+
+        var response = await client.GetAsync($"https://{_auth0Settings.Domain}/userinfo");
+
+        return response.StatusCode == HttpStatusCode.OK
+            ? CheckForPolicyOutcomes.Success
+            : CheckForPolicyOutcomes.Failure;
+
+        //var email = GetUserEmailFromToken(request.Token);
+        //if (string.IsNullOrEmpty(email))
+        //{
+        //    return CheckForPolicyOutcomes.EmailNotConfirmed;
+        //}
+
+        //var user = userManager.FindByEmailAsync(email).Result;
+        //if (user == null )
+        //{
+        //    return CheckForPolicyOutcomes.Failure;
+        //}
+
+        //var roles = GetUserRoles(request.Token);
+        //foreach (var role in roles)
+        //{
+        //    if (role == requiredRole.ToString())
+        //    {
+        //        return CheckForPolicyOutcomes.Success;
+        //    }
+        //}
+
+        //return CheckForPolicyOutcomes.Failure;
     }
 
-    public CheckForPolicyOutcomes CheckForCustomerPolicy(CheckForPolicyRequest request)
+    public async Task<CheckForPolicyOutcomes> CheckForCustomerPolicy(CheckForPolicyRequest request)
     {
-        return CheckForPolicy(request, Roles.Customer);
+        return await CheckForPolicy(request, Roles.Customer);
     }
 
-    public CheckForPolicyOutcomes CheckForVendorPolicy(CheckForPolicyRequest request)
+    public async Task<CheckForPolicyOutcomes> CheckForVendorPolicy(CheckForPolicyRequest request)
     {
-        return CheckForPolicy(request, Roles.Vendor);
+        return await CheckForPolicy(request, Roles.Vendor);
     }
 
-    public CheckForPolicyOutcomes CheckForAdminPolicy(CheckForPolicyRequest request)
+    public async Task<CheckForPolicyOutcomes> CheckForAdminPolicy(CheckForPolicyRequest request)
     {
-        return CheckForPolicy(request, Roles.Admin);
+        return await CheckForPolicy(request, Roles.Admin);
     }
+
+
+   
+
 
     public async Task<(GetUserInfoOutcomes, IGetUserResponse?)> GetUserInfo(string email)
     {

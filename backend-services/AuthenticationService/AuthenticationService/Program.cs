@@ -1,6 +1,8 @@
 using AuthenticationService.Contexts;
 using AuthenticationService.Extensions;
+using AuthenticationService.Interfaces.Services;
 using AuthenticationService.ServiceRegistration;
+using AuthenticationService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -30,6 +32,8 @@ builder.Services.AddServices(builder.Configuration);
 // Add controllers and Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
@@ -88,6 +92,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.ConfigureSameSiteNoneCookies();
+builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
 
 var app = builder.Build();
 
@@ -103,8 +108,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
+
+
 
 // Apply database migrations
 using (var scope = app.Services.CreateScope())

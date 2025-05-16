@@ -66,9 +66,9 @@ public class AuthenticationController(IAccountService accountService) : Controll
 
 
     [HttpPost("customer-policy")]
-    public IActionResult CheckCustomerPolicy([FromBody] CheckForPolicyRequest request)
+    public async Task<IActionResult> CheckCustomerPolicy([FromBody] CheckForPolicyRequest request)
     {
-        var result = accountService.CheckForCustomerPolicy(request);
+        var result = await accountService.CheckForCustomerPolicy(request); // Ensure the method is asynchronous
         return result switch
         {
             CheckForPolicyOutcomes.Success => Ok(),
@@ -77,37 +77,10 @@ public class AuthenticationController(IAccountService accountService) : Controll
         };
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPost("idtoken")]
-    public IActionResult IdToken()
-    {
-        var idToken = Request.Headers["idtoken"].FirstOrDefault();
-
-        if (string.IsNullOrWhiteSpace(idToken))
-        {
-            return Unauthorized("Missing ID token");
-        }
-
-        // Decode and optionally validate the token
-        var handler = new JwtSecurityTokenHandler();
-        var jwt = handler.ReadJwtToken(idToken);
-
-        // Read claims
-        var email = jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
-        var name = jwt.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
-
-        return Ok(new
-        {
-            Email = email,
-            Name = name
-        });
-
-    }
-
     [HttpPost("vendor-policy")]
-    public IActionResult CheckVendorPolicy([FromBody] CheckForPolicyRequest request)
+    public async Task<IActionResult> CheckVendorPolicy([FromBody] CheckForPolicyRequest request)
     {
-        var result = accountService.CheckForVendorPolicy(request);
+        var result = await accountService.CheckForVendorPolicy(request); // Ensure the method is asynchronous
         return result switch
         {
             CheckForPolicyOutcomes.Success => Ok(),
@@ -117,9 +90,9 @@ public class AuthenticationController(IAccountService accountService) : Controll
     }
 
     [HttpPost("admin-policy")]
-    public IActionResult CheckAdminPolicy([FromBody] CheckForPolicyRequest request)
+    public async Task<IActionResult> CheckAdminPolicy([FromBody] CheckForPolicyRequest request)
     {
-        var result = accountService.CheckForAdminPolicy(request);
+        var result = await accountService.CheckForAdminPolicy(request); // Ensure the method is asynchronous
         return result switch
         {
             CheckForPolicyOutcomes.Success => Ok(),

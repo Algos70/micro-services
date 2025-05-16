@@ -16,13 +16,13 @@ public interface IAccountService
 
     public IList<string> GetUserRoles(string jwToken);
 
-    public CheckForPolicyOutcomes CheckForPolicy(CheckForPolicyRequest request, Roles requiredRole);
+    public  Task<CheckForPolicyOutcomes> CheckForPolicy(CheckForPolicyRequest request, Roles requiredRole);
 
-    public CheckForPolicyOutcomes CheckForCustomerPolicy(CheckForPolicyRequest request);
+    public Task<CheckForPolicyOutcomes> CheckForCustomerPolicy(CheckForPolicyRequest request);
 
-    public CheckForPolicyOutcomes CheckForVendorPolicy(CheckForPolicyRequest request);
+    public Task<CheckForPolicyOutcomes> CheckForVendorPolicy(CheckForPolicyRequest request);
 
-    public CheckForPolicyOutcomes CheckForAdminPolicy(CheckForPolicyRequest request);
+    public Task<CheckForPolicyOutcomes> CheckForAdminPolicy(CheckForPolicyRequest request);
 
     public Task<(GetUserInfoOutcomes, IGetUserResponse?)> GetUserInfo(string email);
 
