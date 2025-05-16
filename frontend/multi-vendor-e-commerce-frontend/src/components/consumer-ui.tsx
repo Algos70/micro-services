@@ -14,12 +14,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCart } from '../hooks/CartContext.tsx';
 import { useAuth0 } from "@auth0/auth0-react";
+import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 
 
 
 
 export function ConsumerUi() {
-    const { logout } = useAuth0();
+    const { logout, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
     const maxProducts = 15;
     const [searched, setSearched] = useState("");
     const [categories, setCategories] = useState<{ Id: string; Name: string; ParentId: string }[]>([]);
@@ -34,6 +35,24 @@ export function ConsumerUi() {
         VendorId: string;
     }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+useEffect(() => {
+    const callRegisterApi = async () => {
+        try {
+            const axios = await getAuthAxiosInstance(getAccessTokenSilently, getIdTokenClaims); // Pass the function here
+            if (!axios) {
+                console.error("Failed to initialize Axios instance.");
+                return;
+            }
+
+            axios.get('/register');
+        } catch (error) {
+            console.error("Error during /register API call:", error);
+        }
+    };
+
+    callRegisterApi(); // Call the function when the component mounts
+}, []);
 
     const { cart } = useCart();
 
@@ -59,6 +78,7 @@ export function ConsumerUi() {
     const handleOrderInfo = () => {
         navigate('/profile');
     };
+   
 
     const handleSearchButtonClick = () => {
         if (searched.trim() !== "") {

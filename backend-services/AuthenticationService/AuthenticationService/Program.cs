@@ -82,7 +82,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         NameClaimType = "name",
-        RoleClaimType = "roles"
+        RoleClaimType = "roless"
     };
 });
 
