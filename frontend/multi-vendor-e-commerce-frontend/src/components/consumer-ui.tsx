@@ -14,12 +14,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCart } from '../hooks/CartContext.tsx';
 import { useAuth0 } from "@auth0/auth0-react";
+import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 
 
 
 
 export function ConsumerUi() {
-    const { logout } = useAuth0();
+    const { logout, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
     const maxProducts = 15;
     const [searched, setSearched] = useState("");
     const [categories, setCategories] = useState<{ Id: string; Name: string; ParentId: string }[]>([]);
@@ -34,6 +35,24 @@ export function ConsumerUi() {
         VendorId: string;
     }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+useEffect(() => {
+    const callRegisterApi = async () => {
+        try {
+            const axios = await getAuthAxiosInstance(getAccessTokenSilently, getIdTokenClaims); // Pass the function here
+            if (!axios) {
+                console.error("Failed to initialize Axios instance.");
+                return;
+            }
+
+            axios.get('/register');
+        } catch (error) {
+            console.error("Error during /register API call:", error);
+        }
+    };
+
+    callRegisterApi(); // Call the function when the component mounts
+}, []);
 
     const { cart } = useCart();
 
@@ -59,6 +78,35 @@ export function ConsumerUi() {
     const handleOrderInfo = () => {
         navigate('/profile');
     };
+   const handleTestButtonClick = async () => {
+    console.log("Test button clicked!");
+
+    try {
+        const token = await getAccessTokenSilently();
+        console.log("Access Token:", token);
+    } catch (err) {
+        console.error('Error fetching access token:', err);
+    }
+
+    const axios = await getAuthAxiosInstance(getAccessTokenSilently, getIdTokenClaims); // Pass the function here
+    if (!axios) {
+        console.error("Failed to initialize Axios instance.");
+        return;
+    }
+
+    const claims = await getIdTokenClaims();
+    try {
+        const response = await axios.post('/Authentication/idtoken', {}, {
+            headers: {
+                accept: '*/*',
+                idtoken: claims?.__raw, // Pass the raw id token string here
+            },
+        });
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.error("Error during test request:", error);
+    }
+};
 
     const handleSearchButtonClick = () => {
         if (searched.trim() !== "") {
@@ -185,6 +233,32 @@ export function ConsumerUi() {
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">
+
+        <div className="flex justify-center mt-4">
+            <Button onClick={handleTestButtonClick} className="bg-blue-500 text-white px-4 py-2 rounded">
+                Test Auth Request
+            </Button>
+            <Button
+        onClick={async () => {
+            try {
+                const axios = await getAuthAxiosInstance(getAccessTokenSilently, getIdTokenClaims); // Pass the function here
+                if (!axios) {
+                    console.error("Failed to initialize Axios instance.");
+                    return;
+                }
+
+                const response = await axios.get('/register');
+                console.log("Register API Response:", response.data);
+            } catch (error) {
+                console.error("Error during /register API call:", error);
+            }
+        }}
+        className="bg-green-500 text-white px-4 py-2 rounded ml-4"
+    >
+        Register API Call
+    </Button>
+        </div>
+
             <div /* Content */ className="h-33 w-1/1 flex ">
                 <div /* logo-div */ className="w-1/3 items-center flex">
                     <button

@@ -21,6 +21,7 @@ const Auth0ProviderWithNavigate = ({ children }: { children: React.ReactNode }) 
                 audience: audience,
             }}
             onRedirectCallback={(appState, user) => {
+                
                 navigate(appState?.returnTo || '/dashboard'); // Redirect to /dashboard by default
             }}
         >
