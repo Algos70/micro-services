@@ -6,6 +6,7 @@ from logger import logger
 async def authenticate_user(request: Request, auth_service: AuthenticationService = Depends(get_auth_service)):
     """Dependency to authenticate any type of user (customer, vendor, or admin)."""
     auth_header = request.headers.get("Authorization")
+    print(f"Auth header: {auth_header}")
     if not auth_header:
         raise HTTPException(status_code=401, detail="Authorization header missing")
     
