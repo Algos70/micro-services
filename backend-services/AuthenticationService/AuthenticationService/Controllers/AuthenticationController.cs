@@ -68,38 +68,43 @@ public class AuthenticationController(IAccountService accountService) : Controll
     [HttpPost("customer-policy")]
     public async Task<IActionResult> CheckCustomerPolicy([FromBody] CheckForPolicyRequest request)
     {
-        var result = await accountService.CheckForCustomerPolicy(request); // Ensure the method is asynchronous
+        var result = await accountService.CheckForCustomerPolicy(request);
         return result switch
         {
-            CheckForPolicyOutcomes.Success => Ok(),
-            CheckForPolicyOutcomes.Failure => Unauthorized(new ProblemDetails { Detail = "Access denied for customer." }),
-            _ => StatusCode(500, new ProblemDetails { Detail = "Unexpected error." })
+            CheckForPolicyOutcomes.Success => Ok(new { success = true, message = "Customer policy check passed." }),
+            CheckForPolicyOutcomes.Failure => Unauthorized(new { success = false, message = "Access denied for customer." }),
+            CheckForPolicyOutcomes.EmailNotConfirmed => BadRequest(new { success = false, message = "Email not confirmed." }),
+            _ => StatusCode(500, new { success = false, message = "Unexpected error." })
         };
     }
+
 
     [HttpPost("vendor-policy")]
     public async Task<IActionResult> CheckVendorPolicy([FromBody] CheckForPolicyRequest request)
     {
-        var result = await accountService.CheckForVendorPolicy(request); // Ensure the method is asynchronous
+        var result = await accountService.CheckForVendorPolicy(request);
         return result switch
         {
-            CheckForPolicyOutcomes.Success => Ok(),
-            CheckForPolicyOutcomes.Failure => Unauthorized(new ProblemDetails { Detail = "Access denied for vendor." }),
-            _ => StatusCode(500, new ProblemDetails { Detail = "Unexpected error." })
+            CheckForPolicyOutcomes.Success => Ok(new { success = true, message = "Vendor policy check passed." }),
+            CheckForPolicyOutcomes.Failure => Unauthorized(new { success = false, message = "Access denied for vendor." }),
+            CheckForPolicyOutcomes.EmailNotConfirmed => BadRequest(new { success = false, message = "Email not confirmed." }),
+            _ => StatusCode(500, new { success = false, message = "Unexpected error." })
         };
     }
 
     [HttpPost("admin-policy")]
     public async Task<IActionResult> CheckAdminPolicy([FromBody] CheckForPolicyRequest request)
     {
-        var result = await accountService.CheckForAdminPolicy(request); // Ensure the method is asynchronous
+        var result = await accountService.CheckForAdminPolicy(request);
         return result switch
         {
-            CheckForPolicyOutcomes.Success => Ok(),
-            CheckForPolicyOutcomes.Failure => Unauthorized(new ProblemDetails { Detail = "Access denied for admin." }),
-            _ => StatusCode(500, new ProblemDetails { Detail = "Unexpected error." })
+            CheckForPolicyOutcomes.Success => Ok(new { success = true, message = "Admin policy check passed." }),
+            CheckForPolicyOutcomes.Failure => Unauthorized(new { success = false, message = "Access denied for admin." }),
+            CheckForPolicyOutcomes.EmailNotConfirmed => BadRequest(new { success = false, message = "Email not confirmed." }),
+            _ => StatusCode(500, new { success = false, message = "Unexpected error." })
         };
     }
+
 
     [HttpGet("user/{email}")]
     public async Task<IActionResult> GetUserInfo(string email)
