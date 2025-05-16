@@ -2,41 +2,33 @@
 from fastapi import HTTPException, Request, Depends
 from services.auth_http_client import get_auth_service, AuthenticationService
 from logger import logger
+# In your router dependencies:
 
-async def authenticate_user(request: Request, auth_service: AuthenticationService = Depends(get_auth_service)):
-    """Dependency to authenticate any type of user (customer, vendor, or admin)."""
-    auth_header = request.headers.get("Authorization")
-    print(f"Auth header: {auth_header}")
-    if not auth_header:
+from fastapi import Request, Depends
+
+async def authenticate_user(
+    request: Request,
+    auth_service: AuthenticationService = Depends(get_auth_service)
+):
+    token = request.headers.get("Authorization")
+    if not token:
         raise HTTPException(status_code=401, detail="Authorization header missing")
-    
-    try:
-        # Try authenticating as each user type
+
+    # try each role; only catch 401s
+    for role, method in [
+        ("customer", auth_service.authenticate_customer),
+        ("vendor",   auth_service.authenticate_vendor),
+        ("admin",    auth_service.authenticate_admin),
+    ]:
         try:
-            await auth_service.authenticate_customer(auth_header)
-            return "customer"
-        except HTTPException:
-            try:
-                await auth_service.authenticate_vendor(auth_header)
-                return "vendor"
-            except HTTPException:
-                try:
-                    await auth_service.authenticate_admin(auth_header)
-                    return "admin"
-                except HTTPException:
-                    raise HTTPException(status_code=401, detail="Invalid authentication token")
-    except Exception as e:
-        logger.log(f"Authentication failed: {str(e)}", level="ERROR")
-        raise HTTPException(status_code=401, detail="Authentication failed")
+            await method(token)
+            logger.info(f"Authenticated as {role}")
+            return role
+        except HTTPException as http_exc:
+            # only retry on 401; any other status should bubble up
+            if http_exc.status_code == 401:
+                continue
+            raise
 
-async def authenticate_admin(request: Request, auth_service: AuthenticationService = Depends(get_auth_service)):
-    """Dependency to ensure only admin users can access the endpoint."""
-    auth_header = request.headers.get("Authorization")
-    if not auth_header:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
-    
-    try:
-        await auth_service.authenticate_admin(auth_header)
-    except Exception as e:
-        logger.log(f"Admin authentication failed: {str(e)}", level="ERROR")
-        raise HTTPException(status_code=401, detail="Admin authentication failed") 
+    # if none succeeded
+    raise HTTPException(status_code=401, detail="Invalid authentication token")
