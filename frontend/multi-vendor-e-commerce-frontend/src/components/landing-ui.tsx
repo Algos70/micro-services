@@ -60,7 +60,7 @@ export function LandingUi() {
                         />
                         <Button
                             className="absolute mr-30 top-1/2 right-1 transform -translate-y-1/2 h-10 px-4 text-sm rounded-3xl"
-                            onClick={() => handleVendorClick()}
+                            onClick={() => loginWithRedirect()}
                         >
                             Sign Up
                         </Button>

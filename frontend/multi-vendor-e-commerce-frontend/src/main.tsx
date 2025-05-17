@@ -8,7 +8,9 @@ import ConsumerPage from './pages/consumer';
 import ProfilePage from './pages/profile';
 import OrderPage from './pages/order';
 import OrderInfoPage from './pages/order-info';
-import ProductPage from './pages/product';
+import ProductPage from './pages/product'
+import UpdateProduct from './pages/product-update';
+import Dashboard from './pages/dashboard'
 
 // Import the CartProvider
 import { CartProvider } from './hooks/CartContext'; // adjust path if needed
@@ -24,9 +26,11 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/landing" element={<LandingPage />} />
-            <Route path="/dashboard" element={<PrivateRoute><ConsumerPage /></PrivateRoute>} />
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/consumer" element={<PrivateRoute><ConsumerPage /></PrivateRoute>} />
             <Route path="/vendor" element={<VendorPage />} />
             <Route path="/product-create" element={<ProductPage />} />
+            <Route path="/product-update" element={<UpdateProduct />} />
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/order" element={<PrivateRoute><OrderPage /></PrivateRoute>} />
             <Route path="/order-info" element={<PrivateRoute><OrderInfoPage /></PrivateRoute>} />

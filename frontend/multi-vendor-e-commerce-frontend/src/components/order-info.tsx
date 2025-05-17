@@ -16,7 +16,7 @@ export function OrderInfo() {
     const [error, setError] = useState<string | null>(null); // State for handling errors
 
     const handleReturn = () => {
-        navigate('/dashboard');
+        navigate('/consumer');
     };
 
     const handleOrderDelete = async (orderId: string) => {
@@ -107,7 +107,7 @@ export function OrderInfo() {
 
                                     <h3 className="font-bold">Order {index + 1}</h3>
                                     <p>Status: {order.status}</p>
-                                    <p>Date: {'Sometime'}</p>
+                                    <p>Delivery Date: {'Unknown'}</p>
                                     <h4 className="mt-2">Items:</h4>
                                     <ul>
                                         {order.items.map((item: any, idx: number) => (

@@ -8,12 +8,65 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth0 } from "@auth0/auth0-react";
 import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
+import ProductGrid2 from "./product-grid2";
+import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
+import { AxiosError } from "axios";
 
 
 
 
 export function VendorUi() {
     const { logout, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
+    const [products, setProducts] = useState<{
+        Id: string;
+        Name: string;
+        Description: string;
+        Price: number;
+        Stock: number;
+        CategoryId: string;
+        Image: string;
+        VendorId: string;
+    }[]>([]);
+
+    async function getProducts(): Promise<{
+        Id: string;
+        Name: string;
+        Description: string;
+        Price: number;
+        Stock: number;
+        CategoryId: string;
+        Image: string;
+        VendorId: string;
+    }[] | null> {
+        const axios = await getConsumerAxiosInstance();
+        try {
+            const response = await axios?.get(`/product/vendor/1`);
+            if (response?.status === 200) {
+                return response.data.data; // Assuming response.data.data is an array of product objects
+            }
+            return null;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError && error.response) {
+                const problemDetails: { detail: string } = error.response.data;
+                console.error("Product fetch error:", problemDetails.detail);
+            } else {
+                console.error("An unexpected error occurred while fetching products.");
+            }
+            return null;
+        }
+    }
+
+
+    useEffect(() => {
+
+        const fetchAllProducts = async () => {
+            const data = await getProducts();
+            if (data) setProducts(data); // Set products correctly
+            console.log(data); // Log to check the fetched data
+        };
+        fetchAllProducts();
+
+    }, []);
 
 
     useEffect(() => {
@@ -42,13 +95,13 @@ export function VendorUi() {
     const handleReturn = () => {
         logout({ logoutParams: { returnTo: window.location.origin } });
     };
-    
+
 
     const handleProductCreate = () => {
         navigate('/product-create');
     };
 
-  
+
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">
@@ -89,9 +142,18 @@ export function VendorUi() {
                     <h2 className="text-2xl font-semibold text-gray-800 mb-2">Create a Product</h2>
                 </div>
                 <div className="ml-60 mt-10 ">
-                    <h1>My Products</h1>
-                </div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4 dark:text-white">
+                        My Products
+                    </h2>
 
+                </div>
+                <div /* Products-menu div */ className="flex ml-55 h-3/4 w-1.05/2">
+                    {products.length > 0 ? (
+                        <ProductGrid2 products={products} maxProducts={15} />
+                    ) : (
+                        <p>No products found for the selected category.</p>
+                    )}
+                </div>
             </div>
         </div>
     );

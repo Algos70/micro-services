@@ -61,7 +61,7 @@ export function OrderUi() {
     }, []);
 
     const handleReturn = () => {
-        navigate('/dashboard');
+        navigate('/consumer');
     };
 
     const handleOrderStart = async () => {

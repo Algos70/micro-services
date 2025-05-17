@@ -7,7 +7,7 @@ export function ProfileUi() {
     const { user } = useAuth0(); // Get user data from Auth0
 
     const handleReturn = () => {
-        navigate('/dashboard');
+        navigate('/consumer');
     };
 
     return (
