@@ -695,4 +695,39 @@ paths:
       summary: Get product stock
       tags:
       - products
+  /product/vendor/{id}:
+    get:
+      description: Retrieves all products
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get products by vendor id
+      tags:
+      - products
 swagger: "2.0"

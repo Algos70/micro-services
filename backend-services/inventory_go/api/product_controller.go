@@ -35,9 +35,10 @@ func (controller *ProductController) ExposeEndpoints() {
 	controller.FindManyByName()
 	controller.FindManyByCategory()
 	controller.FindStock()
+	controller.FindManyByVendorId()
 }
 
-// CreateProduct godoc
+// Create CreateProduct godoc
 // @Summary      Create a new product
 // @Description  Creates a product with optional category assignment
 // @Tags         products
@@ -75,7 +76,7 @@ func (controller *ProductController) Create() {
 	})
 }
 
-// UpdateProductName godoc
+// UpdateName UpdateProductName godoc
 // @Summary      Update product name
 // @Description  Renames a product by ID
 // @Tags         products
@@ -113,7 +114,7 @@ func (controller *ProductController) UpdateName() {
 	})
 }
 
-// UpdateProductPrice godoc
+// UpdatePrice UpdateProductPrice godoc
 // @Summary      Update product price
 // @Description  Changes the price of a product by ID
 // @Tags         products
@@ -151,7 +152,7 @@ func (controller *ProductController) UpdatePrice() {
 	})
 }
 
-// UpdateProductImage godoc
+// UpdateImage UpdateProductImage godoc
 // @Summary      Update product image
 // @Description  Updates the image URL of a product by ID
 // @Tags         products
@@ -187,7 +188,7 @@ func (controller *ProductController) UpdateImage() {
 	})
 }
 
-// UpdateProductDescription godoc
+// UpdateDescription UpdateProductDescription godoc
 // @Summary      Update product description
 // @Description  Changes the description of a product by ID
 // @Tags         products
@@ -225,7 +226,7 @@ func (controller *ProductController) UpdateDescription() {
 	})
 }
 
-// DeleteProduct godoc
+// Delete DeleteProduct godoc
 // @Summary      Delete a product
 // @Description  Removes a product by ID
 // @Tags         products
@@ -246,7 +247,7 @@ func (controller *ProductController) Delete() {
 	})
 }
 
-// FindProductById godoc
+// FindOneById FindProductById godoc
 // @Summary      Get a product
 // @Description  Retrieves a product by ID
 // @Tags         products
@@ -275,7 +276,37 @@ func (controller *ProductController) FindOneById() {
 	})
 }
 
-// ListProducts godoc
+// FindManyByVendorId godoc
+// @Summary      Get products by vendor id
+// @Description  Retrieves all products
+// @Tags         products
+// @Produce      json
+// @Param        id        path      string  true  "Vendor ID"
+// @Success      200       {object}  map[string]interface{}
+// @Failure      400       {object}  map[string]interface{}
+// @Failure      404       {object}  map[string]interface{}
+// @Failure      500       {object}  map[string]interface{}
+// @Router       /product/vendor/{id} [get]
+func (controller *ProductController) FindManyByVendorId() {
+	controller.router.GET("product/vendor/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		result, err := controller.service.FindProductsByVendorId(id)
+		if err != nil {
+			switch {
+			case errors.Is(err, repositories.ErrProductNotFound):
+				c.JSON(http.StatusNotFound, gin.H{"status": Error, "message": err.Error(), "data": nil})
+			case errors.Is(err, repositories.ErrInvalidId):
+				c.JSON(http.StatusBadRequest, gin.H{"status": Error, "message": err.Error(), "data": nil})
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"status": Error, "message": err.Error(), "data": nil})
+			}
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": Success, "data": result, "message": nil})
+	})
+}
+
+// FindAll ListProducts godoc
 // @Summary      List all products
 // @Description  Retrieves all products
 // @Tags         products
@@ -294,7 +325,7 @@ func (controller *ProductController) FindAll() {
 	})
 }
 
-// SearchProductsByName godoc
+// FindManyByName SearchProductsByName godoc
 // @Summary      Search products by name
 // @Description  Finds products matching a partial name
 // @Tags         products
@@ -315,7 +346,7 @@ func (controller *ProductController) FindManyByName() {
 	})
 }
 
-// ListProductsByCategory godoc
+// FindManyByCategory ListProductsByCategory godoc
 // @Summary      List products in a category
 // @Description  Retrieves products by category ID
 // @Tags         products
@@ -342,7 +373,7 @@ func (controller *ProductController) FindManyByCategory() {
 	})
 }
 
-// GetProductStock godoc
+// FindStock GetProductStock godoc
 // @Summary      Get product stock
 // @Description  Retrieves stock level for a product by ID
 // @Tags         products

@@ -6,4 +6,5 @@ const (
 	FindAll FindManyProductOptions = iota
 	FindByName
 	FindByCategory
+	FindByVendorId
 )
