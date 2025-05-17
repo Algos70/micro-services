@@ -6,6 +6,12 @@ import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 
 export function ProductUi() {
     const { getIdTokenClaims, getAccessTokenSilently } = useAuth0();
+    const [categoryId, setCategoryId] = useState('');
+    const [description, setDescription] = useState('');
+    const [image, setImage] = useState('');
+    const [name, setName] = useState('');
+    const [price, setPrice] = useState(0);
+    const [stock, setStock] = useState(0);
 
     useEffect(() => {
         const callRegisterApi = async () => {
@@ -30,7 +36,7 @@ export function ProductUi() {
         navigate('/vendor')
     };
 
-  
+
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">
@@ -53,13 +59,77 @@ export function ProductUi() {
 
                 </div>
             </div>
-            <div /*product-creation*/ className="flex w-1/1 h-1/2">
-                <div>
+            <div /*product-creation*/ className="flex flex-row w-1/1 h-1/2">
+                <div /*image-div*/ className="ml-60">
 
+                    <img
+                        src={image}
+                        alt="Example"
+                        className="w-100 h-100 object-cover  border-1 border-gray-500 shadow-lg"
+                    />
                 </div>
-                <div>
-                    
+                <div /*input-div*/ className=" ml-40 flex flex-col space-y-4 p-4 bg-gray-100 rounded-md shadow-md">
+                    <label htmlFor="category_id" className="text-sm font-medium text-gray-700">Category ID</label>
+                    <input
+                        id="category_id"
+                        type="text"
+                        value={categoryId}
+                        onChange={(e) => setCategoryId(e.target.value)}
+                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter category ID"
+                    />
+
+                    <label htmlFor="description" className="text-sm font-medium text-gray-700">Description</label>
+                    <input
+                        id="description"
+                        type="text"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter description"
+                    />
+
+                    <label htmlFor="image" className="text-sm font-medium text-gray-700">Image</label>
+                    <input
+                        id="image"
+                        type="text"
+                        value={image}
+                        onChange={(e) => setImage(e.target.value)}
+                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter image URL"
+                    />
+
+                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Product Name</label>
+                    <input
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter product name"
+                    />
+
+                    <label htmlFor="price" className="text-sm font-medium text-gray-700">Price</label>
+                    <input
+                        id="price"
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(Number(e.target.value))}
+                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter product price"
+                    />
+
+                    <label htmlFor="stock" className="text-sm font-medium text-gray-700">Stock</label>
+                    <input
+                        id="stock"
+                        type="number"
+                        value={stock}
+                        onChange={(e) => setStock(Number(e.target.value))}
+                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter stock quantity"
+                    />
                 </div>
+
             </div>
         </div>
     );
