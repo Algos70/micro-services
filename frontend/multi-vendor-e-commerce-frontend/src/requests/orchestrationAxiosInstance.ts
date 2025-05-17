@@ -21,7 +21,7 @@ export default async function getOrchestrationAxiosInstance( getAccessTokenSilen
         instance.interceptors.request.use(async (req) => {
             try {
                 const token = await getAccessTokenSilently();
-                req.headers.Authorization =  token;
+                req.headers.Authorization = token;
             } catch (err) {
                 console.error('Error fetching token or idtoken claims:', err);
             }
