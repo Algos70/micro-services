@@ -1,17 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
+import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
+import { createProduct } from "@/requests/createProduct";
 
 
 export function ProductUi() {
     const { getIdTokenClaims, getAccessTokenSilently } = useAuth0();
     const [categoryId, setCategoryId] = useState('');
+    const [categories, setCategories] = useState<{ Id: string; Name: string }[]>([]);
     const [description, setDescription] = useState('');
     const [image, setImage] = useState('');
     const [name, setName] = useState('');
     const [price, setPrice] = useState(0);
     const [stock, setStock] = useState(0);
+    const inputRef = useRef(null);
+    const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
         const callRegisterApi = async () => {
@@ -34,6 +39,52 @@ export function ProductUi() {
 
     const handleReturn = () => {
         navigate('/vendor')
+    };
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const axiosInstance = await getConsumerAxiosInstance();
+                if (!axiosInstance) throw new Error("Axios instance is null");
+
+                const response = await axiosInstance.get('/category');
+                setCategories(response.data.data);
+            } catch (err) {
+                console.error("Error fetching categories", err);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (inputRef.current && !(inputRef.current as any).contains(event.target)) {
+                setMenuOpen(false);
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleProductCreation = async () => {
+        try {
+            await createProduct({
+                category_id: categoryId,
+                description: description,
+                image: image,
+                name: name,
+                price: price,
+                stock: stock,
+                vendor_id: '1'
+            });
+
+            console.log("Product created.")
+        } catch (error) {
+            console.log("Error occured: " + error)
+        }
     };
 
 
@@ -65,19 +116,38 @@ export function ProductUi() {
                     <img
                         src={image}
                         alt="Example"
-                        className="w-100 h-100 object-cover  border-1 border-gray-500 shadow-lg"
+                        className="w-100 h-100 object-cover  border-2 border-gray-500 shadow-lg"
                     />
                 </div>
-                <div /*input-div*/ className=" ml-40 flex flex-col space-y-4 p-4 bg-gray-100 rounded-md shadow-md">
-                    <label htmlFor="category_id" className="text-sm font-medium text-gray-700">Category ID</label>
-                    <input
-                        id="category_id"
-                        type="text"
-                        value={categoryId}
-                        onChange={(e) => setCategoryId(e.target.value)}
-                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter category ID"
-                    />
+                <div /*input-div*/ className=" ml-40 w-200 flex flex-col space-y-4 p-4 bg-gray-100 rounded-md shadow-md">
+                    <div className="relative" ref={inputRef}>
+                        <label htmlFor="category_id" className="text-sm font-medium text-gray-700">Category</label>
+                        <input
+                            id="category_id"
+                            type="text"
+                            value={categoryId}
+                            onFocus={() => setMenuOpen(true)}
+                            readOnly
+                            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
+                            placeholder="Select Category"
+                        />
+                        {menuOpen && (
+                            <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                                {categories.map((cat) => (
+                                    <li
+                                        key={cat.Id}
+                                        onClick={() => {
+                                            setCategoryId(cat.Id);
+                                            setMenuOpen(false);
+                                        }}
+                                        className="p-2 hover:bg-indigo-100 cursor-pointer"
+                                    >
+                                        {cat.Name}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
 
                     <label htmlFor="description" className="text-sm font-medium text-gray-700">Description</label>
                     <input
@@ -131,6 +201,12 @@ export function ProductUi() {
                 </div>
 
             </div>
+            <button onClick={handleProductCreation}
+                className="ml-380 mt-10 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-300"
+            >
+                Create
+            </button>
+
         </div>
     );
 }
