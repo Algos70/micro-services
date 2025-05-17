@@ -109,8 +109,20 @@ func (service *ProductServiceImpl) FindById(id string) (*product.Product, error)
 	return _product, nil
 }
 
+func (service *ProductServiceImpl) FindProductsByVendorId(id string) ([]*product.Product, error) {
+	documents, err := service.repository.FindManyByFilter(findmanyproductoptions.FindByVendorId, "", "", id)
+	if err != nil {
+		return nil, err
+	}
+	var products []*product.Product
+	for _, document := range documents {
+		products = append(products, mappers.ProductDocumentToDomain(document))
+	}
+	return products, err
+}
+
 func (service *ProductServiceImpl) FindAll() ([]*product.Product, error) {
-	documents, err := service.repository.FindManyByFilter(findmanyproductoptions.FindAll, "", "")
+	documents, err := service.repository.FindManyByFilter(findmanyproductoptions.FindAll, "", "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +134,7 @@ func (service *ProductServiceImpl) FindAll() ([]*product.Product, error) {
 }
 
 func (service *ProductServiceImpl) FindManyByName(name string) ([]*product.Product, error) {
-	documents, err := service.repository.FindManyByFilter(findmanyproductoptions.FindByName, name, "")
+	documents, err := service.repository.FindManyByFilter(findmanyproductoptions.FindByName, name, "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +146,7 @@ func (service *ProductServiceImpl) FindManyByName(name string) ([]*product.Produ
 }
 
 func (service *ProductServiceImpl) FindManyByCategory(categoryId string) ([]*product.Product, error) {
-	documents, err := service.repository.FindManyByFilter(findmanyproductoptions.FindByCategory, "", categoryId)
+	documents, err := service.repository.FindManyByFilter(findmanyproductoptions.FindByCategory, "", categoryId, "")
 	if err != nil {
 		return nil, err
 	}

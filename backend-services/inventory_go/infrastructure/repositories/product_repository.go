@@ -87,7 +87,7 @@ func (r *ProductRepositoryImpl) Delete(id string) error {
 	return err
 }
 
-func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.FindManyProductOptions, name string, categoryId string) ([]*models.ProductDocument, error) {
+func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.FindManyProductOptions, name string, categoryId string, vendorId string) ([]*models.ProductDocument, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -108,6 +108,9 @@ func (r *ProductRepositoryImpl) FindManyByFilter(option findmanyproductoptions.F
 			return nil, ErrInvalidId
 		}
 		filter := bson.M{"category_id": bson.M{"$eq": objectId}}
+		cursor, err = r.collection.Find(ctx, filter)
+	} else if option == findmanyproductoptions.FindByVendorId && vendorId != "" {
+		filter := bson.M{"vendor_id": bson.M{"$eq": vendorId}}
 		cursor, err = r.collection.Find(ctx, filter)
 	} else {
 		return nil, ErrInvalidOption
