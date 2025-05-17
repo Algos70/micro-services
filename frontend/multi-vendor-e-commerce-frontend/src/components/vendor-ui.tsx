@@ -16,7 +16,7 @@ import { AxiosError } from "axios";
 
 
 export function VendorUi() {
-    const { logout, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
+    const { logout, getIdTokenClaims, getAccessTokenSilently , user } = useAuth0();
     const [products, setProducts] = useState<{
         Id: string;
         Name: string;
@@ -27,6 +27,7 @@ export function VendorUi() {
         Image: string;
         VendorId: string;
     }[]>([]);
+    console.log(user)
 
     async function getProducts(): Promise<{
         Id: string;

@@ -4,14 +4,15 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth0 } from "@auth0/auth0-react";
 
-export default function ConsumerPage() {
-     const { user} = useAuth0();
+export default function DashboardPage() {
+     const { user } = useAuth0();
      const navigate = useNavigate();
 
     useEffect(() => {
-            if(user?.roless[0] === 'Customer')
+             console.log(user?.roless[0])
+            if(user?.roless[0] == 'Customer')
                 navigate('/consumer')
-            else {
+            else if(user?.roless[0] == 'Vendor'){
                 navigate('/vendor')
             }
         }, []);

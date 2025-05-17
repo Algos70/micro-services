@@ -82,6 +82,7 @@ export function ProductUi() {
             });
 
             console.log("Product created.")
+            navigate('/vendor')
         } catch (error) {
             console.log("Error occured: " + error)
         }

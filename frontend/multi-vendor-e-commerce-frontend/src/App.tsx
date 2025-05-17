@@ -11,7 +11,7 @@ function App() {
             navigate('/landing');
         }
         if (!isLoading && isAuthenticated) {
-            navigate('/consumer');
+            navigate('/dashboard');
         }
     }, [isAuthenticated, isLoading, navigate]);
 

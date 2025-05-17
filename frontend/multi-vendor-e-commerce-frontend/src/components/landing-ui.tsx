@@ -21,12 +21,6 @@ export function LandingUi() {
         }
     }, [isAuthenticated, isLoading]);
 
-    const navigate = useNavigate();
-    
-    const handleVendorClick = () => {
-        navigate('/vendor');
-    };
-
 
     return (
         <div /* Container */ className="min-h-screen flex-col ">

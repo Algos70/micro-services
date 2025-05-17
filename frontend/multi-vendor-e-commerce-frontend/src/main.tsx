@@ -28,7 +28,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/landing" element={<LandingPage />} />
             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             <Route path="/consumer" element={<PrivateRoute><ConsumerPage /></PrivateRoute>} />
-            <Route path="/vendor" element={<VendorPage />} />
+            <Route path="/vendor" element={<PrivateRoute><VendorPage /></PrivateRoute>} />
             <Route path="/product-create" element={<ProductPage />} />
             <Route path="/product-update" element={<UpdateProduct />} />
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />

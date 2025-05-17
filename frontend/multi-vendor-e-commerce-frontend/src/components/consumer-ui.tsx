@@ -20,7 +20,7 @@ import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 
 
 export function ConsumerUi() {
-    const { logout, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
+    const { logout, getIdTokenClaims, getAccessTokenSilently, user  } = useAuth0();
     const maxProducts = 15;
     const [searched, setSearched] = useState("");
     const [categories, setCategories] = useState<{ Id: string; Name: string; ParentId: string }[]>([]);
@@ -35,6 +35,7 @@ export function ConsumerUi() {
         VendorId: string;
     }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    console.log(user)
 
 useEffect(() => {
     const callRegisterApi = async () => {
