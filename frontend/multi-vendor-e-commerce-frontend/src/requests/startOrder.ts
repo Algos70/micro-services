@@ -17,9 +17,9 @@ interface OrderPayload {
   payment_method: string;
 }
 
-export async function startOrder(order: OrderPayload, getIdTokenClaims: () => Promise<any>) {
+export async function startOrder(order: OrderPayload, getAccessTokenSilently: () => Promise<any>) {
   try {
-    const axiosInstance = await getOrchestrationAxiosInstance(getIdTokenClaims); // ✅ Await here
+    const axiosInstance = await getOrchestrationAxiosInstance(getAccessTokenSilently); // ✅ Await here
     if (!axiosInstance) throw new Error('Failed to get axios instance');
 
     const response = await axiosInstance.post('/orders/create_order', order);

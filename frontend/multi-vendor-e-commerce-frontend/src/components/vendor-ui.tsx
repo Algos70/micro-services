@@ -15,6 +15,7 @@ import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 export function VendorUi() {
     const { logout, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
 
+
     useEffect(() => {
         const callRegisterApi = async () => {
             try {
@@ -83,9 +84,12 @@ export function VendorUi() {
                     </DropdownMenu>
                 </div>
             </div>
-            <div /*vendor-dashboard*/ className="flex w-1/1 h-1/2">
+            <div /*vendor-dashboard*/ className="flex flex-col w-1/1 h-1/2">
                 <div onClick={handleProductCreate} className="bg-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300 rounded-2xl p-6 w-full max-w-sm mt-10 ml-60 text-center">
                     <h2 className="text-2xl font-semibold text-gray-800 mb-2">Create a Product</h2>
+                </div>
+                <div className="ml-60 mt-10 ">
+                    <h1>My Products</h1>
                 </div>
 
             </div>

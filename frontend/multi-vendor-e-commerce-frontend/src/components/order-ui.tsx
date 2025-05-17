@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/CartContext.tsx';
-import { useLocation } from 'react-router';
 import { useEffect, useState } from 'react';
 import { getProductById } from '@/requests/getProductById.ts';
 import Spinner from './spinner'; // Optional: loading spinner
@@ -75,18 +74,18 @@ export function OrderUi() {
             const orderPayload = {
                 user_email: user.email,
                 vendor_email: 'vendor@outlook.com',
-                delivery_address: userInfo.address,
+                delivery_address: 'Kepez/Antalya',
                 description: 'Order placed through Shoply',
                 status: 'Pending',
-                payment_method: 'Credit Card',
                 items: products.map(product => ({
                     product_id: product.Id,
                     quantity: product.quantity || 1,
                     unit_price: product.Price,
                 })),
+                payment_method: 'Credit Card',
             };
             console.log(orderPayload)
-            await startOrder(orderPayload , getIdTokenClaims);
+            await startOrder(orderPayload , getAccessTokenSilently);
             console.log("Order is succesfull.")
             clearCart();
         } catch (error) {
