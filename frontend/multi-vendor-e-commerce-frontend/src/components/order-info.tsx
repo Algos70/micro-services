@@ -91,7 +91,7 @@ export function OrderInfo() {
             </div>
 
             <div /* Information */ className="flex w-1/1 h-1/2">
-                <div className="w-full p-4">
+                <div className="w-full p-4 ml-60">
                     <h2 className="text-xl font-semibold mb-4">Your Orders</h2>
                     {orders.length > 0 ? (
                         <div>
