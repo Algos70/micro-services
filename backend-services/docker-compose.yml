@@ -203,6 +203,16 @@ services:
     networks:
       - app-network
 
+  frontend:
+    build:
+      context: ../frontend/multi-vendor-e-commerce-frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - '5173:80'
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
