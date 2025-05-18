@@ -4,6 +4,8 @@ import { getUserOrders } from '@/requests/getOrder';
 import { useAuth0 } from '@auth0/auth0-react';
 import getOrderAxiosInstance from '@/requests/orderAxiosInstance';
 import { AxiosError } from 'axios';
+import { getProductById } from '@/requests/getProductById'; // Make sure this is correctly imported
+
 
 
 
@@ -14,43 +16,60 @@ export function OrderInfo() {
     const [orders, setOrders] = useState<any[]>([]); // State to store fetched orders
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null); // State for handling errors
+    const [productNames, setProductNames] = useState<Record<string, string>>({});
 
     const handleReturn = () => {
         navigate('/consumer');
     };
 
     const handleOrderDelete = async (orderId: string) => {
-    try {
-        const instance = await getOrderAxiosInstance(getAccessTokenSilently);
-        if (!instance) {
-            throw new Error("Axios instance could not be initialized.");
-        }
+        try {
+            const instance = await getOrderAxiosInstance(getAccessTokenSilently);
+            if (!instance) {
+                throw new Error("Axios instance could not be initialized.");
+            }
 
-        const response = await instance.delete(`/orders/${orderId}`);
-        console.log(`Order ${orderId} deleted successfully`, response.data);
+            const response = await instance.delete(`/orders/${orderId}`);
+            console.log(`Order ${orderId} deleted successfully`, response.data);
 
-        // Optionally: refresh orders list or remove from state
-        // Example: setOrders(prev => prev.filter(o => o.id !== orderId));
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            console.error("Failed to delete order:", error.response?.data || error.message);
-        } else {
-            console.error("Unexpected error:", (error as Error).message);
+            // Optionally: refresh orders list or remove from state
+            // Example: setOrders(prev => prev.filter(o => o.id !== orderId));
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error("Failed to delete order:", error.response?.data || error.message);
+            } else {
+                console.error("Unexpected error:", (error as Error).message);
+            }
         }
-    }
-};
+    };
 
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const fetchedOrders = await getUserOrders(user?.email, getAccessTokenSilently);
-                setOrders(fetchedOrders); // Assuming the API returns an array of orders
-            } catch (err) {
-                if(err?.status == 500) {
-                    setError("No Order at the moment. Please create one.")
+                setOrders(fetchedOrders);
+                
+                // Extract unique product IDs
+                const productIds = Array.from(new Set(fetchedOrders.flatMap(order => order.items.map((item: any) => item.product_id))));
+
+                // Fetch all product names
+                const nameMap: Record<string, string> = {};
+                await Promise.all(productIds.map(async (id) => {
+                    try {
+                        const product = await getProductById(id);
+                        nameMap[id] = product.Name || 'Unknown';
+                    } catch (e) {
+                        nameMap[id] = 'Unknown';
+                    }
+                }));
+                setProductNames(nameMap);
+
+            } catch (err: any) {
+                if (err?.status === 500) {
+                    setError("No Order at the moment. Please create one.");
                 } else {
-                setError('Failed to fetch orders. Please try again later.');
+                    setError('Failed to fetch orders. Please try again later.');
                 }
             } finally {
                 setLoading(false);
@@ -74,8 +93,6 @@ export function OrderInfo() {
             <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
         </div>{error}</div>; // Display error message
     }
-
-    console.log(orders)
 
     return (
         <div /* Container */ className="min-h-screen flex-col">
@@ -112,7 +129,7 @@ export function OrderInfo() {
                                     <ul>
                                         {order.items.map((item: any, idx: number) => (
                                             <li key={idx}>
-                                                {item.product_id} - ${item.unit_price * item.quantity} - {item.quantity} items
+                                                {productNames[item.product_id] || item.product_id} - ${item.unit_price * item.quantity} - {item.quantity} items
                                             </li>
                                         ))}
                                     </ul>
