@@ -4,6 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
 import { createProduct } from "@/requests/createProduct";
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
 
 
 export function ProductUi() {
@@ -99,7 +100,7 @@ export function ProductUi() {
                         className="flex items-center"
                     >
                         <img
-                            src="src\assets\landing-page\shop-svgrepo-com.svg"
+                            src={Homepage}
                             alt="Description of image"
                             className="w-10 h-10 ml-60"
                         />
@@ -116,7 +117,7 @@ export function ProductUi() {
 
                     <img
                         src={image}
-                        alt="Example"
+                        alt="Please add an existing image source"
                         className="w-100 h-100 object-cover  border-2 border-gray-500 shadow-lg"
                     />
                 </div>

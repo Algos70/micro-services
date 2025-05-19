@@ -11,7 +11,8 @@ import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 import ProductGrid2 from "./product-grid2";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
 import { AxiosError } from "axios";
-
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg';
+import User from '../../public/assets/user.svg';
 
 
 
@@ -113,7 +114,7 @@ export function VendorUi() {
                         className="flex items-center"
                     >
                         <img
-                            src="src\assets\landing-page\shop-svgrepo-com.svg"
+                            src={Homepage}
                             alt="Description of image"
                             className="w-10 h-10 ml-60"
                         />
@@ -126,7 +127,7 @@ export function VendorUi() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <img
-                                src="src\assets\user.svg"
+                                src={User}
                                 alt="Clickable"
                                 className="w-10 ml-240 h-10 cursor-pointer rounded-lg hover:shadow-lg transition-shadow duration-200"
                             />

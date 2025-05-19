@@ -15,7 +15,10 @@ import {
 import { useCart } from '../hooks/CartContext.tsx';
 import { useAuth0 } from "@auth0/auth0-react";
 import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
-
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
+import User from '../../public/assets/user.svg';
+import Search from '../../public/assets/search-alt-2-svgrepo-com.svg';
+import Shop from '../../public/assets/bag-shopping-svgrepo-com.svg';
 
 
 
@@ -213,7 +216,7 @@ useEffect(() => {
                         className="flex items-center"
                     >
                         <img
-                            src="src\assets\landing-page\shop-svgrepo-com.svg"
+                            src={Homepage}
                             alt="Description of image"
                             className="w-10 h-10 ml-60"
                         />
@@ -231,7 +234,7 @@ useEffect(() => {
                     />
                     <Button className=" bg-translucent absolute flex transform mt-10 ml-137 -translate-y-1/2 h-10 px-1 text-sm rounded-3xl ">
                         <img
-                            src="src\assets\search-alt-2-svgrepo-com.svg"
+                            src={Search}
                             alt="Description of image"
                             className="w-10 h-10"
                             onClick={handleSearchButtonClick}
@@ -241,7 +244,7 @@ useEffect(() => {
                 <div /* Button-div */ className="w-1/3 items-center flex">
                     <Button onClick={handleOrderClick} className=" ml-60 relative h-10 p-2 shadow-none bg-transparent hover:bg-gray-100">
                         <img
-                            src="src/assets/bag-shopping-svgrepo-com.svg"
+                            src={Shop}
                             alt="Cart"
                             className="w-8 h-8"
                         />
@@ -254,7 +257,7 @@ useEffect(() => {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <img
-                                src="src\assets\user.svg"
+                                src={User}
                                 alt="Clickable"
                                 className="w-10 ml-10 h-10 cursor-pointer rounded-lg hover:shadow-lg transition-shadow duration-200"
                             />

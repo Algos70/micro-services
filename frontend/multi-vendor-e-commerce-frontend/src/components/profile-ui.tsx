@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@/components/ui/button";
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
 
 export function ProfileUi() {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ export function ProfileUi() {
             <div className="flex items-center justify-between px-6 py-4 bg-gray-800 shadow-md">
                 <div onClick={handleReturn} className="flex items-center cursor-pointer">
                     <img
-                        src="src/assets/landing-page/shop-svgrepo-com.svg"
+                        src={Homepage}
                         alt="Shoply Logo"
                         className="w-10 h-10"
                     />

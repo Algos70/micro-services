@@ -5,6 +5,7 @@ import getAuthAxiosInstance from '@/requests/authAxiosInstance.ts';
 import { useLocation } from 'react-router';
 import { updateProduct } from '@/requests/updateProduct';
 import { getProductById } from '@/requests/getProductById';
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
 
 export function UpdateProductUi() {
   const { getIdTokenClaims, getAccessTokenSilently } = useAuth0();
@@ -81,7 +82,7 @@ export function UpdateProductUi() {
             onClick={handleReturn} // Reload the page on click
             className="flex items-center"
           >
-            <img src="src\assets\landing-page\shop-svgrepo-com.svg" alt="Description of image" className="w-10 h-10 ml-60" />
+            <img src={Homepage} alt="Description of image" className="w-10 h-10 ml-60" />
             <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
           </button>
         </div>

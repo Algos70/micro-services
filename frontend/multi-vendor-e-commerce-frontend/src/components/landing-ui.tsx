@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect } from "react";
-
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
 
 export function LandingUi() {
     const { loginWithRedirect } = useAuth0();
@@ -26,7 +26,7 @@ export function LandingUi() {
             <div /* Content */ className="h-20 w-1/1 flex ">
                 <div /* logo-div */ className="w-1/2 content-center items-center flex">
                     <img
-                        src="src\assets\landing-page\shop-svgrepo-com.svg"
+                        src={Homepage}
                         alt="Description of image"
                         className="w-10 h-10 ml-60"
                     />

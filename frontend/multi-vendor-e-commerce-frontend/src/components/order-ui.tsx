@@ -5,6 +5,7 @@ import { getProductById } from '@/requests/getProductById.ts';
 import Spinner from './spinner'; // Optional: loading spinner
 import { startOrder } from '@/requests/startOrder.ts';
 import { useAuth0 } from '@auth0/auth0-react';
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
 
 interface Product {
   Id: string;
@@ -101,7 +102,7 @@ export function OrderUi() {
     <div /* Container */ className="min-h-screen flex-col ">
       <div /* Content */ className="h-30 w-1/1 flex ">
         <div /* logo-div */ className="w-1/2 content-center items-center flex">
-          <img onClick={handleReturn} src="src\assets\landing-page\shop-svgrepo-com.svg" alt="Description of image" className="w-10 h-10 ml-60" />
+          <img onClick={handleReturn} src={Homepage} alt="Description of image" className="w-10 h-10 ml-60" />
           <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
         </div>
       </div>

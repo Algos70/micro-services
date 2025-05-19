@@ -5,6 +5,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import getOrderAxiosInstance from '@/requests/orderAxiosInstance';
 import { AxiosError } from 'axios';
 import { getProductById } from '@/requests/getProductById'; // Make sure this is correctly imported
+import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
 
 export function OrderInfo() {
   const { user, getAccessTokenSilently } = useAuth0();
@@ -100,7 +101,7 @@ export function OrderInfo() {
     return (
       <div className=" flex mt-100">
         <div /* logo-div */ onClick={handleReturn} className="w-1/2 flex">
-          <img src="src/assets/landing-page/shop-svgrepo-com.svg" alt="Description of image" className="w-10 h-10 ml-60" />
+          <img src={Homepage} alt="Description of image" className="w-10 h-10 ml-60" />
           <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
         </div>
         {error}
@@ -112,7 +113,7 @@ export function OrderInfo() {
     <div /* Container */ className="min-h-screen flex-col">
       <div /* Content */ className="h-30 w-1/1 flex">
         <div /* logo-div */ onClick={handleReturn} className="w-1/2 content-center items-center flex">
-          <img src="src/assets/landing-page/shop-svgrepo-com.svg" alt="Description of image" className="w-10 h-10 ml-60" />
+          <img src={Homepage} alt="Description of image" className="w-10 h-10 ml-60" />
           <p className="text-2xl ml-1 mb-1 italic font-bold">Shoply</p>
         </div>
       </div>
