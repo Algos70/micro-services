@@ -15,8 +15,8 @@ export default function DashboardPage() {
                 navigate('/consumer');
             } else if (role === 'vendor') {
                 navigate('/vendor');
-            } else {
-                console.log("No role yet:", user);
+            } else if (role === 'admin'){
+                navigate('/admin');
             }
     }, [user]);
 

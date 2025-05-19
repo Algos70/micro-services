@@ -11,12 +11,14 @@ import OrderInfoPage from './pages/order-info';
 import ProductPage from './pages/product'
 import UpdateProduct from './pages/product-update';
 import Dashboard from './pages/dashboard'
+import Admin from './pages/admin'
 
 // Import the CartProvider
 import { CartProvider } from './hooks/CartContext'; // adjust path if needed
 import Auth0ProviderWithNavigate from './auth/auth-provider-navigate';
 import PrivateRoute from './components/private-route';
 import VendorPage from './pages/vendor';
+import CategoryPage from './pages/category-create';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -31,6 +33,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/vendor" element={<PrivateRoute><VendorPage /></PrivateRoute>} />
             <Route path="/product-create" element={<ProductPage />} />
             <Route path="/product-update" element={<UpdateProduct />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/category-create" element={<CategoryPage />} />
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/order" element={<PrivateRoute><OrderPage /></PrivateRoute>} />
             <Route path="/order-info" element={<PrivateRoute><OrderInfoPage /></PrivateRoute>} />

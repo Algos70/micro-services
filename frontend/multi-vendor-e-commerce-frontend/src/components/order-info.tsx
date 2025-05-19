@@ -57,7 +57,7 @@ export function OrderInfo() {
     const fetchOrders = async () => {
       try {
         if (!user?.email) {
-          setError('Kullanıcı e-posta adresi bulunamadı.');
+          setError('Could not find user email.');
           setLoading(false);
           return;
         }

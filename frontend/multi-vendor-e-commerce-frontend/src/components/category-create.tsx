@@ -3,19 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 import getAuthAxiosInstance from "@/requests/authAxiosInstance.ts";
 import getConsumerAxiosInstance from "@/requests/consumerAxiosInstance";
-import { createProduct } from "@/requests/createProduct";
 import Homepage from '../../public/assets/landing-page/shop-svgrepo-com.svg'
+import { createCategory } from "@/requests/createCategory";
 
 
-export function ProductUi() {
-    const { user, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
-    const [categoryId, setCategoryId] = useState('');
+export function CategoryUi() {
+    const { getIdTokenClaims, getAccessTokenSilently } = useAuth0();
+    const [parentCategoryId, setParentCategoryId] = useState('');
     const [categories, setCategories] = useState<{ Id: string; Name: string }[]>([]);
-    const [description, setDescription] = useState('');
-    const [image, setImage] = useState('');
     const [name, setName] = useState('');
-    const [price, setPrice] = useState(0);
-    const [stock, setStock] = useState(0);
     const inputRef = useRef(null);
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -39,7 +35,7 @@ export function ProductUi() {
     const navigate = useNavigate();
 
     const handleReturn = () => {
-        navigate('/vendor')
+        navigate('/admin')
     };
 
     useEffect(() => {
@@ -70,20 +66,15 @@ export function ProductUi() {
         };
     }, []);
 
-    const handleProductCreation = async () => {
+    const handleCategoryCreation = async () => {
         try {
-            await createProduct({
-                category_id: categoryId,
-                description: description,
-                image: image,
+            await createCategory({
                 name: name,
-                price: price,
-                stock: stock,
-                vendor_id: user?.id
+                category_id: parentCategoryId,
             });
 
-            console.log("Product created.")
-            navigate('/vendor')
+            console.log("Category created.")
+            navigate('/admin')
         } catch (error) {
             console.log("Error occured: " + error)
         }
@@ -112,26 +103,28 @@ export function ProductUi() {
 
                 </div>
             </div>
-            <div /*product-creation*/ className="flex flex-row w-1/1 h-1/2">
-                <div /*image-div*/ className="ml-60">
+            <div /*product-creation*/ className="flex flex-col w-1/1 h-1/2">
+                <div /*input-div*/ className=" ml-60 w-200 flex flex-col space-y-4 p-4 bg-gray-100 rounded-md shadow-md">
 
-                    <img
-                        src={image}
-                        alt="Please add an existing image source"
-                        className="w-100 h-100 object-cover  border-2 border-gray-500 shadow-lg"
+                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Category Name</label>
+                    <input
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter category name"
                     />
-                </div>
-                <div /*input-div*/ className=" ml-40 w-200 flex flex-col space-y-4 p-4 bg-gray-100 rounded-md shadow-md">
                     <div className="relative" ref={inputRef}>
-                        <label htmlFor="category_id" className="text-sm font-medium text-gray-700">Category</label>
+                        <label htmlFor="category_id" className="text-sm font-medium text-gray-700">Parent Category</label>
                         <input
                             id="category_id"
                             type="text"
-                            value={categoryId}
+                            value={parentCategoryId}
                             onFocus={() => setMenuOpen(true)}
                             readOnly
                             className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
-                            placeholder="Select Category"
+                            placeholder="Select Parent Category"
                         />
                         {menuOpen && (
                             <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
@@ -140,7 +133,7 @@ export function ProductUi() {
                                         <li
                                             key={cat.Id}
                                             onClick={() => {
-                                                setCategoryId(cat.Id);
+                                                setParentCategoryId(cat.Id);
                                                 setMenuOpen(false);
                                             }}
                                             className="p-2 hover:bg-indigo-100 cursor-pointer"
@@ -155,65 +148,13 @@ export function ProductUi() {
                         )}
 
                     </div>
-
-                    <label htmlFor="description" className="text-sm font-medium text-gray-700">Description</label>
-                    <input
-                        id="description"
-                        type="text"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter description"
-                    />
-
-                    <label htmlFor="image" className="text-sm font-medium text-gray-700">Image</label>
-                    <input
-                        id="image"
-                        type="text"
-                        value={image}
-                        onChange={(e) => setImage(e.target.value)}
-                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter image URL"
-                    />
-
-                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Product Name</label>
-                    <input
-                        id="name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter product name"
-                    />
-
-                    <label htmlFor="price" className="text-sm font-medium text-gray-700">Price</label>
-                    <input
-                        id="price"
-                        type="number"
-                        value={price}
-                        onChange={(e) => setPrice(Number(e.target.value))}
-                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter product price"
-                    />
-
-                    <label htmlFor="stock" className="text-sm font-medium text-gray-700">Stock</label>
-                    <input
-                        id="stock"
-                        type="number"
-                        value={stock}
-                        onChange={(e) => setStock(Number(e.target.value))}
-                        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter stock quantity"
-                    />
                 </div>
-
+                <button onClick={handleCategoryCreation}
+                    className="ml-220 mt-5 w-40 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-300"
+                >
+                    Create
+                </button>
             </div>
-            <button onClick={handleProductCreation}
-                className="ml-380 mt-10 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-300"
-            >
-                Create
-            </button>
-
         </div>
     );
 }
