@@ -1,27 +1,30 @@
-import {ModeToggle} from "@/components/mode-toggle.tsx";
-import {ThemeProvider} from "@/components/theme-provider.tsx";
+import { ModeToggle } from "@/components/mode-toggle.tsx";
+import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth0 } from "@auth0/auth0-react";
 
 export default function DashboardPage() {
-     const { user } = useAuth0();
-     const navigate = useNavigate();
+    const { user } = useAuth0();
+    const navigate = useNavigate();
+
+    const role = user?.roless?.toLowerCase();
 
     useEffect(() => {
-             console.log(user?.roless[0])
-            if(user?.roless[0] == 'Customer')
-                navigate('/consumer')
-            else if(user?.roless[0] == 'Vendor'){
-                navigate('/vendor')
+            if (role === 'customer') {
+                navigate('/consumer');
+            } else if (role === 'vendor') {
+                navigate('/vendor');
+            } else {
+                console.log("No role yet:", user);
             }
-        }, []);
+    }, [user]);
 
     return (
 
-        
+
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <ModeToggle/>
+            <ModeToggle />
         </ThemeProvider>
     );
 }
