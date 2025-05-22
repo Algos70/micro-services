@@ -7,7 +7,7 @@ export async function createProduct(data: {
   name: string;
   price: number;
   stock: number;
-  vendor_id: string;
+  vendor_id: string | undefined;
 }) {
   try {
     const axiosInstance = await getConsumerAxiosInstance();

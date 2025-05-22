@@ -79,7 +79,7 @@ export function ProductUi() {
                 name: name,
                 price: price,
                 stock: stock,
-                vendor_id: user?.id
+                vendor_id: user?.email
             });
 
             console.log("Product created.")

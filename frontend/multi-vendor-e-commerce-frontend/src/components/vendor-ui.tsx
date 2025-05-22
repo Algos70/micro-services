@@ -42,7 +42,7 @@ export function VendorUi() {
     }[] | null> {
         const axios = await getConsumerAxiosInstance();
         try {
-            const response = await axios?.get(`/product/vendor/1`);
+            const response = await axios?.get(`/product/vendor/${user?.email}`);
             if (response?.status === 200) {
                 return response.data.data; // Assuming response.data.data is an array of product objects
             }
