@@ -1,132 +1,224 @@
 # Order Service
 
-## Description
-A microservice for order processing built with FastAPI and SQLAlchemy.
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-009688.svg)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Required-2496ED.svg)](https://www.docker.com/)
 
-## Tech Stack
-- FastAPI - High-performance web framework
-- SQLAlchemy - SQL toolkit and ORM
-- MySQL - Database
-- Docker - Containerization
-- Pydantic - Data validation
-- Uvicorn - ASGI server
+<div align="center">
+  <img src="docs/order-service.png" alt="Order Service Architecture" width="600"/>
+</div>
 
-## Prerequisites
+## 📋 Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [API Documentation](#api-documentation)
+- [Getting Started](#getting-started)
+- [Development](#development)
+- [Testing](#testing)
+- [Monitoring](#monitoring)
+- [Contributing](#contributing)
+
+## 🚀 Overview
+
+The Order Service is a robust order management system built with FastAPI. It handles the complete order lifecycle, from creation to fulfillment, implementing the Saga pattern for distributed transactions.
+
+### Key Features
+- 🛒 Order creation and management
+- 🔄 Order status tracking
+- 💳 Payment integration
+- 📦 Inventory synchronization
+- 📊 Order analytics
+- 🔍 Search functionality
+- 📱 RESTful API
+- 🔒 Transaction safety
+
+## 🏗️ Architecture
+
+### Design Patterns
+- **Saga Pattern** - Distributed transactions
+- **CQRS** - Command Query Responsibility Segregation
+- **Repository Pattern** - Data access abstraction
+- **Factory Pattern** - Object creation
+- **Observer Pattern** - Event handling
+- **Strategy Pattern** - Algorithm selection
+- **Unit of Work** - Transaction management
+
+### Technology Stack
+- **Framework**: FastAPI
+- **Database**: MySQL
+- **ORM**: SQLAlchemy
+- **Testing**: Pytest
+- **Documentation**: OpenAPI/Swagger
+- **Monitoring**: Prometheus
+- **Logging**: Loguru
+- **Message Queue**: RabbitMQ
+
+## 📚 API Documentation
+
+### Order Endpoints
+
+#### POST /api/orders
+```http
+POST /api/orders
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "customerId": "123",
+    "items": [
+        {
+            "productId": "456",
+            "quantity": 2,
+            "price": 29.99
+        }
+    ],
+    "shippingAddress": {
+        "street": "123 Main St",
+        "city": "Boston",
+        "state": "MA",
+        "zipCode": "02108"
+    }
+}
+```
+
+#### GET /api/orders/{orderId}
+```http
+GET /api/orders/{orderId}
+Authorization: Bearer {token}
+```
+
+#### PUT /api/orders/{orderId}/status
+```http
+PUT /api/orders/{orderId}/status
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "status": "SHIPPED",
+    "trackingNumber": "1Z999AA10123456789"
+}
+```
+
+### Order History Endpoints
+
+#### GET /api/orders/history/{customerId}
+```http
+GET /api/orders/history/{customerId}?page=1&limit=10
+Authorization: Bearer {token}
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
 - Python 3.8+
-- Docker
-- pip
+- MySQL 8.0+
+- Docker and Docker Compose
+- RabbitMQ 3.8+
 
-## Database Setup
-Start the MySQL database using Docker:
-
+### Quick Start
 ```bash
-docker run --name mysql-dev \
-  --network app-network \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_DATABASE=orders_db \
-  -e MYSQL_USER=myuser \
-  -e MYSQL_PASSWORD=mypassword \
-  -p 3306:3306 \
-  -d mysql:8.0
-```
-## To Connect To Your Docker Mysql Image
-```bash
-docker exec -it mysql-dev mysql -u root -p
-```
+# Clone the repository
+git clone <repository-url>
+cd backend-services/order
 
-## Add Access To The DB
-```
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
-
-FLUSH PRIVILEGES;
-```
-## Installation
-
-1. Create and activate virtual environment:
-```bash
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Mac/Linux
-```
+source venv/bin/activate  # Unix
+# or
+.\venv\Scripts\activate  # Windows
 
-2. Install dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Run the service
+uvicorn app.main:app --reload
 ```
-## To Run The App
-```bash
-. venv/bin/activate
-fastapi dev app/main.py
+
+### Environment Setup
+Create a `.env` file:
+```env
+# Server Configuration
+PORT=8080
+ENV=development
+
+# Database Configuration
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_DATABASE=orders_db
+MYSQL_USER=myuser
+MYSQL_PASSWORD=mypassword
+
+# RabbitMQ Configuration
+RABBITMQ_HOST=localhost
+RABBITMQ_PORT=5672
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+
+# JWT Configuration
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRATION=3600
 ```
-## Project Structure
+
+## 👨‍💻 Development
+
+### Project Structure
 ```
-project/
+order/
 ├── app/
-│   ├── main.py                # Application entry point
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── dependencies.py
-│   │   └── endpoints/
-│   │       ├── __init__.py
-│   │       ├── orders.py      # Contains routes for orders
-│   ├── core/
-│   │   ├── __init__.py
-│   │   └── config.py          # Configuration settings (DB, broker URLs, etc.)
-│   ├── entity/
-│   │   ├── __init__.py
-│   │   ├── order.py           
-│   ├── dtos/
-│   │   ├── __init__.py
-│   │   ├── order_schema.py    # Pydantic models for orders
-│   ├── db/
-│   │   ├── __init__.py
-│   │   ├── dependencies.py
-│   │   └── base.py            # Database connection and session handling
-│   └── services/
-│       ├── __init__.py
-│       ├── order_service.py   # Business logic for orders (including Saga pattern)
-│       ├── auth_service.py  
-│       ├── rabbitmq_publisher.py
-├── tests/                     # Test suite for your application
-│   ├── __init__.py
-│   ├── test_orders.py
-├── requirements.txt           # Python dependencies
-├── pyproject.toml             # Python dependencies
-├── Dockerfile                 # (Optional) Containerization file
-└── README.md                  # Project documentation
-
+│   ├── api/                    # API endpoints
+│   ├── core/                   # Core functionality
+│   ├── db/                     # Database models
+│   ├── schemas/                # Pydantic models
+│   ├── services/               # Business logic
+│   └── utils/                  # Utilities
+├── tests/
+│   ├── integration/            # Integration tests
+│   └── unit/                   # Unit tests
+├── alembic/                    # Database migrations
+└── docs/                       # Documentation
 ```
 
-## API Endpoints
-
-### Orders
-
-## Development
-
-
-## Build Docker Image And Run it
-First build the docker image of the app
+### Building
 ```bash
-sudo docker build \
---build-arg DATABASE_HOST=mysql-dev:3306 \
---build-arg DATABASE_PASSWORD=root \
---build-arg DATABASE_NAME=orders_db \
---build-arg DATABASE_USER=root \
---build-arg RABBITMQ_HOST=rabbitmq \
---build-arg RABBITMQ_PORT=5672 \
---build-arg RABBITMQ_USER=guest \
---build-arg RABBITMQ_PASSWORD=guest \
--t order-service:latest .
+# Build Docker image
+docker build -t order-service .
+
+# Run with Docker
+docker run -p 8080:8080 order-service
 ```
-Than connect db and service to the same network(all the services and the database must be in the same network):
-For more information $ docker network
-```bash
-sudo docker run --name order-container --network app-network -d -p 8080:8080 order-service:latest
 
-
-```
-## Connect Rabbitmq To Network
-docker network connect app-network rabbitmq
-Run tests:
+### Running Tests
 ```bash
+# Run all tests
 pytest
+
+# Run specific test
+pytest tests/unit/test_orders.py -v
 ```
+
+## 📊 Monitoring
+
+### Health Checks
+- Database connectivity
+- RabbitMQ connection
+- Memory usage
+- Request latency
+- Service dependencies
+
+### Metrics
+- Order creation rate
+- Order status changes
+- Payment processing
+- API response times
+- Error rates
+- Queue processing times
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](../../LICENSE) file for details.

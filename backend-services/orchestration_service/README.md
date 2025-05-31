@@ -1,127 +1,214 @@
-# Order Orchestration Service
+# Orchestration Service
 
-This service implements the Saga pattern to coordinate distributed transactions across multiple microservices (Orders, Products, Payments) using event-driven architecture.
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-009688.svg)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Required-2496ED.svg)](https://www.docker.com/)
 
-## Architecture
+<div align="center">
+  <img src="docs/orchestration-service.png" alt="Orchestration Service Architecture" width="600"/>
+</div>
 
-### Components
-- **Saga Orchestrator**: Coordinates the distributed transaction workflow
-- **Event Consumer**: Listens for events from other services
-- **Message Publisher**: Publishes commands to RabbitMQ
-- **Redis Saga Store**: Maintains saga state during transactions
-- **Auth Client**: Verifies user authentication
+## 📋 Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [API Documentation](#api-documentation)
+- [Getting Started](#getting-started)
+- [Development](#development)
+- [Testing](#testing)
+- [Monitoring](#monitoring)
+- [Contributing](#contributing)
 
-### Event Flow
-1. Create Order Request → Verify Auth
-2. Reduce Stock Command → Stock Service
-3. Take Payment Command → Payment Service
-4. Create Order Command → Order Service
-5. Update Related Services
+## 🚀 Overview
 
-## Folder Structure
+The Orchestration Service is a central coordination hub built with FastAPI. It implements the API Gateway pattern, handling service discovery, load balancing, and request routing across the microservices ecosystem.
+
+### Key Features
+- 🔄 Service discovery and routing
+- ⚖️ Load balancing
+- 🔒 API Gateway functionality
+- 🔍 Request tracing
+- 📊 Service health monitoring
+- 🛡️ Rate limiting
+- 🔐 Authentication proxy
+- 📝 Request/Response transformation
+
+## 🏗️ Architecture
+
+### Design Patterns
+- **API Gateway** - Request routing and composition
+- **Service Discovery** - Dynamic service location
+- **Circuit Breaker** - Fault tolerance
+- **Load Balancer** - Request distribution
+- **Proxy** - Request forwarding
+- **Decorator** - Request/Response modification
+- **Observer** - Service health monitoring
+
+### Technology Stack
+- **Framework**: FastAPI
+- **Database**: Redis
+- **Caching**: Redis
+- **Testing**: Pytest
+- **Documentation**: OpenAPI/Swagger
+- **Monitoring**: Prometheus
+- **Logging**: Loguru
+- **Service Mesh**: Consul
+
+## 📚 API Documentation
+
+### Gateway Endpoints
+
+#### GET /api/gateway/health
+```http
+GET /api/gateway/health
+```
+
+#### GET /api/gateway/services
+```http
+GET /api/gateway/services
+Authorization: Bearer {token}
+```
+
+### Service Management Endpoints
+
+#### POST /api/gateway/services/register
+```http
+POST /api/gateway/services/register
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "serviceName": "order-service",
+    "serviceUrl": "http://order-service:8080",
+    "healthCheckUrl": "http://order-service:8080/health",
+    "loadBalancingStrategy": "round-robin"
+}
+```
+
+#### PUT /api/gateway/services/{serviceName}/config
+```http
+PUT /api/gateway/services/{serviceName}/config
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "rateLimit": 1000,
+    "timeout": 5000,
+    "retryAttempts": 3
+}
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.8+
+- Redis 6.0+
+- Docker and Docker Compose
+- Consul (optional)
+
+### Quick Start
+```bash
+# Clone the repository
+git clone <repository-url>
+cd backend-services/orchestration_service
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Unix
+# or
+.\venv\Scripts\activate  # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the service
+uvicorn app.main:app --reload
+```
+
+### Environment Setup
+Create a `.env` file:
+```env
+# Server Configuration
+PORT=7001
+ENV=development
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=redis_pass
+
+# Service Configuration
+SERVICE_NAME=orchestration-service
+SERVICE_VERSION=1.0.0
+
+# Gateway Configuration
+RATE_LIMIT=1000
+TIMEOUT=5000
+MAX_RETRIES=3
+
+# JWT Configuration
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRATION=3600
+```
+
+## 👨‍💻 Development
+
+### Project Structure
 ```
 orchestration_service/
-│
 ├── app/
-│   ├── main.py                 # FastAPI application entry point
-│   ├── config.py              # Configuration settings
-│   ├── routers/              # API route handlers
-│   ├── services/             # Business logic & external services
-│   ├── models/               # Data models & schemas
-│   └── events/               # Event definitions
-│
-├── tests/                    # Test files
-├── requirements.txt          # Python dependencies
-├── Dockerfile               # Container configuration
-└── README.md                # Documentation
+│   ├── api/                    # API endpoints
+│   ├── core/                   # Core functionality
+│   ├── gateway/                # Gateway implementation
+│   ├── services/               # Service management
+│   ├── middleware/             # Request middleware
+│   └── utils/                  # Utilities
+├── tests/
+│   ├── integration/            # Integration tests
+│   └── unit/                   # Unit tests
+└── docs/                       # Documentation
 ```
 
-## Prerequisites
-- Python 3.11+
-- RabbitMQ
-- Redis
-- Docker & Docker Compose
-
-## Configuration
-
-Environment variables required:
+### Building
 ```bash
+# Build Docker image
+docker build -t orchestration-service .
 
-# RabbitMQ
-RABBITMQ_HOST=rabbitmq
-RABBITMQ_PORT=5672
-RABBITMQ_USER=guest
-RABBITMQ_PASSWORD=guest
-
-# Redis
-REDIS_HOST=redis
-REDIS_PORT=6379
-REDIS_DB=0
-
-# Auth Server
-AUTHERIZATION_SERVER_HOST=http://auth-service
-AUTHERIZATION_SERVER_PORT=5206
+# Run with Docker
+docker run -p 7001:7001 orchestration-service
 ```
 
-## Setup & Running
-
-### 1. Build Docker Image
+### Running Tests
 ```bash
-docker build \
---build-arg RABBITMQ_HOST=rabbitmq \
---build-arg RABBITMQ_PORT=5672 \
---build-arg RABBITMQ_USER=guest \
---build-arg RABBITMQ_PASSWORD=guest \
---build-arg REDIS_HOST=redis \
---build-arg REDIS_PORT=6379 \
---build-arg REDIS_DB=0 \
---build-arg AUTHERIZATION_SERVER_HOST=http://auth-service \
---build-arg AUTHERIZATION_SERVER_PORT=8086 \
--t orchestration-service:latest .
+# Run all tests
+pytest
+
+# Run specific test
+pytest tests/unit/test_gateway.py -v
 ```
 
-### 2. Setup Network
-```bash
-# Create network if not exists
-docker network create app-network
+## 📊 Monitoring
 
-# Connect services to network
-docker network connect app-network rabbitmq
-docker network connect app-network redis
-```
+### Health Checks
+- Redis connectivity
+- Service registry health
+- Gateway performance
+- Request latency
+- Circuit breaker status
 
-### 3. Run Services
-```bash
-# Run Redis
-docker run --name redis-instance --network app-network -d -p 6379:6379 redis
+### Metrics
+- Request throughput
+- Response times
+- Error rates
+- Service availability
+- Cache hit/miss ratio
+- Circuit breaker trips
 
-# Run Orchestration Service
-docker run --name orchestration-service \
-  --network app-network \
-  -d -p 7001:7001 \
-  orchestration-service:latest
-```
+## 🤝 Contributing
 
-## API Endpoints
+We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details.
 
-- `POST /orders/create_order` - Create a new order (starts saga)
-- `GET /` - Health check endpoint
+## 📄 License
 
-## Development
-
-1. Create virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-.venv\Scripts\activate     # Windows
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Run locally:
-```bash
-uvicorn app.main:app --reload --port 7001
-```
+This project is licensed under the MIT License - see the [LICENSE](../../LICENSE) file for details.
